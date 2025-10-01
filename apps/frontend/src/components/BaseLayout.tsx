@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 type BaseLayoutProps = {
     title: string;
@@ -14,7 +15,10 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
     return (
         <>
             <Header title={title}></Header>
-            <div className="min-h-screen flex flex-row">{children}</div>
+            <div className="min-h-screen flex flex-row">
+                <Sidebar />
+                {children}
+            </div>
         </>
     );
 };
