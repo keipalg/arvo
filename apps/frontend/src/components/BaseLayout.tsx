@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Header from "./Header";
+import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 
 type BaseLayoutProps = {
@@ -19,6 +20,7 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
                 <Sidebar />
                 {children}
             </div>
+            <Footer />
         </>
     );
 };
