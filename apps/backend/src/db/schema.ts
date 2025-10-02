@@ -1,6 +1,6 @@
-import { integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { decimal, integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { user } from "../auth/auth-schema.ts";
+import { user } from "../auth/auth-schema.js";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -22,4 +22,26 @@ export const userToUserPreference = relations(user, ({ one }) => ({
         fields: [user.id],
         references: [userPreference.userId],
     }),
+}));
+
+export const adminExpenseType = pgTable("adminExpenseType", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 256 }).notNull(),
+});
+
+export const adminExpense = pgTable("adminExpense", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 256 }).notNull(),
+    expenseType: integer("adminExpenseType_id")
+        .notNull()
+        .references(() => adminExpenseType.id),
+    cost: decimal("cost", { precision: 12, scale: 2 }).notNull(),
+    user_id: integer("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+});
+
+// Define relation of auth user to AdminExpense (one-to-many)
+export const userToAdminExpense = relations(user, ({ many }) => ({
+    adminExpenses: many(adminExpense),
 }));

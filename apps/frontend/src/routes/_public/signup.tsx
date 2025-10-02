@@ -119,6 +119,7 @@ function SignUp() {
                     <button
                         type="submit"
                         className="bg-black text-white rounded py-1"
+                        disabled={success == "submitting"}
                     >
                         {success == "submitting" ? "Submitting" : "Sign Up"}
                     </button>
