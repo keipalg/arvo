@@ -10,20 +10,21 @@ export const Route = createFileRoute("/_public/about")({
 function About() {
     const { data, isLoading, error } = trpc.about.useQuery();
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-
     return (
         <BaseLayout title="About">
             <h3>Samples</h3>
-            <dl>
-                {data?.map((element) => (
-                    <>
-                        <dt>{element.id}</dt>
-                        <dt>{element.name}</dt>
-                    </>
-                ))}
-            </dl>
+            {isLoading && <div>Loading...</div>}
+            {error && <div>Error: {error.message}</div>}
+            {!isLoading && !error && (
+                <dl>
+                    {data?.map((element) => (
+                        <>
+                            <dt>{element.id}</dt>
+                            <dt>{element.name}</dt>
+                        </>
+                    ))}
+                </dl>
+            )}
         </BaseLayout>
     );
 }
