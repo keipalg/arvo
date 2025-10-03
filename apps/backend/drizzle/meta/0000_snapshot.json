@@ -1,5 +1,5 @@
 {
-    "id": "d153e8da-ce1b-4dea-bab0-86f5d6e95e7c",
+    "id": "3918c8b2-4ab2-4d54-a00b-896985c7c92f",
     "prevId": "00000000-0000-0000-0000-000000000000",
     "version": "7",
     "dialect": "postgresql",
@@ -40,6 +40,41 @@
             "checkConstraints": {},
             "isRLSEnabled": false
         },
+        "public.user_preference": {
+            "name": "user_preference",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_preference_user_id_user_id_fk": {
+                    "name": "user_preference_user_id_user_id_fk",
+                    "tableFrom": "user_preference",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
         "public.account": {
             "name": "account",
             "schema": "",
@@ -52,7 +87,7 @@
                 },
                 "account_id": {
                     "name": "account_id",
-                    "type": "text",
+                    "type": "uuid",
                     "primaryKey": false,
                     "notNull": true
                 },
@@ -64,7 +99,7 @@
                 },
                 "user_id": {
                     "name": "user_id",
-                    "type": "text",
+                    "type": "uuid",
                     "primaryKey": false,
                     "notNull": true
                 },
@@ -148,7 +183,7 @@
             "columns": {
                 "id": {
                     "name": "id",
-                    "type": "text",
+                    "type": "uuid",
                     "primaryKey": true,
                     "notNull": true
                 },
@@ -191,7 +226,7 @@
                 },
                 "user_id": {
                     "name": "user_id",
-                    "type": "text",
+                    "type": "uuid",
                     "primaryKey": false,
                     "notNull": true
                 }
@@ -226,7 +261,7 @@
             "columns": {
                 "id": {
                     "name": "id",
-                    "type": "text",
+                    "type": "uuid",
                     "primaryKey": true,
                     "notNull": true
                 },

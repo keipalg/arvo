@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { db } from "../db/client.js";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as authSchema from "./auth-schema.js";
+import { v7 as uuidv7 } from "uuid";
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, { provider: "pg", schema: authSchema }),
@@ -9,6 +10,11 @@ export const auth = betterAuth({
         enabled: true,
     },
     trustedOrigins: ["http://localhost:5173", "http://localhost:4173"],
+    advanced: {
+        database: {
+            generateId: () => uuidv7(),
+        },
+    },
 });
 
 export type AuthType = {
