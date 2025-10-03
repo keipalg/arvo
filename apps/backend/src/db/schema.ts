@@ -3,6 +3,7 @@ import {
     integer,
     pgTable,
     text,
+    timestamp,
     uuid,
     varchar,
 } from "drizzle-orm/pg-core";
@@ -43,7 +44,7 @@ export const adminExpense = pgTable("adminExpense", {
         .notNull()
         .references(() => adminExpenseType.id),
     cost: decimal("cost", { precision: 12, scale: 2 }).notNull(),
-    user_id: integer("user_id")
+    user_id: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
 });
@@ -52,3 +53,29 @@ export const adminExpense = pgTable("adminExpense", {
 export const userToAdminExpense = relations(user, ({ many }) => ({
     adminExpenses: many(adminExpense),
 }));
+
+export const goods = pgTable("goods", {
+    id: uuid("id").primaryKey(),
+});
+
+export const sales = pgTable("sales", {
+    id: uuid("id").primaryKey(),
+    user_id: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    channel_id: uuid("channel_id")
+        .notNull()
+        .references(() => channel.id, { onDelete: "cascade" }),
+    date: timestamp("date", { withTimezone: true }).notNull(),
+    good: uuid("good")
+        .notNull()
+        .references(() => goods.id),
+    quantity: integer("quantity").notNull(),
+    total_price: decimal("total_price").notNull(),
+    profit: decimal("profit"),
+});
+
+export const channel = pgTable("channel", {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+});
