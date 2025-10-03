@@ -1,4 +1,11 @@
-import { decimal, integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+    decimal,
+    integer,
+    pgTable,
+    text,
+    uuid,
+    varchar,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "../auth/auth-schema.js";
 
@@ -25,13 +32,13 @@ export const userToUserPreference = relations(user, ({ one }) => ({
 }));
 
 export const adminExpenseType = pgTable("adminExpenseType", {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 256 }).notNull(),
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
 });
 
 export const adminExpense = pgTable("adminExpense", {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 256 }).notNull(),
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
     expenseType: integer("adminExpenseType_id")
         .notNull()
         .references(() => adminExpenseType.id),
