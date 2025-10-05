@@ -1,14 +1,18 @@
 import {
     decimal,
     integer,
+    numeric,
     pgTable,
     text,
     timestamp,
     uuid,
     varchar,
+    date,
+    pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { user } from "../auth/auth-schema.js";
+import { user } from "../auth/auth-schema.ts";
+import { array, string } from "better-auth";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -54,8 +58,39 @@ export const userToAdminExpense = relations(user, ({ many }) => ({
     adminExpenses: many(adminExpense),
 }));
 
+// Define size types
+export const sizeEnum = pgEnum("size", ["small", "medium", "large"]);
+
 export const goods = pgTable("goods", {
     id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 30 }).notNull(),
+    description: varchar("description", { length: 100 }),
+    // TODO: ASK, if product type is modified or deleted, how should it be hundled?
+    productTypeID: uuid("puroduct_type_id").references(() => productType.id),
+    image: text("image"),
+    retailPrice: numeric("retail_price"),
+    size: sizeEnum("size"),
+    color: text("color"),
+    // TODO: Considering by designers
+    // firing
+    productionDate: date("production_date"),
+    note: varchar("note", { length: 100 }),
+    soldQuantity: integer("sold_quantity").default(0),
+    tags: uuid("tags_id").array(),
+    quantity: integer("quantity").notNull(),
+});
+
+export const productType = pgTable("product_type", {
+    id: uuid("id").primaryKey(),
+    name: varchar("name", { length: 30 }).notNull(),
+});
+
+export const tags = pgTable("tags", {
+    id: uuid("id").primaryKey(),
+    name: varchar("name", { length: 30 }).notNull(),
 });
 
 export const sales = pgTable("sales", {
