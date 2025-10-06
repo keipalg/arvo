@@ -59,9 +59,6 @@ export const userToAdminExpense = relations(user, ({ many }) => ({
     adminExpenses: many(adminExpense),
 }));
 
-// Define size types
-export const sizeEnum = pgEnum("size", ["small", "medium", "large"]);
-
 export const goods = pgTable("goods", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
@@ -73,10 +70,8 @@ export const goods = pgTable("goods", {
     productTypeId: uuid("puroduct_type_id").references(() => productType.id),
     image: text("image"),
     retailPrice: numeric("retail_price"),
-    size: sizeEnum("size"),
+    size: text("size"),
     color: text("color"),
-    // TODO: Considering by designers
-    // firing
     productionDate: date("production_date"),
     note: varchar("note", { length: 100 }),
     soldQuantity: integer("sold_quantity").default(0),
