@@ -1,4 +1,5 @@
 import {
+    date,
     decimal,
     integer,
     numeric,
@@ -7,12 +8,10 @@ import {
     timestamp,
     uuid,
     varchar,
-    date,
     pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
-import { array, string } from "better-auth";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -24,8 +23,10 @@ export const userPreference = pgTable("user_preference", {
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    // TODO update to relate to productTypes table when created
-    // productTypeIds: uuid("product_type_ids").array().notNull(),
+    productTypeIds: uuid("product_type_ids")
+        .array()
+        .notNull()
+        .references(() => productType.id),
 });
 
 // Define relation of auth user to user preference (one-to-one)
@@ -48,7 +49,7 @@ export const adminExpense = pgTable("adminExpense", {
         .notNull()
         .references(() => adminExpenseType.id),
     cost: decimal("cost", { precision: 12, scale: 2 }).notNull(),
-    user_id: uuid("user_id")
+    userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
 });
@@ -69,7 +70,7 @@ export const goods = pgTable("goods", {
     name: varchar("name", { length: 30 }).notNull(),
     description: varchar("description", { length: 100 }),
     // TODO: ASK, if product type is modified or deleted, how should it be hundled?
-    productTypeID: uuid("puroduct_type_id").references(() => productType.id),
+    productTypeId: uuid("puroduct_type_id").references(() => productType.id),
     image: text("image"),
     retailPrice: numeric("retail_price"),
     size: sizeEnum("size"),
@@ -95,10 +96,10 @@ export const tags = pgTable("tags", {
 
 export const sales = pgTable("sales", {
     id: uuid("id").primaryKey(),
-    user_id: uuid("user_id")
+    userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    channel_id: uuid("channel_id")
+    channelId: uuid("channel_id")
         .notNull()
         .references(() => channel.id, { onDelete: "cascade" }),
     date: timestamp("date", { withTimezone: true }).notNull(),
@@ -106,7 +107,7 @@ export const sales = pgTable("sales", {
         .notNull()
         .references(() => goods.id),
     quantity: integer("quantity").notNull(),
-    total_price: decimal("total_price").notNull(),
+    totalPrice: decimal("total_price").notNull(),
     profit: decimal("profit"),
 });
 
@@ -114,3 +115,57 @@ export const channel = pgTable("channel", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
 });
+
+export const unit = pgTable("unit", {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+    abbreviation: text("abbreviation").notNull(),
+});
+
+export const materialAndSupply = pgTable("material_and_supply", {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+    unitId: uuid("unit_id")
+        .references(() => unit.id)
+        .notNull(),
+    purchasePrice: numeric("purchase_price").notNull(),
+    costPerUnit: numeric("cost_per_unit"),
+    quantity: integer("quantity").notNull(),
+    threshold: integer("threshold"),
+    supplier: text("supplier").notNull(),
+    purchaseDate: date("purchase_date").defaultNow(),
+});
+
+export const materialAndSupplyToUnit = relations(
+    materialAndSupply,
+    ({ one }) => ({
+        unit: one(unit, {
+            fields: [materialAndSupply.unitId],
+            references: [unit.id],
+        }),
+    }),
+);
+
+export const productMaterialUsed = pgTable("product_material_used", {
+    id: uuid("id").primaryKey(),
+    goodsId: uuid("goods_id")
+        .references(() => goods.id)
+        .notNull(),
+    materialAndSupplyId: uuid("material_and_supply_id")
+        .references(() => materialAndSupply.id)
+        .notNull(),
+    quantity: integer("quantity").notNull(),
+});
+
+// Define relation of materialAndSupply to productMaterialUsed (one-to-many)
+export const materialAndSupplyToProductMaterialUsed = relations(
+    materialAndSupply,
+    ({ many }) => ({
+        productMaterialsUsed: many(productMaterialUsed),
+    }),
+);
+
+// Define relation of goods to productMaterialUsed (one-to-many)
+export const goodsToProductMaterialUsed = relations(goods, ({ many }) => ({
+    productMaterialsUsed: many(productMaterialUsed),
+}));
