@@ -1,21 +1,19 @@
 import {
+    boolean,
     date,
-    decimal,
     integer,
     numeric,
     pgTable,
     text,
     timestamp,
     uuid,
-    varchar,
-    pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: text("name").notNull(),
 });
 
 export const userPreference = pgTable("user_preference", {
@@ -27,6 +25,11 @@ export const userPreference = pgTable("user_preference", {
         .array()
         .notNull()
         .references(() => productType.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 // Define relation of auth user to user preference (one-to-one)
@@ -40,6 +43,11 @@ export const userToUserPreference = relations(user, ({ one }) => ({
 export const adminExpenseType = pgTable("adminExpenseType", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const adminExpense = pgTable("adminExpense", {
@@ -48,10 +56,15 @@ export const adminExpense = pgTable("adminExpense", {
     expenseType: integer("adminExpenseType_id")
         .notNull()
         .references(() => adminExpenseType.id),
-    cost: decimal("cost", { precision: 12, scale: 2 }).notNull(),
+    cost: numeric("cost", { precision: 12, scale: 2 }).notNull(),
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 // Define relation of auth user to AdminExpense (one-to-many)
@@ -64,8 +77,8 @@ export const goods = pgTable("goods", {
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 30 }).notNull(),
-    description: varchar("description", { length: 100 }),
+    name: text("name").notNull(),
+    description: text("description"),
     // TODO: ASK, if product type is modified or deleted, how should it be hundled?
     productTypeId: uuid("puroduct_type_id").references(() => productType.id),
     image: text("image"),
@@ -73,20 +86,35 @@ export const goods = pgTable("goods", {
     size: text("size"),
     color: text("color"),
     productionDate: date("production_date"),
-    note: varchar("note", { length: 100 }),
+    note: text("note"),
     soldQuantity: integer("sold_quantity").default(0),
     tags: uuid("tags_id").array(),
     quantity: integer("quantity").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const productType = pgTable("product_type", {
     id: uuid("id").primaryKey(),
-    name: varchar("name", { length: 30 }).notNull(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const tags = pgTable("tags", {
     id: uuid("id").primaryKey(),
-    name: varchar("name", { length: 30 }).notNull(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const sales = pgTable("sales", {
@@ -102,19 +130,34 @@ export const sales = pgTable("sales", {
         .notNull()
         .references(() => goods.id),
     quantity: integer("quantity").notNull(),
-    totalPrice: decimal("total_price").notNull(),
-    profit: decimal("profit"),
+    totalPrice: numeric("total_price").notNull(),
+    profit: numeric("profit"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const channel = pgTable("channel", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const unit = pgTable("unit", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
     abbreviation: text("abbreviation").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const materialAndSupply = pgTable("material_and_supply", {
@@ -129,6 +172,11 @@ export const materialAndSupply = pgTable("material_and_supply", {
     threshold: integer("threshold"),
     supplier: text("supplier").notNull(),
     purchaseDate: date("purchase_date").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 export const materialAndSupplyToUnit = relations(
@@ -150,6 +198,11 @@ export const productMaterialUsed = pgTable("product_material_used", {
         .references(() => materialAndSupply.id)
         .notNull(),
     quantity: integer("quantity").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
 });
 
 // Define relation of materialAndSupply to productMaterialUsed (one-to-many)
@@ -164,3 +217,36 @@ export const materialAndSupplyToProductMaterialUsed = relations(
 export const goodsToProductMaterialUsed = relations(goods, ({ many }) => ({
     productMaterialsUsed: many(productMaterialUsed),
 }));
+
+export const notifications = pgTable("notifications", {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    type: uuid("type")
+        .notNull()
+        .references(() => notificationType.id),
+    notifiedAt: timestamp("notified_at").defaultNow().notNull(),
+    message: text("message").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+// Define relation of auth user to notifications (one-to-many)
+export const userToNotifications = relations(user, ({ many }) => ({
+    notifications: many(notifications),
+}));
+
+export const notificationType = pgTable("notification_type", {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
