@@ -21,10 +21,7 @@ export const userPreference = pgTable("user_preference", {
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    productTypeIds: uuid("product_type_ids")
-        .array()
-        .notNull()
-        .references(() => productType.id),
+    productTypeIds: uuid("product_type_ids").array().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -53,7 +50,7 @@ export const adminExpenseType = pgTable("adminExpenseType", {
 export const adminExpense = pgTable("adminExpense", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
-    expenseType: integer("adminExpenseType_id")
+    expenseType: uuid("adminExpenseType_id")
         .notNull()
         .references(() => adminExpenseType.id),
     cost: numeric("cost", { precision: 12, scale: 2 }).notNull(),
