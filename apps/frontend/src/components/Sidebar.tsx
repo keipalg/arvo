@@ -1,9 +1,9 @@
 const Sidebar = () => {
     const tabs = [
-        { name: "Business Dashboard" },
-        { name: "Finished Products" },
-        { name: "Supplies" },
-        { name: "Sales" },
+        { name: "Business Dashboard", path: "/dashboard" },
+        { name: "Finished Products", path: "/products" },
+        { name: "Supplies", path: "/supplies" },
+        { name: "Sales", path: "/sales" },
     ];
 
     return (
@@ -13,7 +13,7 @@ const Sidebar = () => {
                     {tabs.map((tab) => (
                         <li key={tab.name}>
                             <a
-                                href="#"
+                                href={tab.path}
                                 className="block px-4 py-2 hover:bg-gray-400"
                             >
                                 {tab.name}

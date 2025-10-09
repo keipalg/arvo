@@ -1,13 +1,9 @@
-import { initTRPC } from "@trpc/server";
 import { z } from "zod";
 import { db } from "./db/client.js";
 import { sampleTable } from "./db/schema.js";
 import type { About } from "shared/types/sample.ts";
-
-const t = initTRPC.create();
-
-const publicProcedure = t.procedure;
-const router = t.router;
+import { salesRouter } from "./routes/salesRoutes.js";
+import { publicProcedure, router } from "./routes/trpcBase.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -17,6 +13,7 @@ export const appRouter = router({
         const samples = await db.select().from(sampleTable);
         return samples as About[];
     }),
+    sales: salesRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -18,7 +18,7 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
             <Header title={title}></Header>
             <div className="min-h-screen flex flex-row">
                 <Sidebar />
-                {children}
+                <main>{children}</main>
             </div>
             <Footer />
         </>
