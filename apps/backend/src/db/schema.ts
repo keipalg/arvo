@@ -81,7 +81,7 @@ export const goods = pgTable("goods", {
     retailPrice: numeric("retail_price").notNull(),
     note: text("note"),
     inventoryQuantity: integer("inventory_quantity").default(0),
-    collectionTags: uuid("colectiontags_id")
+    collectionTags: uuid("collection_tags_id")
         .array()
         .references(() => collectionTags.id),
     producedQuantity: integer("produced_quantity"),
