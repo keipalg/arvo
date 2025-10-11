@@ -111,7 +111,7 @@ export const productionBatch = pgTable("production_batch", {
         .references(() => batchRecipes.id),
     productionExpencesId: uuid("production_expences_id")
         .array()
-        .references(() => productionExpences.id),
+        .references(() => productionExpenses.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
