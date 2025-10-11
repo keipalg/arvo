@@ -7,9 +7,11 @@ import {
     text,
     timestamp,
     uuid,
+    check,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
+import { table, time } from "console";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -75,24 +77,114 @@ export const goods = pgTable("goods", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    description: text("description"),
-    // TODO: ASK, if product type is modified or deleted, how should it be hundled?
     productTypeId: uuid("puroduct_type_id").references(() => productType.id),
     image: text("image"),
-    retailPrice: numeric("retail_price"),
-    size: text("size"),
-    color: text("color"),
-    productionDate: date("production_date"),
+    retailPrice: numeric("retail_price").notNull(),
     note: text("note"),
-    soldQuantity: integer("sold_quantity").default(0),
-    tags: uuid("tags_id").array(),
-    quantity: integer("quantity").notNull(),
+    inventoryQuantity: integer("inventory_quantity").default(0),
+    collectionTags: uuid("colectiontags_id")
+        .array()
+        .references(() => collectionTags.id),
+    producedQuantity: integer("produced_quantity"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+    materialOutputRatioId: uuid("material_output_ratio_id")
+        .array()
+        .references(() => materialOutputRetio.id),
+    productionExpencesRatioId: uuid("production_expence_ratio_id")
+        .array()
+        .references(() => productionExpencesRatio.id),
+});
+
+export const productionBatch = pgTable("production_batch", {
+    id: uuid("id").primaryKey(),
+    goodsId: uuid("goods_id")
+        .notNull()
+        .references(() => goods.id, { onDelete: "cascade" }),
+    productionDate: timestamp("production_date", {
+        withTimezone: true,
+    }).notNull(),
+    batchRecipesId: uuid("batch_recipe_id")
+        .array()
+        .references(() => batchRecipes.id),
+    productionExpencesId: uuid("production_expences_id")
+        .array()
+        .references(() => productionExpences.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
 });
+
+export const batchRecipes = pgTable("batch_recipes", {
+    id: uuid("id").primaryKey(),
+    materialId: uuid("material_id")
+        .references(() => materialAndSupply.id)
+        .notNull(),
+    usageAmount: numeric("usage_amount"),
+    unitId: uuid("unit_id")
+        .references(() => unit.id)
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+export const productionExpences = pgTable(
+    "production_expences",
+    {
+        id: uuid("id").primaryKey(),
+        type: text("type").notNull(),
+        cost: integer("cost").notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .defaultNow()
+            .$onUpdate(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
+    ],
+);
+
+export const materialOutputRetio = pgTable("material_output_ratio", {
+    id: uuid("id").primaryKey(),
+    materialId: uuid("material_id")
+        .references(() => materialAndSupply.id)
+        .notNull(),
+    amount: numeric("usage_amount").notNull(),
+    unitId: uuid("unit_id")
+        .references(() => unit.id)
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+export const productionExpencesRatio = pgTable(
+    "production_expences_ratio",
+    {
+        id: uuid("id").primaryKey(),
+        type: text("type").notNull(),
+        cost: integer("cost").notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .defaultNow()
+            .$onUpdate(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
+    ],
+);
 
 export const productType = pgTable("product_type", {
     id: uuid("id").primaryKey(),
@@ -104,7 +196,7 @@ export const productType = pgTable("product_type", {
         .notNull(),
 });
 
-export const tags = pgTable("tags", {
+export const collectionTags = pgTable("tags", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
