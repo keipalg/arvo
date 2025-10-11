@@ -133,7 +133,7 @@ export const batchRecipes = pgTable("batch_recipes", {
 });
 
 export const productionExpences = pgTable(
-    "production_expences",
+    "production_expenses",
     {
         id: uuid("id").primaryKey(),
         type: text("type").notNull(),
