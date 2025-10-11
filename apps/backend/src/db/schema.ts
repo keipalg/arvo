@@ -11,7 +11,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
-import { table, time } from "console";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
