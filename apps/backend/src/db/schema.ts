@@ -126,9 +126,6 @@ export const batchRecipes = pgTable("batch_recipes", {
         .references(() => materialAndSupply.id)
         .notNull(),
     usageAmount: numeric("usage_amount"),
-    unitId: uuid("unit_id")
-        .references(() => unit.id)
-        .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -158,10 +155,8 @@ export const materialOutputRetio = pgTable("material_output_ratio", {
     materialId: uuid("material_id")
         .references(() => materialAndSupply.id)
         .notNull(),
-    amount: numeric("usage_amount").notNull(),
-    unitId: uuid("unit_id")
-        .references(() => unit.id)
-        .notNull(),
+    input: numeric("input").notNull(),
+    output: integer("output").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
