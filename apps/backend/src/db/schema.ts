@@ -150,7 +150,7 @@ export const productionExpences = pgTable(
     ],
 );
 
-export const materialOutputRetio = pgTable("material_output_ratio", {
+export const materialOutputRatio = pgTable("material_output_ratio", {
     id: uuid("id").primaryKey(),
     materialId: uuid("material_id")
         .references(() => materialAndSupply.id)
