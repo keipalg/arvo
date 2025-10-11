@@ -70,7 +70,7 @@ export const userToAdminExpense = relations(user, ({ many }) => ({
     adminExpenses: many(adminExpense),
 }));
 
-export const goods = pgTable("goods", {
+export const good = pgTable("good", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
@@ -83,7 +83,7 @@ export const goods = pgTable("goods", {
     inventoryQuantity: integer("inventory_quantity").default(0),
     collectionTags: uuid("collection_tags_id")
         .array()
-        .references(() => collectionTags.id),
+        .references(() => collectionTag.id),
     producedQuantity: integer("produced_quantity"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -100,18 +100,18 @@ export const goods = pgTable("goods", {
 
 export const productionBatch = pgTable("production_batch", {
     id: uuid("id").primaryKey(),
-    goodsId: uuid("goods_id")
+    goodId: uuid("good_id")
         .notNull()
-        .references(() => goods.id, { onDelete: "cascade" }),
+        .references(() => good.id, { onDelete: "cascade" }),
     productionDate: timestamp("production_date", {
         withTimezone: true,
     }).notNull(),
-    batchRecipesId: uuid("batch_recipe_id")
+    batchRecipeId: uuid("batch_recipe_id")
         .array()
-        .references(() => batchRecipes.id),
-    productionExpensesId: uuid("production_expenses_id")
+        .references(() => batchRecipe.id),
+    productionExpensesId: uuid("production_expense_id")
         .array()
-        .references(() => productionExpenses.id),
+        .references(() => productionExpense.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -119,7 +119,7 @@ export const productionBatch = pgTable("production_batch", {
         .notNull(),
 });
 
-export const batchRecipes = pgTable("batch_recipes", {
+export const batchRecipe = pgTable("batch_recipe", {
     id: uuid("id").primaryKey(),
     materialId: uuid("material_id")
         .references(() => materialAndSupply.id)
@@ -132,8 +132,8 @@ export const batchRecipes = pgTable("batch_recipes", {
         .notNull(),
 });
 
-export const productionExpenses = pgTable(
-    "production_expenses",
+export const productionExpense = pgTable(
+    "production_expense",
     {
         id: uuid("id").primaryKey(),
         type: text("type").notNull(),
@@ -164,7 +164,7 @@ export const materialOutputRatio = pgTable("material_output_ratio", {
 });
 
 export const productionExpensesRatio = pgTable(
-    "production_expenses_ratio",
+    "production_expense_ratio",
     {
         id: uuid("id").primaryKey(),
         type: text("type").notNull(),
@@ -190,7 +190,7 @@ export const productType = pgTable("product_type", {
         .notNull(),
 });
 
-export const collectionTags = pgTable("tags", {
+export const collectionTag = pgTable("collection_tag", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -200,7 +200,7 @@ export const collectionTags = pgTable("tags", {
         .notNull(),
 });
 
-export const sales = pgTable("sales", {
+export const sale = pgTable("sale", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
@@ -211,7 +211,7 @@ export const sales = pgTable("sales", {
     date: timestamp("date", { withTimezone: true }).notNull(),
     good: uuid("good")
         .notNull()
-        .references(() => goods.id),
+        .references(() => good.id),
     quantity: integer("quantity").notNull(),
     totalPrice: numeric("total_price").notNull(),
     profit: numeric("profit"),
@@ -243,18 +243,29 @@ export const unit = pgTable("unit", {
         .notNull(),
 });
 
-export const materialAndSupply = pgTable("material_and_supply", {
+export const materialType = pgTable("material_type", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
+});
+
+export const materialAndSupply = pgTable("material_and_supply", {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    materialTypeId: uuid("material_type_id")
+        .references(() => materialType.id)
+        .notNull(),
     unitId: uuid("unit_id")
         .references(() => unit.id)
         .notNull(),
-    purchasePrice: numeric("purchase_price").notNull(),
-    costPerUnit: numeric("cost_per_unit"),
     quantity: integer("quantity").notNull(),
-    threshold: integer("threshold"),
+    purchasePrice: numeric("purchase_price").notNull(),
+    lastPurchaseDate: date("last_purchase_date"),
     supplier: text("supplier").notNull(),
-    purchaseDate: date("purchase_date").defaultNow(),
+    notes: text("notes"),
+    threshold: integer("threshold"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -272,36 +283,7 @@ export const materialAndSupplyToUnit = relations(
     }),
 );
 
-export const productMaterialUsed = pgTable("product_material_used", {
-    id: uuid("id").primaryKey(),
-    goodsId: uuid("goods_id")
-        .references(() => goods.id)
-        .notNull(),
-    materialAndSupplyId: uuid("material_and_supply_id")
-        .references(() => materialAndSupply.id)
-        .notNull(),
-    quantity: integer("quantity").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-// Define relation of materialAndSupply to productMaterialUsed (one-to-many)
-export const materialAndSupplyToProductMaterialUsed = relations(
-    materialAndSupply,
-    ({ many }) => ({
-        productMaterialsUsed: many(productMaterialUsed),
-    }),
-);
-
-// Define relation of goods to productMaterialUsed (one-to-many)
-export const goodsToProductMaterialUsed = relations(goods, ({ many }) => ({
-    productMaterialsUsed: many(productMaterialUsed),
-}));
-
-export const notifications = pgTable("notifications", {
+export const notification = pgTable("notification", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
@@ -319,9 +301,9 @@ export const notifications = pgTable("notifications", {
         .notNull(),
 });
 
-// Define relation of auth user to notifications (one-to-many)
-export const userToNotifications = relations(user, ({ many }) => ({
-    notifications: many(notifications),
+// Define relation of auth user to notification (one-to-many)
+export const userToNotification = relations(user, ({ many }) => ({
+    notification: many(notification),
 }));
 
 export const notificationType = pgTable("notification_type", {
