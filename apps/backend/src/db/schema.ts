@@ -93,7 +93,7 @@ export const goods = pgTable("goods", {
     materialOutputRatioId: uuid("material_output_ratio_id")
         .array()
         .references(() => materialOutputRetio.id),
-    productionExpencesRatioId: uuid("production_expence_ratio_id")
+    productionExpensesRatioId: uuid("production_expense_ratio_id")
         .array()
         .references(() => productionExpencesRatio.id),
 });
