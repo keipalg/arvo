@@ -163,7 +163,7 @@ export const materialOutputRatio = pgTable("material_output_ratio", {
         .notNull(),
 });
 
-export const productionExpencesRatio = pgTable(
+export const productionExpensesRatio = pgTable(
     "production_expences_ratio",
     {
         id: uuid("id").primaryKey(),
