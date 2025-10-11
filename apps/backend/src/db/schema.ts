@@ -132,7 +132,7 @@ export const batchRecipes = pgTable("batch_recipes", {
         .notNull(),
 });
 
-export const productionExpences = pgTable(
+export const productionExpenses = pgTable(
     "production_expenses",
     {
         id: uuid("id").primaryKey(),
