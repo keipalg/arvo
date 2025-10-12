@@ -205,16 +205,49 @@ export const sale = pgTable("sale", {
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
+    customer: text("customer").notNull(),
+    salesNumber: integer("sales_number").notNull(),
     channelId: uuid("channel_id")
         .notNull()
         .references(() => channel.id, { onDelete: "cascade" }),
-    date: timestamp("date", { withTimezone: true }).notNull(),
-    good: uuid("good")
+    date: timestamp("date").notNull(),
+    statusId: uuid("status_id")
+        .notNull()
+        .references(() => status.id, { onDelete: "cascade" }),
+    note: text("note"),
+    discount: numeric("discount").default("0").notNull(),
+    shippingFee: numeric("shipping_fee").default("0").notNull(),
+    taxPercentage: numeric("tax_percentage").default("0").notNull(),
+    totalPrice: numeric("total_price").notNull(),
+    profit: numeric("profit"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+export const saleDetail = pgTable("sale_detail", {
+    id: uuid("id").primaryKey(),
+    saleId: uuid("sale_id")
+        .notNull()
+        .references(() => sale.id, { onDelete: "cascade" }),
+    goodId: uuid("good_id")
         .notNull()
         .references(() => good.id),
     quantity: integer("quantity").notNull(),
-    totalPrice: numeric("total_price").notNull(),
-    profit: numeric("profit"),
+    pricePerItem: numeric("price_per_item").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+export const status = pgTable("status", {
+    id: uuid("id").primaryKey(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
