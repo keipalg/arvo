@@ -1,14 +1,16 @@
 import {
     boolean,
+    check,
     date,
     integer,
     numeric,
+    pgEnum,
     pgTable,
     text,
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
 
 export const sampleTable = pgTable("sample", {
@@ -37,36 +39,90 @@ export const userToUserPreference = relations(user, ({ one }) => ({
     }),
 }));
 
-export const adminExpenseType = pgTable("adminExpenseType", {
-    id: uuid("id").primaryKey(),
-    name: text("name").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
+/* Operational Expense */
+export const payment_method_enum = pgEnum("payment_method", ["credit", "cash"]);
+export const operational_expense_type_enum = pgEnum(
+    "operational_expense_type",
+    [
+        "marketing",
+        "business_fee",
+        "utilities",
+        "office_supplies",
+        "studio_rent",
+        "labor",
+        "storage_fee",
+        "inventory_loss",
+        "miscellaneous",
+    ],
+);
 
-export const adminExpense = pgTable("adminExpense", {
+export const operational_expense = pgTable(
+    "operational_expense",
+    {
+        id: uuid("id").primaryKey(),
+        expense_type: operational_expense_type_enum("expense_type"),
+        user_id: uuid("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        name: text("name").notNull(),
+        cost: numeric("cost").notNull(),
+        payee: text("payee").notNull(),
+        payment_method: payment_method_enum("payment_method"),
+        goods_id: uuid("goods_id").references(() => goods.id, {
+            onDelete: "cascade",
+        }),
+        materialAndSupply_id: uuid("materialAndSupply_id").references(
+            () => materialAndSupply.id,
+            {
+                onDelete: "cascade",
+            },
+        ),
+        quantity: numeric("quantity"),
+        notes: text("notes"),
+        attach_recipt: text("attach_recipt"),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        start_date: timestamp("start_date"),
+        due_date: timestamp("due_date"),
+    },
+    (table) => ({
+        inventory_loss_check: check(
+            "inventory_loss_check",
+            sql`
+				(${table.expense_type} = 'inventory_loss' AND (${table.goods_id} IS NOT NULL OR ${table.materialAndSupply_id} IS NOT NULL))
+				OR
+				(${table.expense_type} <> 'inventory_loss')
+			`,
+        ),
+    }),
+);
+
+/* Studio Overhead Expense */
+export const studio_overhead_expense_type_enum = pgEnum(
+    "studio_overhead_expense_type_enum",
+    ["tools_equipment", "packaging_supplies", "miscellaneous"],
+);
+
+export const studio_overhead_expense = pgTable("operational_expense", {
     id: uuid("id").primaryKey(),
-    name: text("name").notNull(),
-    expenseType: uuid("adminExpenseType_id")
-        .notNull()
-        .references(() => adminExpenseType.id),
-    cost: numeric("cost", { precision: 12, scale: 2 }).notNull(),
-    userId: uuid("user_id")
+    expense_type: studio_overhead_expense_type_enum("expense_type"),
+    user_id: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    cost: numeric("cost").notNull(),
+    payee: text("payee").notNull(),
+    payment_method: payment_method_enum("payment_method"),
+    notes: text("notes"),
+    attach_recipt: text("attach_recipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
+    start_date: timestamp("start_date"),
+    due_date: timestamp("due_date"),
 });
 
-// Define relation of auth user to AdminExpense (one-to-many)
-export const userToAdminExpense = relations(user, ({ many }) => ({
-    adminExpenses: many(adminExpense),
+// Define relation of auth user to Expense (one-to-many)
+export const userToExpense = relations(user, ({ many }) => ({
+    operational_expense: many(operational_expense),
+    studio_overhead_expense: many(studio_overhead_expense),
 }));
 
 export const goods = pgTable("goods", {
@@ -247,3 +303,15 @@ export const notificationType = pgTable("notification_type", {
         .$onUpdate(() => new Date())
         .notNull(),
 });
+
+// Define relation of goods and materialAndSupply to InventoryLoss (one-to-many)
+export const goodsToInventoryLoss = relations(goods, ({ many }) => ({
+    operational_expense: many(operational_expense),
+}));
+
+export const materialAndSupplyToInventoryLoss = relations(
+    materialAndSupply,
+    ({ many }) => ({
+        operational_expense: many(operational_expense),
+    }),
+);
