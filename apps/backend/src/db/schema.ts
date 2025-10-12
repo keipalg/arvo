@@ -81,21 +81,12 @@ export const good = pgTable("good", {
     retailPrice: numeric("retail_price").notNull(),
     note: text("note"),
     inventoryQuantity: integer("inventory_quantity").default(0),
-    collectionTags: uuid("collection_tags_id")
-        .array()
-        .references(() => collectionTag.id),
     producedQuantity: integer("produced_quantity"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
-    materialOutputRatioId: uuid("material_output_ratio_id")
-        .array()
-        .references(() => materialOutputRatio.id),
-    productionExpensesRatioId: uuid("production_expense_ratio_id")
-        .array()
-        .references(() => productionExpensesRatio.id),
 });
 
 export const productionBatch = pgTable("production_batch", {
@@ -106,12 +97,6 @@ export const productionBatch = pgTable("production_batch", {
     productionDate: timestamp("production_date", {
         withTimezone: true,
     }).notNull(),
-    batchRecipeId: uuid("batch_recipe_id")
-        .array()
-        .references(() => batchRecipe.id),
-    productionExpensesId: uuid("production_expense_id")
-        .array()
-        .references(() => productionExpense.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -149,6 +134,30 @@ export const productionExpense = pgTable(
     ],
 );
 
+export const productionBatchToBatchRecipe = pgTable(
+    "production_batch_to_batch_recipe",
+    {
+        productionBatchId: uuid("production_batch_id")
+            .notNull()
+            .references(() => productionBatch.id, { onDelete: "cascade" }),
+        batchRecipeId: uuid("batch_recipe_id")
+            .notNull()
+            .references(() => batchRecipe.id, { onDelete: "cascade" }),
+    },
+);
+
+export const productionBatchToProductionExpense = pgTable(
+    "production_batch_to_production_expense",
+    {
+        productionBatchId: uuid("production_batch_id")
+            .notNull()
+            .references(() => productionBatch.id, { onDelete: "cascade" }),
+        productionExpenseId: uuid("production_expense_id")
+            .notNull()
+            .references(() => productionExpense.id, { onDelete: "cascade" }),
+    },
+);
+
 export const materialOutputRatio = pgTable("material_output_ratio", {
     id: uuid("id").primaryKey(),
     materialId: uuid("material_id")
@@ -162,6 +171,18 @@ export const materialOutputRatio = pgTable("material_output_ratio", {
         .$onUpdate(() => new Date())
         .notNull(),
 });
+
+export const goodToMaterialOutputRatio = pgTable(
+    "good_to_material_output_ratio",
+    {
+        goodId: uuid("good_id")
+            .notNull()
+            .references(() => good.id, { onDelete: "cascade" }),
+        materialOutputRatioId: uuid("material_output_ratio_id")
+            .notNull()
+            .references(() => materialOutputRatio.id, { onDelete: "cascade" }),
+    },
+);
 
 export const productionExpensesRatio = pgTable(
     "production_expense_ratio",
@@ -178,6 +199,20 @@ export const productionExpensesRatio = pgTable(
     (table) => [
         check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
     ],
+);
+
+export const goodToProductionExpensesRatio = pgTable(
+    "good_to_production_expense_ratio",
+    {
+        goodId: uuid("good_id")
+            .notNull()
+            .references(() => good.id, { onDelete: "cascade" }),
+        productionExpensesRatioId: uuid("production_expense_ratio_id")
+            .notNull()
+            .references(() => productionExpensesRatio.id, {
+                onDelete: "cascade",
+            }),
+    },
 );
 
 export const productType = pgTable("product_type", {
@@ -198,6 +233,15 @@ export const collectionTag = pgTable("collection_tag", {
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
+});
+
+export const goodToCollectionTag = pgTable("good_to_collection_tag", {
+    goodId: uuid("good_id")
+        .notNull()
+        .references(() => good.id, { onDelete: "cascade" }),
+    collectionTagId: uuid("collection_tag_id")
+        .notNull()
+        .references(() => collectionTag.id, { onDelete: "cascade" }),
 });
 
 export const sale = pgTable("sale", {
