@@ -9,7 +9,6 @@ import {
     text,
     timestamp,
     uuid,
-    check,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
@@ -65,9 +64,9 @@ export const operational_expense = pgTable(
         user_id: uuid("user_id")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
-        name: text("name").notNull(),
-        cost: numeric("cost").notNull(),
-        payee: text("payee").notNull(),
+        name: text("name"),
+        cost: numeric("cost"),
+        payee: text("payee"),
         payment_method: payment_method_enum("payment_method"),
         goods_id: uuid("goods_id").references(() => goods.id, {
             onDelete: "cascade",
@@ -85,13 +84,23 @@ export const operational_expense = pgTable(
         start_date: timestamp("start_date"),
         due_date: timestamp("due_date"),
     },
-    (table) => ({
+    (t) => ({
         inventory_loss_check: check(
             "inventory_loss_check",
             sql`
-				(${table.expense_type} = 'inventory_loss' AND (${table.goods_id} IS NOT NULL OR ${table.materialAndSupply_id} IS NOT NULL))
-				OR
-				(${table.expense_type} <> 'inventory_loss')
+				(${t.expense_type} <> 'inventory_loss')
+				OR (
+					(${t.goods_id} IS NOT NULL AND ${t.materialAndSupply_id} IS NULL AND ${t.quantity} IS NOT NULL)
+					OR
+					(${t.goods_id} IS NULL AND ${t.materialAndSupply_id} IS NOT NULL AND ${t.quantity} IS NOT NULL)
+				)
+			`,
+        ),
+        other_type_check: check(
+            "other_type_check",
+            sql`
+				(${t.expense_type} = 'inventory_loss')
+				OR (${t.name} IS NOT NULL AND ${t.cost} IS NOT NULL AND ${t.payee} IS NOT NULL AND ${t.payment_method} IS NOT NULL)
 			`,
         ),
     }),
@@ -103,7 +112,7 @@ export const studio_overhead_expense_type_enum = pgEnum(
     ["tools_equipment", "packaging_supplies", "miscellaneous"],
 );
 
-export const studio_overhead_expense = pgTable("operational_expense", {
+export const studio_overhead_expense = pgTable("studio_overhead_expense", {
     id: uuid("id").primaryKey(),
     expense_type: studio_overhead_expense_type_enum("expense_type"),
     user_id: uuid("user_id")
@@ -116,8 +125,6 @@ export const studio_overhead_expense = pgTable("operational_expense", {
     notes: text("notes"),
     attach_recipt: text("attach_recipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    start_date: timestamp("start_date"),
-    due_date: timestamp("due_date"),
 });
 
 // Define relation of auth user to Expense (one-to-many)
@@ -126,150 +133,30 @@ export const userToExpense = relations(user, ({ many }) => ({
     studio_overhead_expense: many(studio_overhead_expense),
 }));
 
-export const good = pgTable("good", {
+export const goods = pgTable("goods", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    productTypeId: uuid("product_type_id").references(() => productType.id),
+    description: text("description"),
+    // TODO: ASK, if product type is modified or deleted, how should it be hundled?
+    productTypeId: uuid("puroduct_type_id").references(() => productType.id),
     image: text("image"),
-    retailPrice: numeric("retail_price").notNull(),
+    retailPrice: numeric("retail_price"),
+    size: text("size"),
+    color: text("color"),
+    productionDate: date("production_date"),
     note: text("note"),
-    inventoryQuantity: integer("inventory_quantity").default(0),
-    producedQuantity: integer("produced_quantity"),
+    soldQuantity: integer("sold_quantity").default(0),
+    tags: uuid("tags_id").array(),
+    quantity: integer("quantity").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
 });
-
-export const productionBatch = pgTable("production_batch", {
-    id: uuid("id").primaryKey(),
-    goodId: uuid("good_id")
-        .notNull()
-        .references(() => good.id, { onDelete: "cascade" }),
-    productionDate: timestamp("production_date", {
-        withTimezone: true,
-    }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-export const batchRecipe = pgTable("batch_recipe", {
-    id: uuid("id").primaryKey(),
-    materialId: uuid("material_id")
-        .references(() => materialAndSupply.id)
-        .notNull(),
-    usageAmount: numeric("usage_amount"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-export const productionExpense = pgTable(
-    "production_expense",
-    {
-        id: uuid("id").primaryKey(),
-        type: text("type").notNull(),
-        cost: integer("cost").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
-    (table) => [
-        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
-    ],
-);
-
-export const productionBatchToBatchRecipe = pgTable(
-    "production_batch_to_batch_recipe",
-    {
-        productionBatchId: uuid("production_batch_id")
-            .notNull()
-            .references(() => productionBatch.id, { onDelete: "cascade" }),
-        batchRecipeId: uuid("batch_recipe_id")
-            .notNull()
-            .references(() => batchRecipe.id, { onDelete: "cascade" }),
-    },
-);
-
-export const productionBatchToProductionExpense = pgTable(
-    "production_batch_to_production_expense",
-    {
-        productionBatchId: uuid("production_batch_id")
-            .notNull()
-            .references(() => productionBatch.id, { onDelete: "cascade" }),
-        productionExpenseId: uuid("production_expense_id")
-            .notNull()
-            .references(() => productionExpense.id, { onDelete: "cascade" }),
-    },
-);
-
-export const materialOutputRatio = pgTable("material_output_ratio", {
-    id: uuid("id").primaryKey(),
-    materialId: uuid("material_id")
-        .references(() => materialAndSupply.id)
-        .notNull(),
-    input: numeric("input").notNull(),
-    output: integer("output").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-export const goodToMaterialOutputRatio = pgTable(
-    "good_to_material_output_ratio",
-    {
-        goodId: uuid("good_id")
-            .notNull()
-            .references(() => good.id, { onDelete: "cascade" }),
-        materialOutputRatioId: uuid("material_output_ratio_id")
-            .notNull()
-            .references(() => materialOutputRatio.id, { onDelete: "cascade" }),
-    },
-);
-
-export const productionExpensesRatio = pgTable(
-    "production_expense_ratio",
-    {
-        id: uuid("id").primaryKey(),
-        type: text("type").notNull(),
-        cost: integer("cost").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
-    (table) => [
-        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
-    ],
-);
-
-export const goodToProductionExpensesRatio = pgTable(
-    "good_to_production_expense_ratio",
-    {
-        goodId: uuid("good_id")
-            .notNull()
-            .references(() => good.id, { onDelete: "cascade" }),
-        productionExpensesRatioId: uuid("production_expense_ratio_id")
-            .notNull()
-            .references(() => productionExpensesRatio.id, {
-                onDelete: "cascade",
-            }),
-    },
-);
 
 export const productType = pgTable("product_type", {
     id: uuid("id").primaryKey(),
@@ -281,7 +168,7 @@ export const productType = pgTable("product_type", {
         .notNull(),
 });
 
-export const collectionTag = pgTable("collection_tag", {
+export const tags = pgTable("tags", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -291,63 +178,21 @@ export const collectionTag = pgTable("collection_tag", {
         .notNull(),
 });
 
-export const goodToCollectionTag = pgTable("good_to_collection_tag", {
-    goodId: uuid("good_id")
-        .notNull()
-        .references(() => good.id, { onDelete: "cascade" }),
-    collectionTagId: uuid("collection_tag_id")
-        .notNull()
-        .references(() => collectionTag.id, { onDelete: "cascade" }),
-});
-
-export const sale = pgTable("sale", {
+export const sales = pgTable("sales", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    customer: text("customer").notNull(),
-    salesNumber: integer("sales_number").notNull(),
     channelId: uuid("channel_id")
         .notNull()
         .references(() => channel.id, { onDelete: "cascade" }),
-    date: timestamp("date").notNull(),
-    statusId: uuid("status_id")
+    date: timestamp("date", { withTimezone: true }).notNull(),
+    good: uuid("good")
         .notNull()
-        .references(() => status.id, { onDelete: "cascade" }),
-    note: text("note"),
-    discount: numeric("discount").default("0").notNull(),
-    shippingFee: numeric("shipping_fee").default("0").notNull(),
-    taxPercentage: numeric("tax_percentage").default("0").notNull(),
+        .references(() => goods.id),
+    quantity: integer("quantity").notNull(),
     totalPrice: numeric("total_price").notNull(),
     profit: numeric("profit"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-export const saleDetail = pgTable("sale_detail", {
-    id: uuid("id").primaryKey(),
-    saleId: uuid("sale_id")
-        .notNull()
-        .references(() => sale.id, { onDelete: "cascade" }),
-    goodId: uuid("good_id")
-        .notNull()
-        .references(() => good.id),
-    quantity: integer("quantity").notNull(),
-    pricePerItem: numeric("price_per_item").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
-
-export const status = pgTable("status", {
-    id: uuid("id").primaryKey(),
-    key: text("key").notNull(),
-    name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -376,29 +221,18 @@ export const unit = pgTable("unit", {
         .notNull(),
 });
 
-export const materialType = pgTable("material_type", {
-    id: uuid("id").primaryKey(),
-    name: text("name").notNull(),
-});
-
 export const materialAndSupply = pgTable("material_and_supply", {
     id: uuid("id").primaryKey(),
-    userId: uuid("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    materialTypeId: uuid("material_type_id")
-        .references(() => materialType.id)
-        .notNull(),
     unitId: uuid("unit_id")
         .references(() => unit.id)
         .notNull(),
-    quantity: integer("quantity").notNull(),
     purchasePrice: numeric("purchase_price").notNull(),
-    lastPurchaseDate: date("last_purchase_date"),
-    supplier: text("supplier").notNull(),
-    notes: text("notes"),
+    costPerUnit: numeric("cost_per_unit"),
+    quantity: integer("quantity").notNull(),
     threshold: integer("threshold"),
+    supplier: text("supplier").notNull(),
+    purchaseDate: date("purchase_date").defaultNow(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -416,7 +250,36 @@ export const materialAndSupplyToUnit = relations(
     }),
 );
 
-export const notification = pgTable("notification", {
+export const productMaterialUsed = pgTable("product_material_used", {
+    id: uuid("id").primaryKey(),
+    goodsId: uuid("goods_id")
+        .references(() => goods.id)
+        .notNull(),
+    materialAndSupplyId: uuid("material_and_supply_id")
+        .references(() => materialAndSupply.id)
+        .notNull(),
+    quantity: integer("quantity").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+// Define relation of materialAndSupply to productMaterialUsed (one-to-many)
+export const materialAndSupplyToProductMaterialUsed = relations(
+    materialAndSupply,
+    ({ many }) => ({
+        productMaterialsUsed: many(productMaterialUsed),
+    }),
+);
+
+// Define relation of goods to productMaterialUsed (one-to-many)
+export const goodsToProductMaterialUsed = relations(goods, ({ many }) => ({
+    productMaterialsUsed: many(productMaterialUsed),
+}));
+
+export const notifications = pgTable("notifications", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
@@ -434,9 +297,9 @@ export const notification = pgTable("notification", {
         .notNull(),
 });
 
-// Define relation of auth user to notification (one-to-many)
-export const userToNotification = relations(user, ({ many }) => ({
-    notification: many(notification),
+// Define relation of auth user to notifications (one-to-many)
+export const userToNotifications = relations(user, ({ many }) => ({
+    notifications: many(notifications),
 }));
 
 export const notificationType = pgTable("notification_type", {
