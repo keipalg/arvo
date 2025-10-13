@@ -14,6 +14,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicSignupRouteImport } from './routes/_public/signup'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as ProtectedSalesIndexRouteImport } from './routes/_protected/sales/index'
 import { Route as ProtectedSettingsProfileRouteImport } from './routes/_protected/settings/profile'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -40,6 +41,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedSalesIndexRoute = ProtectedSalesIndexRouteImport.update({
+  id: '/sales/',
+  path: '/sales/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedSettingsProfileRoute =
   ProtectedSettingsProfileRouteImport.update({
     id: '/settings/profile',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
   '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/sales': typeof ProtectedSalesIndexRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
   '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/sales': typeof ProtectedSalesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,12 +77,19 @@ export interface FileRoutesById {
   '/_public/signup': typeof PublicSignupRoute
   '/_public/': typeof PublicIndexRoute
   '/_protected/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/_protected/sales/': typeof ProtectedSalesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/about' | '/login' | '/signup' | '/' | '/settings/profile'
+  fullPaths:
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/settings/profile'
+    | '/sales'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/login' | '/signup' | '/' | '/settings/profile'
+  to: '/about' | '/login' | '/signup' | '/' | '/settings/profile' | '/sales'
   id:
     | '__root__'
     | '/_protected'
@@ -83,6 +98,7 @@ export interface FileRouteTypes {
     | '/_public/signup'
     | '/_public/'
     | '/_protected/settings/profile'
+    | '/_protected/sales/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/sales/': {
+      id: '/_protected/sales/'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof ProtectedSalesIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/settings/profile': {
       id: '/_protected/settings/profile'
       path: '/settings/profile'
@@ -142,10 +165,12 @@ declare module '@tanstack/react-router' {
 
 interface ProtectedRouteChildren {
   ProtectedSettingsProfileRoute: typeof ProtectedSettingsProfileRoute
+  ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedSettingsProfileRoute: ProtectedSettingsProfileRoute,
+  ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
