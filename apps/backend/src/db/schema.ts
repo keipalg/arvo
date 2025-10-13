@@ -167,6 +167,11 @@ export const productionBatch = pgTable("production_batch", {
         .notNull(),
 });
 
+// Define relation of good to production batch (one-to-many)
+export const goodToProductionBatch = relations(good, ({ many }) => ({
+    productionBatch: many(productionBatch),
+}));
+
 export const batchRecipe = pgTable("batch_recipe", {
     id: uuid("id").primaryKey(),
     materialId: uuid("material_id")
