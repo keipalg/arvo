@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { channel, sale, status } from "../db/schema.js";
 
-export const getSalesList = async () => {
+export const getSalesList = async (userId: string) => {
     return await db
         .select({
             id: sale.id,
@@ -14,6 +14,7 @@ export const getSalesList = async () => {
             status: status.key,
         })
         .from(sale)
+        .where(eq(sale.userId, userId))
         .innerJoin(channel, eq(sale.channelId, channel.id))
         .innerJoin(status, eq(sale.statusId, status.id));
 };

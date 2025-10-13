@@ -1,8 +1,8 @@
-import { router, publicProcedure } from "./trpcBase.js";
+import { router, protectedProcedure } from "./trpcBase.js";
 import { getSalesList } from "../service/salesService.js";
 
 export const salesRouter = router({
-    list: publicProcedure.query(async () => {
-        return await getSalesList();
+    list: protectedProcedure.query(async ({ ctx }) => {
+        return await getSalesList(ctx.user.id);
     }),
 });
