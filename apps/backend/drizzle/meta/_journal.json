@@ -15,6 +15,13 @@
             "when": 1760316548641,
             "tag": "0001_plain_famine",
             "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "7",
+            "when": 1760332289041,
+            "tag": "0002_steady_blazing_skull",
+            "breakpoints": true
         }
     ]
 }
