@@ -2,7 +2,7 @@ const Sidebar = () => {
     const tabs = [
         { name: "Business Dashboard", path: "/dashboard" },
         { name: "Finished Products", path: "/products" },
-        { name: "Supplies", path: "/supplies" },
+        { name: "Materials", path: "/materials" },
         { name: "Sales", path: "/sales" },
     ];
 

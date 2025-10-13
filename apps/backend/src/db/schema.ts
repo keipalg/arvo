@@ -402,6 +402,7 @@ export const materialAndSupply = pgTable("material_and_supply", {
         .notNull(),
     quantity: integer("quantity").notNull(),
     purchasePrice: numeric("purchase_price").notNull(),
+    costPerUnit: numeric("cost_per_unit").notNull(),
     lastPurchaseDate: date("last_purchase_date"),
     supplier: text("supplier").notNull(),
     notes: text("notes"),
