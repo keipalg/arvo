@@ -17,7 +17,7 @@ router.on(["POST", "GET", "OPTIONS"], "/auth/*", async (c) => {
     }
 });
 
-router.use("/user/*", async (c, next) => {
+router.use("/trpc/*", async (c, next) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     if (!session) {
         c.set("user", null);
@@ -33,10 +33,6 @@ router.use("/user/*", async (c, next) => {
 router.get("/", async (c) => {
     const sample = await db.select().from(sampleTable);
     return c.json(sample);
-});
-
-router.get("/user", async (c) => {
-    return c.text("user");
 });
 
 export default router;

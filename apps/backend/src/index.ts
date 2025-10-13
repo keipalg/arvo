@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import type { AuthType } from "./auth/auth.js";
-import auth from "./routes/auth.js";
+import { auth, type AuthType } from "./auth/auth.js";
+import authRoutes from "./routes/auth.js";
 import { cors } from "hono/cors";
 import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./trpc.js";
@@ -22,10 +22,19 @@ app.use(
     "/trpc/*",
     trpcServer({
         router: appRouter,
+        createContext: async (opts) => {
+            const session = await auth.api.getSession({
+                headers: opts.req.headers,
+            });
+            return {
+                user: session?.user ?? null,
+                session: session?.session ?? null,
+            };
+        },
     }),
 );
 
-const routes = [auth] as const;
+const routes = [authRoutes] as const;
 
 routes.forEach((route) => {
     app.basePath("/api").route("/", route);
