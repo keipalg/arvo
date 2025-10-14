@@ -8,276 +8,276 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as ProtectedRouteImport } from "./routes/_protected";
-import { Route as PublicIndexRouteImport } from "./routes/_public/index";
-import { Route as PublicSignupRouteImport } from "./routes/_public/signup";
-import { Route as PublicLoginRouteImport } from "./routes/_public/login";
-import { Route as PublicAboutRouteImport } from "./routes/_public/about";
-import { Route as ProtectedSalesIndexRouteImport } from "./routes/_protected/sales/index";
-import { Route as ProtectedMaterialsIndexRouteImport } from "./routes/_protected/materials/index";
-import { Route as ProtectedExpensesIndexRouteImport } from "./routes/_protected/expenses/index";
-import { Route as ProtectedSettingsProfileRouteImport } from "./routes/_protected/settings/profile";
-import { Route as ProtectedExpensesStudioOverheadIndexRouteImport } from "./routes/_protected/expenses/studio-overhead/index";
-import { Route as ProtectedExpensesOperationalIndexRouteImport } from "./routes/_protected/expenses/operational/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicSignupRouteImport } from './routes/_public/signup'
+import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as ProtectedSalesIndexRouteImport } from './routes/_protected/sales/index'
+import { Route as ProtectedMaterialsIndexRouteImport } from './routes/_protected/materials/index'
+import { Route as ProtectedExpensesIndexRouteImport } from './routes/_protected/expenses/index'
+import { Route as ProtectedSettingsProfileRouteImport } from './routes/_protected/settings/profile'
+import { Route as ProtectedExpensesStudioOverheadIndexRouteImport } from './routes/_protected/expenses/studio-overhead/index'
+import { Route as ProtectedExpensesOperationalIndexRouteImport } from './routes/_protected/expenses/operational/index'
 
 const ProtectedRoute = ProtectedRouteImport.update({
-    id: "/_protected",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_protected',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
-    id: "/_public/",
-    path: "/",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicSignupRoute = PublicSignupRouteImport.update({
-    id: "/_public/signup",
-    path: "/signup",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicLoginRoute = PublicLoginRouteImport.update({
-    id: "/_public/login",
-    path: "/login",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
-    id: "/_public/about",
-    path: "/about",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProtectedSalesIndexRoute = ProtectedSalesIndexRouteImport.update({
-    id: "/sales/",
-    path: "/sales/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/sales/',
+  path: '/sales/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedMaterialsIndexRoute = ProtectedMaterialsIndexRouteImport.update({
-    id: "/materials/",
-    path: "/materials/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/materials/',
+  path: '/materials/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedExpensesIndexRoute = ProtectedExpensesIndexRouteImport.update({
-    id: "/expenses/",
-    path: "/expenses/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/expenses/',
+  path: '/expenses/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedSettingsProfileRoute =
-    ProtectedSettingsProfileRouteImport.update({
-        id: "/settings/profile",
-        path: "/settings/profile",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedSettingsProfileRouteImport.update({
+    id: '/settings/profile',
+    path: '/settings/profile',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const ProtectedExpensesStudioOverheadIndexRoute =
-    ProtectedExpensesStudioOverheadIndexRouteImport.update({
-        id: "/expenses/studio-overhead/",
-        path: "/expenses/studio-overhead/",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedExpensesStudioOverheadIndexRouteImport.update({
+    id: '/expenses/studio-overhead/',
+    path: '/expenses/studio-overhead/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const ProtectedExpensesOperationalIndexRoute =
-    ProtectedExpensesOperationalIndexRouteImport.update({
-        id: "/expenses/operational/",
-        path: "/expenses/operational/",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedExpensesOperationalIndexRouteImport.update({
+    id: '/expenses/operational/',
+    path: '/expenses/operational/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-    "/about": typeof PublicAboutRoute;
-    "/login": typeof PublicLoginRoute;
-    "/signup": typeof PublicSignupRoute;
-    "/": typeof PublicIndexRoute;
-    "/settings/profile": typeof ProtectedSettingsProfileRoute;
-    "/expenses": typeof ProtectedExpensesIndexRoute;
-    "/materials": typeof ProtectedMaterialsIndexRoute;
-    "/sales": typeof ProtectedSalesIndexRoute;
-    "/expenses/operational": typeof ProtectedExpensesOperationalIndexRoute;
-    "/expenses/studio-overhead": typeof ProtectedExpensesStudioOverheadIndexRoute;
+  '/about': typeof PublicAboutRoute
+  '/login': typeof PublicLoginRoute
+  '/signup': typeof PublicSignupRoute
+  '/': typeof PublicIndexRoute
+  '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/expenses': typeof ProtectedExpensesIndexRoute
+  '/materials': typeof ProtectedMaterialsIndexRoute
+  '/sales': typeof ProtectedSalesIndexRoute
+  '/expenses/operational': typeof ProtectedExpensesOperationalIndexRoute
+  '/expenses/studio-overhead': typeof ProtectedExpensesStudioOverheadIndexRoute
 }
 export interface FileRoutesByTo {
-    "/about": typeof PublicAboutRoute;
-    "/login": typeof PublicLoginRoute;
-    "/signup": typeof PublicSignupRoute;
-    "/": typeof PublicIndexRoute;
-    "/settings/profile": typeof ProtectedSettingsProfileRoute;
-    "/expenses": typeof ProtectedExpensesIndexRoute;
-    "/materials": typeof ProtectedMaterialsIndexRoute;
-    "/sales": typeof ProtectedSalesIndexRoute;
-    "/expenses/operational": typeof ProtectedExpensesOperationalIndexRoute;
-    "/expenses/studio-overhead": typeof ProtectedExpensesStudioOverheadIndexRoute;
+  '/about': typeof PublicAboutRoute
+  '/login': typeof PublicLoginRoute
+  '/signup': typeof PublicSignupRoute
+  '/': typeof PublicIndexRoute
+  '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/expenses': typeof ProtectedExpensesIndexRoute
+  '/materials': typeof ProtectedMaterialsIndexRoute
+  '/sales': typeof ProtectedSalesIndexRoute
+  '/expenses/operational': typeof ProtectedExpensesOperationalIndexRoute
+  '/expenses/studio-overhead': typeof ProtectedExpensesStudioOverheadIndexRoute
 }
 export interface FileRoutesById {
-    __root__: typeof rootRouteImport;
-    "/_protected": typeof ProtectedRouteWithChildren;
-    "/_public/about": typeof PublicAboutRoute;
-    "/_public/login": typeof PublicLoginRoute;
-    "/_public/signup": typeof PublicSignupRoute;
-    "/_public/": typeof PublicIndexRoute;
-    "/_protected/settings/profile": typeof ProtectedSettingsProfileRoute;
-    "/_protected/expenses/": typeof ProtectedExpensesIndexRoute;
-    "/_protected/materials/": typeof ProtectedMaterialsIndexRoute;
-    "/_protected/sales/": typeof ProtectedSalesIndexRoute;
-    "/_protected/expenses/operational/": typeof ProtectedExpensesOperationalIndexRoute;
-    "/_protected/expenses/studio-overhead/": typeof ProtectedExpensesStudioOverheadIndexRoute;
+  __root__: typeof rootRouteImport
+  '/_protected': typeof ProtectedRouteWithChildren
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/login': typeof PublicLoginRoute
+  '/_public/signup': typeof PublicSignupRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_protected/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/_protected/expenses/': typeof ProtectedExpensesIndexRoute
+  '/_protected/materials/': typeof ProtectedMaterialsIndexRoute
+  '/_protected/sales/': typeof ProtectedSalesIndexRoute
+  '/_protected/expenses/operational/': typeof ProtectedExpensesOperationalIndexRoute
+  '/_protected/expenses/studio-overhead/': typeof ProtectedExpensesStudioOverheadIndexRoute
 }
 export interface FileRouteTypes {
-    fileRoutesByFullPath: FileRoutesByFullPath;
-    fullPaths:
-        | "/about"
-        | "/login"
-        | "/signup"
-        | "/"
-        | "/settings/profile"
-        | "/expenses"
-        | "/materials"
-        | "/sales"
-        | "/expenses/operational"
-        | "/expenses/studio-overhead";
-    fileRoutesByTo: FileRoutesByTo;
-    to:
-        | "/about"
-        | "/login"
-        | "/signup"
-        | "/"
-        | "/settings/profile"
-        | "/expenses"
-        | "/materials"
-        | "/sales"
-        | "/expenses/operational"
-        | "/expenses/studio-overhead";
-    id:
-        | "__root__"
-        | "/_protected"
-        | "/_public/about"
-        | "/_public/login"
-        | "/_public/signup"
-        | "/_public/"
-        | "/_protected/settings/profile"
-        | "/_protected/expenses/"
-        | "/_protected/materials/"
-        | "/_protected/sales/"
-        | "/_protected/expenses/operational/"
-        | "/_protected/expenses/studio-overhead/";
-    fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/settings/profile'
+    | '/expenses'
+    | '/materials'
+    | '/sales'
+    | '/expenses/operational'
+    | '/expenses/studio-overhead'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/settings/profile'
+    | '/expenses'
+    | '/materials'
+    | '/sales'
+    | '/expenses/operational'
+    | '/expenses/studio-overhead'
+  id:
+    | '__root__'
+    | '/_protected'
+    | '/_public/about'
+    | '/_public/login'
+    | '/_public/signup'
+    | '/_public/'
+    | '/_protected/settings/profile'
+    | '/_protected/expenses/'
+    | '/_protected/materials/'
+    | '/_protected/sales/'
+    | '/_protected/expenses/operational/'
+    | '/_protected/expenses/studio-overhead/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-    ProtectedRoute: typeof ProtectedRouteWithChildren;
-    PublicAboutRoute: typeof PublicAboutRoute;
-    PublicLoginRoute: typeof PublicLoginRoute;
-    PublicSignupRoute: typeof PublicSignupRoute;
-    PublicIndexRoute: typeof PublicIndexRoute;
+  ProtectedRoute: typeof ProtectedRouteWithChildren
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicLoginRoute: typeof PublicLoginRoute
+  PublicSignupRoute: typeof PublicSignupRoute
+  PublicIndexRoute: typeof PublicIndexRoute
 }
 
-declare module "@tanstack/react-router" {
-    interface FileRoutesByPath {
-        "/_protected": {
-            id: "/_protected";
-            path: "";
-            fullPath: "";
-            preLoaderRoute: typeof ProtectedRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/": {
-            id: "/_public/";
-            path: "/";
-            fullPath: "/";
-            preLoaderRoute: typeof PublicIndexRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/signup": {
-            id: "/_public/signup";
-            path: "/signup";
-            fullPath: "/signup";
-            preLoaderRoute: typeof PublicSignupRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/login": {
-            id: "/_public/login";
-            path: "/login";
-            fullPath: "/login";
-            preLoaderRoute: typeof PublicLoginRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/about": {
-            id: "/_public/about";
-            path: "/about";
-            fullPath: "/about";
-            preLoaderRoute: typeof PublicAboutRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_protected/sales/": {
-            id: "/_protected/sales/";
-            path: "/sales";
-            fullPath: "/sales";
-            preLoaderRoute: typeof ProtectedSalesIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/materials/": {
-            id: "/_protected/materials/";
-            path: "/materials";
-            fullPath: "/materials";
-            preLoaderRoute: typeof ProtectedMaterialsIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/": {
-            id: "/_protected/expenses/";
-            path: "/expenses";
-            fullPath: "/expenses";
-            preLoaderRoute: typeof ProtectedExpensesIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/settings/profile": {
-            id: "/_protected/settings/profile";
-            path: "/settings/profile";
-            fullPath: "/settings/profile";
-            preLoaderRoute: typeof ProtectedSettingsProfileRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/studio-overhead/": {
-            id: "/_protected/expenses/studio-overhead/";
-            path: "/expenses/studio-overhead";
-            fullPath: "/expenses/studio-overhead";
-            preLoaderRoute: typeof ProtectedExpensesStudioOverheadIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/operational/": {
-            id: "/_protected/expenses/operational/";
-            path: "/expenses/operational";
-            fullPath: "/expenses/operational";
-            preLoaderRoute: typeof ProtectedExpensesOperationalIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ProtectedRouteImport
+      parentRoute: typeof rootRouteImport
     }
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/signup': {
+      id: '/_public/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof PublicSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/sales/': {
+      id: '/_protected/sales/'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof ProtectedSalesIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/materials/': {
+      id: '/_protected/materials/'
+      path: '/materials'
+      fullPath: '/materials'
+      preLoaderRoute: typeof ProtectedMaterialsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/': {
+      id: '/_protected/expenses/'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ProtectedExpensesIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings/profile': {
+      id: '/_protected/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof ProtectedSettingsProfileRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/studio-overhead/': {
+      id: '/_protected/expenses/studio-overhead/'
+      path: '/expenses/studio-overhead'
+      fullPath: '/expenses/studio-overhead'
+      preLoaderRoute: typeof ProtectedExpensesStudioOverheadIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/operational/': {
+      id: '/_protected/expenses/operational/'
+      path: '/expenses/operational'
+      fullPath: '/expenses/operational'
+      preLoaderRoute: typeof ProtectedExpensesOperationalIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+  }
 }
 
 interface ProtectedRouteChildren {
-    ProtectedSettingsProfileRoute: typeof ProtectedSettingsProfileRoute;
-    ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute;
-    ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute;
-    ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute;
-    ProtectedExpensesOperationalIndexRoute: typeof ProtectedExpensesOperationalIndexRoute;
-    ProtectedExpensesStudioOverheadIndexRoute: typeof ProtectedExpensesStudioOverheadIndexRoute;
+  ProtectedSettingsProfileRoute: typeof ProtectedSettingsProfileRoute
+  ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute
+  ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute
+  ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute
+  ProtectedExpensesOperationalIndexRoute: typeof ProtectedExpensesOperationalIndexRoute
+  ProtectedExpensesStudioOverheadIndexRoute: typeof ProtectedExpensesStudioOverheadIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-    ProtectedSettingsProfileRoute: ProtectedSettingsProfileRoute,
-    ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
-    ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
-    ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
-    ProtectedExpensesOperationalIndexRoute:
-        ProtectedExpensesOperationalIndexRoute,
-    ProtectedExpensesStudioOverheadIndexRoute:
-        ProtectedExpensesStudioOverheadIndexRoute,
-};
+  ProtectedSettingsProfileRoute: ProtectedSettingsProfileRoute,
+  ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
+  ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
+  ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
+  ProtectedExpensesOperationalIndexRoute:
+    ProtectedExpensesOperationalIndexRoute,
+  ProtectedExpensesStudioOverheadIndexRoute:
+    ProtectedExpensesStudioOverheadIndexRoute,
+}
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
-    ProtectedRouteChildren,
-);
+  ProtectedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-    ProtectedRoute: ProtectedRouteWithChildren,
-    PublicAboutRoute: PublicAboutRoute,
-    PublicLoginRoute: PublicLoginRoute,
-    PublicSignupRoute: PublicSignupRoute,
-    PublicIndexRoute: PublicIndexRoute,
-};
+  ProtectedRoute: ProtectedRouteWithChildren,
+  PublicAboutRoute: PublicAboutRoute,
+  PublicLoginRoute: PublicLoginRoute,
+  PublicSignupRoute: PublicSignupRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
 export const routeTree = rootRouteImport
-    ._addFileChildren(rootRouteChildren)
-    ._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()

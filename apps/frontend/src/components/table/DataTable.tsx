@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 type Column<T> = {
     key: keyof T;
     header: string;
-    render?: (value: T[keyof T]) => ReactNode;
+    render?: (value: T[keyof T], row: T) => ReactNode;
 };
 
 type DataTableProps<T> = {
@@ -36,6 +36,7 @@ const DataTable = <T extends { id: number | string }>({
                             <tr
                                 className="border-b border-gray-200"
                                 key={element.id}
+                                data-id={element.id}
                             >
                                 {columns.map((column) => (
                                     <td
@@ -43,7 +44,10 @@ const DataTable = <T extends { id: number | string }>({
                                         className="px-6 py-3"
                                     >
                                         {column.render
-                                            ? column.render(element[column.key])
+                                            ? column.render(
+                                                  element[column.key],
+                                                  element,
+                                              )
                                             : String(element[column.key])}
                                     </td>
                                 ))}
