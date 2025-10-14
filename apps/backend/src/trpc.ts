@@ -5,6 +5,8 @@ import type { About } from "shared/types/sample.ts";
 import { salesRouter } from "./routes/salesRoutes.js";
 import { publicProcedure, router } from "./routes/trpcBase.js";
 import { materialsRouter } from "./routes/materialsRoute.js";
+import { operationalExpenseRouter } from "./routes/operationalExpenseRoutes.js";
+import { studioOverheadExpenseRouter } from "./routes/studioOverheadRoutes.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -16,6 +18,8 @@ export const appRouter = router({
     }),
     sales: salesRouter,
     materials: materialsRouter,
+    operationalExpense: operationalExpenseRouter,
+    studioOverheadExpense: studioOverheadExpenseRouter,
 });
 
 export type AppRouter = typeof appRouter;
