@@ -16,3 +16,10 @@ export const getTotalCost = (
 ): number => {
     return quantity * purchase_price;
 };
+
+export const getQuantityWithUnit = (
+    quanity: number,
+    unitAbv: string,
+): string => {
+    return `${quanity} ${unitAbv}`;
+};
