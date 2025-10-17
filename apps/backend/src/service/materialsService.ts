@@ -1,9 +1,13 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { materialAndSupply, materialType, unit } from "../db/schema.js";
-import { getStatus, getTotalCost } from "../utils/materialsUtil.js";
+import {
+    getQuantityWithUnit,
+    getStatus,
+    getTotalCost,
+} from "../utils/materialsUtil.js";
 
-export const getMaterialsList = async () => {
+export const getMaterialsList = async (userId: string) => {
     const materials = await db
         .select({
             id: materialAndSupply.id,
@@ -21,7 +25,7 @@ export const getMaterialsList = async () => {
             lastUpdatedDate: materialAndSupply.updatedAt,
         })
         .from(materialAndSupply)
-        // .where() // TODO add filtering currently logged user's id
+        .where(eq(materialAndSupply.userId, userId))
         .innerJoin(
             materialType,
             eq(materialAndSupply.materialTypeId, materialType.id),
@@ -34,6 +38,10 @@ export const getMaterialsList = async () => {
         totalCost: getTotalCost(
             Number(material.costPerUnit),
             material.quantity,
+        ),
+        formattedQuantity: getQuantityWithUnit(
+            material.quantity,
+            material.unitAbbreviation,
         ),
     }));
 };

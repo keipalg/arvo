@@ -23,7 +23,7 @@ function MaterialsList() {
     }> = [
         { key: "type", header: "Type" },
         { key: "name", header: "Item" },
-        { key: "quantity", header: "Quantity" },
+        { key: "formattedQuantity", header: "Quantity" },
         {
             key: "totalCost",
             header: "Cost",
