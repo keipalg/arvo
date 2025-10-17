@@ -24,6 +24,9 @@ export const userPreference = pgTable("user_preference", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     productTypeIds: uuid("product_type_ids").array().notNull(),
+    profitPercentage: numeric("profit_percentage"),
+    operatingCostPercentage: numeric("operating_cost_percentage"),
+    laborCostPercentage: numeric("labor_cost_percentage"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -185,23 +188,6 @@ export const batchRecipe = pgTable("batch_recipe", {
         .notNull(),
 });
 
-export const productionExpense = pgTable(
-    "production_expense",
-    {
-        id: uuid("id").primaryKey(),
-        type: text("type").notNull(),
-        cost: integer("cost").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
-    (table) => [
-        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
-    ],
-);
-
 export const productionBatchToBatchRecipe = pgTable(
     "production_batch_to_batch_recipe",
     {
@@ -211,18 +197,6 @@ export const productionBatchToBatchRecipe = pgTable(
         batchRecipeId: uuid("batch_recipe_id")
             .notNull()
             .references(() => batchRecipe.id, { onDelete: "cascade" }),
-    },
-);
-
-export const productionBatchToProductionExpense = pgTable(
-    "production_batch_to_production_expense",
-    {
-        productionBatchId: uuid("production_batch_id")
-            .notNull()
-            .references(() => productionBatch.id, { onDelete: "cascade" }),
-        productionExpenseId: uuid("production_expense_id")
-            .notNull()
-            .references(() => productionExpense.id, { onDelete: "cascade" }),
     },
 );
 
@@ -249,37 +223,6 @@ export const goodToMaterialOutputRatio = pgTable(
         materialOutputRatioId: uuid("material_output_ratio_id")
             .notNull()
             .references(() => materialOutputRatio.id, { onDelete: "cascade" }),
-    },
-);
-
-export const productionExpensesRatio = pgTable(
-    "production_expense_ratio",
-    {
-        id: uuid("id").primaryKey(),
-        type: text("type").notNull(),
-        cost: integer("cost").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
-    (table) => [
-        check("type_allowed_values", sql`${table.type} IN ('labor', 'rent')`),
-    ],
-);
-
-export const goodToProductionExpensesRatio = pgTable(
-    "good_to_production_expense_ratio",
-    {
-        goodId: uuid("good_id")
-            .notNull()
-            .references(() => good.id, { onDelete: "cascade" }),
-        productionExpensesRatioId: uuid("production_expense_ratio_id")
-            .notNull()
-            .references(() => productionExpensesRatio.id, {
-                onDelete: "cascade",
-            }),
     },
 );
 
