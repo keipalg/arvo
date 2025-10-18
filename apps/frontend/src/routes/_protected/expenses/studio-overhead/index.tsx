@@ -5,6 +5,7 @@ import DataTable from "../../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_protected/expenses/studio-overhead/")({
     component: StudioOverhead,
@@ -16,8 +17,9 @@ type StudioOverheadExpense =
     };
 
 function StudioOverhead() {
-    const { data, isLoading, error } =
-        trpc.studioOverheadExpense.list.useQuery();
+    const { data, isLoading, error } = useQuery(
+        trpc.studioOverheadExpense.list.queryOptions(),
+    );
 
     const columns: Array<{
         key: keyof StudioOverheadExpense;

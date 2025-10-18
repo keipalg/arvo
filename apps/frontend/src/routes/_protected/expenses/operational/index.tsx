@@ -5,6 +5,7 @@ import DataTable from "../../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_protected/expenses/operational/")({
     component: OperationalExpense,
@@ -16,7 +17,9 @@ type OperationalExpense =
     };
 
 function OperationalExpense() {
-    const { data, isLoading, error } = trpc.operationalExpense.list.useQuery();
+    const { data, isLoading, error } = useQuery(
+        trpc.operationalExpense.list.queryOptions(),
+    );
 
     const columns: Array<{
         key: keyof OperationalExpense;
