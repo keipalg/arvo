@@ -5,6 +5,7 @@ import DataTable from "../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
@@ -15,7 +16,7 @@ type Sales = inferRouterOutputs<AppRouter>["sales"]["list"][number] & {
 };
 
 function SalesList() {
-    const { data, isLoading, error } = trpc.sales.list.useQuery();
+    const { data, isLoading, error } = useQuery(trpc.sales.list.queryOptions());
     const columns: Array<{
         key: keyof Sales;
         header: string;
