@@ -8,6 +8,7 @@ import { publicProcedure, router } from "./routes/trpcBase.js";
 import { materialsRouter } from "./routes/materialsRoute.js";
 import { operationalExpenseRouter } from "./routes/operationalExpenseRoutes.js";
 import { studioOverheadExpenseRouter } from "./routes/studioOverheadRoutes.js";
+import { goodsRouter } from "./routes/goodsRoute.js";
 import { statusRouter } from "./routes/statusRoute.js";
 
 export const appRouter = router({
@@ -22,6 +23,7 @@ export const appRouter = router({
     materials: materialsRouter,
     operationalExpense: operationalExpenseRouter,
     studioOverheadExpense: studioOverheadExpenseRouter,
+    goods: goodsRouter,
     channel: channelRouter,
     status: statusRouter,
 });

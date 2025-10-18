@@ -7,7 +7,7 @@ const Sidebar = () => {
 
     const tabs: Tab[] = [
         { name: "Business Dashboard", path: "/dashboard" },
-        { name: "Finished Products", path: "/products" },
+        { name: "My Products", path: "/goods" },
         { name: "Materials", path: "/materials" },
         { name: "Sales", path: "/sales" },
         {
