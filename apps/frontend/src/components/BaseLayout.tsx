@@ -16,7 +16,7 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
     return (
         <>
             <Header title={title}></Header>
-            <div className="min-h-screen flex flex-row">
+            <div className="min-h-screen flex flex-row relative overflow-x-hidden">
                 <Sidebar />
                 <main>{children}</main>
             </div>
