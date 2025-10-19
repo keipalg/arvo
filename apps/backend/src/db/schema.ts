@@ -331,20 +331,13 @@ export const unit = pgTable("unit", {
         .notNull(),
 });
 
-export const materialType = pgTable("material_type", {
-    id: uuid("id").primaryKey(),
-    name: text("name").notNull(),
-});
-
 export const materialAndSupply = pgTable("material_and_supply", {
     id: uuid("id").primaryKey(),
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    materialTypeId: uuid("material_type_id")
-        .references(() => materialType.id)
-        .notNull(),
+    materialType: text("material_type").notNull(),
     unitId: uuid("unit_id")
         .references(() => unit.id)
         .notNull(),
