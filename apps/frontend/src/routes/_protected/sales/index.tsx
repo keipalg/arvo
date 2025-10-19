@@ -24,7 +24,7 @@ type Sales = inferRouterOutputs<AppRouter>["sales"]["list"][number] & {
 type Products = {
     productId: string;
     quantity: number;
-    retailPrice: string;
+    retailPrice: number;
 };
 
 function SalesList() {
@@ -112,7 +112,7 @@ function SalesList() {
     const addProductRow = () => {
         setProducts([
             ...products,
-            { productId: "", quantity: 1, retailPrice: "0.00" },
+            { productId: "", quantity: 1, retailPrice: 0.0 },
         ]);
     };
 
@@ -171,7 +171,7 @@ function SalesList() {
 
         let calculatedTotalPrice = 0;
         products.forEach((product) => {
-            const price = parseFloat(product.retailPrice);
+            const price = product.retailPrice;
             calculatedTotalPrice += price * product.quantity;
         });
 
