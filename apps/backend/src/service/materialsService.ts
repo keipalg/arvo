@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { materialAndSupply, materialType, unit } from "../db/schema.js";
+import { materialAndSupply, unit } from "../db/schema.js";
 import {
     getQuantityWithUnit,
     getStatus,
@@ -12,7 +12,7 @@ export const getMaterialsList = async (userId: string) => {
         .select({
             id: materialAndSupply.id,
             name: materialAndSupply.name,
-            type: materialType.name,
+            type: materialAndSupply.materialType,
             unitName: unit.name,
             unitAbbreviation: unit.abbreviation,
             quantity: materialAndSupply.quantity,
@@ -26,10 +26,6 @@ export const getMaterialsList = async (userId: string) => {
         })
         .from(materialAndSupply)
         .where(eq(materialAndSupply.userId, userId))
-        .innerJoin(
-            materialType,
-            eq(materialAndSupply.materialTypeId, materialType.id),
-        )
         .innerJoin(unit, eq(materialAndSupply.unitId, unit.id));
 
     return materials.map((material) => ({
