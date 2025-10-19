@@ -19,7 +19,6 @@ import { Route as ProtectedMaterialsIndexRouteImport } from './routes/_protected
 import { Route as ProtectedGoodsIndexRouteImport } from './routes/_protected/goods/index'
 import { Route as ProtectedExpensesIndexRouteImport } from './routes/_protected/expenses/index'
 import { Route as ProtectedSettingsProfileRouteImport } from './routes/_protected/settings/profile'
-import { Route as ProtectedGoodsIndex2RouteImport } from './routes/_protected/goods/index 2'
 import { Route as ProtectedExpensesStudioOverheadIndexRouteImport } from './routes/_protected/expenses/studio-overhead/index'
 import { Route as ProtectedExpensesOperationalIndexRouteImport } from './routes/_protected/expenses/operational/index'
 
@@ -73,11 +72,6 @@ const ProtectedSettingsProfileRoute =
     path: '/settings/profile',
     getParentRoute: () => ProtectedRoute,
   } as any)
-const ProtectedGoodsIndex2Route = ProtectedGoodsIndex2RouteImport.update({
-  id: '/goods/index 2',
-  path: '/goods/index 2',
-  getParentRoute: () => ProtectedRoute,
-} as any)
 const ProtectedExpensesStudioOverheadIndexRoute =
   ProtectedExpensesStudioOverheadIndexRouteImport.update({
     id: '/expenses/studio-overhead/',
@@ -96,7 +90,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof PublicLoginRoute
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
-  '/goods/index 2': typeof ProtectedGoodsIndex2Route
   '/settings/profile': typeof ProtectedSettingsProfileRoute
   '/expenses': typeof ProtectedExpensesIndexRoute
   '/goods': typeof ProtectedGoodsIndexRoute
@@ -110,7 +103,6 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
-  '/goods/index 2': typeof ProtectedGoodsIndex2Route
   '/settings/profile': typeof ProtectedSettingsProfileRoute
   '/expenses': typeof ProtectedExpensesIndexRoute
   '/goods': typeof ProtectedGoodsIndexRoute
@@ -126,7 +118,6 @@ export interface FileRoutesById {
   '/_public/login': typeof PublicLoginRoute
   '/_public/signup': typeof PublicSignupRoute
   '/_public/': typeof PublicIndexRoute
-  '/_protected/goods/index 2': typeof ProtectedGoodsIndex2Route
   '/_protected/settings/profile': typeof ProtectedSettingsProfileRoute
   '/_protected/expenses/': typeof ProtectedExpensesIndexRoute
   '/_protected/goods/': typeof ProtectedGoodsIndexRoute
@@ -142,7 +133,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/'
-    | '/goods/index 2'
     | '/settings/profile'
     | '/expenses'
     | '/goods'
@@ -156,7 +146,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/'
-    | '/goods/index 2'
     | '/settings/profile'
     | '/expenses'
     | '/goods'
@@ -171,7 +160,6 @@ export interface FileRouteTypes {
     | '/_public/login'
     | '/_public/signup'
     | '/_public/'
-    | '/_protected/goods/index 2'
     | '/_protected/settings/profile'
     | '/_protected/expenses/'
     | '/_protected/goods/'
@@ -261,13 +249,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsProfileRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/goods/index 2': {
-      id: '/_protected/goods/index 2'
-      path: '/goods/index 2'
-      fullPath: '/goods/index 2'
-      preLoaderRoute: typeof ProtectedGoodsIndex2RouteImport
-      parentRoute: typeof ProtectedRoute
-    }
     '/_protected/expenses/studio-overhead/': {
       id: '/_protected/expenses/studio-overhead/'
       path: '/expenses/studio-overhead'
@@ -286,7 +267,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface ProtectedRouteChildren {
-  ProtectedGoodsIndex2Route: typeof ProtectedGoodsIndex2Route
   ProtectedSettingsProfileRoute: typeof ProtectedSettingsProfileRoute
   ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute
   ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute
@@ -297,7 +277,6 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedGoodsIndex2Route: ProtectedGoodsIndex2Route,
   ProtectedSettingsProfileRoute: ProtectedSettingsProfileRoute,
   ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
   ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,

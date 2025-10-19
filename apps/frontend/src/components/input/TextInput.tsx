@@ -3,7 +3,7 @@ type TextInputProps = {
     name?: string;
     placeholder?: string;
     label?: string;
-    value: string | number;
+    value: string;
     error?: string;
     step?: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
