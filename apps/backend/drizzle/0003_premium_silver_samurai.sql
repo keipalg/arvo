@@ -10,6 +10,8 @@ DROP TABLE "production_expense" CASCADE;--> statement-breakpoint
 DROP TABLE "production_expense_ratio" CASCADE;--> statement-breakpoint
 ALTER TABLE "material_and_supply" DROP CONSTRAINT "material_and_supply_material_type_id_material_type_id_fk";
 --> statement-breakpoint
+ALTER TABLE "material_and_supply" ALTER COLUMN "last_purchase_date" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "material_and_supply" ALTER COLUMN "supplier" DROP NOT NULL;--> statement-breakpoint
 ALTER TABLE "material_and_supply" ADD COLUMN "material_type" text NOT NULL;--> statement-breakpoint
 ALTER TABLE "material_and_supply" ADD COLUMN "cost_per_unit" numeric NOT NULL;--> statement-breakpoint
 ALTER TABLE "user_preference" ADD COLUMN "profit_percentage" numeric;--> statement-breakpoint

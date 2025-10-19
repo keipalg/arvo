@@ -382,13 +382,13 @@
                     "name": "last_purchase_date",
                     "type": "date",
                     "primaryKey": false,
-                    "notNull": false
+                    "notNull": true
                 },
                 "supplier": {
                     "name": "supplier",
                     "type": "text",
                     "primaryKey": false,
-                    "notNull": true
+                    "notNull": false
                 },
                 "notes": {
                     "name": "notes",
