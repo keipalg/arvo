@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
 import { trpc } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
-
+import { useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
 
@@ -15,7 +15,7 @@ type Goods = inferRouterOutputs<AppRouter>["goods"]["list"][number] & {
 };
 
 function GoodsList() {
-    const { data, isLoading, error } = trpc.goods.list.useQuery();
+    const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     console.log("Raw data:", data);
 
     const columns: Array<{
