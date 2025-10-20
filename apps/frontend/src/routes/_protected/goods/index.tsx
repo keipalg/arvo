@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import { trpc } from "../../../utils/trpcClient";
+import { trpc, queryClient } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
+import React, { useState } from "react";
+
+import Button from "../../../components/button/Button";
+import RightDrawer from "../../../components/drawer/RightDrawer";
+import TextArea from "../../../components/input/TextArea";
+import { goodsInputValidation } from "shared/validation/goodsValidation";
+import TextInput from "../../../components/input/TextInput";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -15,6 +22,14 @@ type Goods = inferRouterOutputs<AppRouter>["goods"]["list"][number] & {
 };
 
 function GoodsList() {
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [name, setName] = useState("");
+    // const [productType, setProductType] = useState("");
+    const [retailPrice, setRetailPrice] = useState(0.0);
+    const [note, setNote] = useState("");
+    const [inventoryQuantity, setInventoryQuantity] = useState(0);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     console.log("Raw data:", data);
 
@@ -62,19 +77,118 @@ function GoodsList() {
         },
     ];
 
+    const resetForm = () => {
+        setName("");
+        // setProductType("");
+        setRetailPrice(0.0);
+        setInventoryQuantity(0);
+        setNote("");
+        setFormErrors({});
+    };
+
     const tabledData = data?.map((element) => ({
         ...element,
         actions: "",
     }));
+
+    const addGoodMutation = useMutation(
+        trpc.goods.add.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.goods.list.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const closeDrawer = () => {
+        setDrawerOpen(false);
+        resetForm();
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const result = goodsInputValidation.safeParse({
+            name,
+            // productType,
+            retailPrice,
+            note,
+            inventoryQuantity,
+        });
+
+        if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.issues.forEach((issue) => {
+                if (issue.path.length > 0) {
+                    errors[issue.path[0] as string] = issue.message;
+                }
+            });
+            console.log(errors);
+            setFormErrors(errors);
+            return;
+        }
+
+        setFormErrors({});
+        addGoodMutation.mutate(result.data);
+        setDrawerOpen(false);
+    };
 
     return (
         <BaseLayout title="Product List">
             <h3 className="">Your Products</h3>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
+            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
+            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+                <h3 className="text-2xl">Product Information</h3>
+                <form
+                    onSubmit={(e) => {
+                        void handleSubmit(e);
+                    }}
+                >
+                    <TextInput
+                        label="Product Name"
+                        name="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        error={formErrors.name}
+                    ></TextInput>
+                    {/* TODO: need to add product type */}
+                    <TextInput
+                        label="Quantity"
+                        type="number"
+                        value={inventoryQuantity}
+                        onChange={(e) =>
+                            setInventoryQuantity(Number(e.target.value))
+                        }
+                        error={formErrors.inventoryQuantity}
+                    >
+                        {/*TODO: need to add minimum quantity  */}
+                    </TextInput>
+                    <TextInput
+                        label="Price (per unit)"
+                        type="number"
+                        value={Number(retailPrice).toFixed(2)}
+                        onChange={(e) => setRetailPrice(Number(e.target.value))}
+                        step="0.01"
+                        error={formErrors.retailPrice}
+                    ></TextInput>
+                    <TextArea
+                        label="Notes"
+                        name="notes"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                    ></TextArea>
+                    <Button
+                        value="Cancel"
+                        onClick={() => setDrawerOpen(false)}
+                    ></Button>
+                    <Button type="submit" value="Add Product"></Button>
+                </form>
+            </RightDrawer>
         </BaseLayout>
     );
 }

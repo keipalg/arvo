@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
     good,
@@ -30,4 +30,21 @@ export const getGoodsList = async (userId: string) => {
         );
 
     return goods;
+};
+
+export type GoodInsert = InferInsertModel<typeof good>;
+export const addGood = async (data: GoodInsert) => {
+    return await db
+        .insert(good)
+        .values({
+            id: crypto.randomUUID(),
+            userId: data.userId,
+            name: data.name,
+            productTypeId: data.productTypeId,
+            retailPrice: data.retailPrice,
+            image: data.image,
+            note: data.note,
+            // TODO: Add minimum stock level
+        })
+        .returning({ id: good.id });
 };
