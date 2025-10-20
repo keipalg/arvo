@@ -48,3 +48,7 @@ export const addGood = async (data: GoodInsert) => {
         })
         .returning({ id: good.id });
 };
+
+export const deleteGood = async (goodId: string) => {
+    await db.delete(good).where(eq(good.id, goodId));
+};
