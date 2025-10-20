@@ -144,10 +144,40 @@ export const good = pgTable("good", {
     name: text("name").notNull(),
     productTypeId: uuid("product_type_id").references(() => productType.id),
     image: text("image"),
-    retailPrice: numeric("retail_price").notNull(),
+    retailPrice: numeric("retail_price", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
     note: text("note"),
     inventoryQuantity: integer("inventory_quantity").default(0),
-    producedQuantity: integer("produced_quantity"),
+    producedQuantity: integer("produced_quantity").default(0),
+    materialCost: numeric("material_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    orverheadCost: numeric("orverhead_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    laborCost: numeric("labor_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    operatingCost: numeric("operating_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    netProfit: numeric("net_profit", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    minimumStockLevel: integer("minimum_stock_level"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -180,7 +210,11 @@ export const batchRecipe = pgTable("batch_recipe", {
     materialId: uuid("material_id")
         .references(() => materialAndSupply.id)
         .notNull(),
-    usageAmount: numeric("usage_amount"),
+    usageAmount: numeric("usage_amount", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -205,8 +239,11 @@ export const materialOutputRatio = pgTable("material_output_ratio", {
     materialId: uuid("material_id")
         .references(() => materialAndSupply.id)
         .notNull(),
-    input: numeric("input").notNull(),
-    output: integer("output").notNull(),
+    input: numeric("input", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
