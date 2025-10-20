@@ -5,7 +5,8 @@
         "dev": "tsx watch src/index.ts",
         "build": "tsc",
         "start": "node dist/index.js",
-        "db:seed": "node --import tsx --env-file .env ./scripts/seed.ts"
+        "db:seed": "node --import tsx --env-file .env ./scripts/seed.ts",
+        "db:setup-materials": "node --import tsx --env-file .env ./scripts/setupMaterials.ts"
     },
     "dependencies": {
         "@hono/node-server": "^1.19.0",
