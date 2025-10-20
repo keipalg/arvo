@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import { trpc } from "../../../utils/trpcClient";
+import { queryClient, trpc } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Button from "../../../components/button/Button";
+import { useEffect, useState } from "react";
+import RightDrawer from "../../../components/drawer/RightDrawer";
+import TextInput from "../../../components/input/TextInput";
+import NumberInput from "../../../components/input/NumberInput";
+import TextArea from "../../../components/input/TextArea";
+import Select from "../../../components/input/Select";
+import { addMaterialsValidation } from "shared/validation/addMaterialsValidation";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -16,6 +24,19 @@ type Materials = inferRouterOutputs<AppRouter>["materials"]["list"][number] & {
 };
 
 function MaterialsList() {
+    const [itemName, setItemName] = useState("");
+    const [type, setType] = useState("");
+    const [quantity, setQuantity] = useState(0);
+    const [minStockLevel, setMinStockLevel] = useState(0);
+    const [cost, setCost] = useState(0);
+    const [unit, setUnit] = useState("");
+    const [lastPurchaseDate, setLastPurchaseDate] = useState("");
+    const [supplier, setSupplier] = useState("");
+    const [notes, setNotes] = useState("");
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+    const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
     const { data, isLoading, error } = useQuery(
         trpc.materials.list.queryOptions(),
     );
@@ -42,15 +63,12 @@ function MaterialsList() {
         { key: "status", header: "Status" },
         {
             key: "actions",
-            header: "Actions",
+            header: "Action",
             render: () => (
                 <>
                     <div className="flex gap-2">
                         <button className="text-blue-400 hover:underline">
                             Edit
-                        </button>
-                        <button className="text-blue-400 hover:underline">
-                            Delete
                         </button>
                     </div>
                 </>
@@ -58,19 +76,171 @@ function MaterialsList() {
         },
     ];
 
+    const resetForm = () => {
+        setItemName("");
+        setType("");
+        setQuantity(0);
+        setMinStockLevel(0);
+        setCost(0);
+        setUnit("");
+        setLastPurchaseDate("");
+        setSupplier("");
+        setNotes("");
+        setFormErrors({});
+    };
+
+    const closeDrawer = () => {
+        setDrawerOpen(false);
+        resetForm();
+    };
+
     const tabledData = data?.map((element) => ({
         ...element,
         actions: "",
     }));
+
+    const addMaterialMutation = useMutation(
+        trpc.materials.add.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.list.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const result = addMaterialsValidation.safeParse({
+            name: itemName,
+            type,
+            unit,
+            quantity,
+            cost,
+            minStockLevel,
+            lastPurchaseDate,
+            supplierName: supplier,
+            notes,
+        });
+
+        if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.issues.forEach((issue) => {
+                if (issue.path.length > 0) {
+                    errors[issue.path[0] as string] = issue.message;
+                }
+            });
+            console.log(errors);
+            setFormErrors(errors);
+            return;
+        }
+
+        setFormErrors({});
+        addMaterialMutation.mutate(result.data);
+        closeDrawer();
+    };
+
+    useEffect(() => {
+        if (unitsList && unitsList.length > 0 && !unit) {
+            setUnit(unitsList[0].name);
+        }
+    }, [unitsList, unit]);
 
     return (
         <BaseLayout title="Materials List">
             <h3 className="">Materials</h3>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
+            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
+            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+                <form
+                    onSubmit={(e) => {
+                        void handleSubmit(e);
+                    }}
+                >
+                    <TextInput
+                        label="Material Item"
+                        name="name"
+                        value={itemName}
+                        onChange={(e) => setItemName(e.target.value)}
+                        error={formErrors.name}
+                    ></TextInput>
+                    {/* To be update to dynamic text input type where user can select existing types */}
+                    <TextInput
+                        label="Material Type"
+                        name="type"
+                        value={type}
+                        onChange={(e) => setType(e.target.value)}
+                        error={formErrors.type}
+                    ></TextInput>
+                    <NumberInput
+                        label="Quantity"
+                        name="quantity"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                        error={formErrors.quantity}
+                        min="0"
+                    ></NumberInput>
+                    <NumberInput
+                        label="Min. Stock Level"
+                        name="minStockLevel"
+                        value={minStockLevel}
+                        onChange={(e) =>
+                            setMinStockLevel(Number(e.target.value))
+                        }
+                        error={formErrors.minStockLevel}
+                        min="0"
+                    ></NumberInput>
+                    <NumberInput
+                        label="Cost"
+                        name="type"
+                        value={cost}
+                        onChange={(e) => setCost(Number(e.target.value))}
+                        error={formErrors.cost}
+                        min="0"
+                        step="0.1"
+                    ></NumberInput>
+                    <TextInput
+                        label="Last Purchase Date"
+                        type="date"
+                        name="lastPurchaseDate"
+                        value={lastPurchaseDate}
+                        onChange={(e) => setLastPurchaseDate(e.target.value)}
+                    ></TextInput>
+                    <TextInput
+                        label="Supplier"
+                        name="supplier"
+                        value={supplier}
+                        onChange={(e) => setSupplier(e.target.value)}
+                        error={formErrors.supplier}
+                    ></TextInput>
+                    <TextArea
+                        label="Additional Notes"
+                        name="notes"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                    ></TextArea>
+                    <Select
+                        label="Unit"
+                        name="unit"
+                        value={unit}
+                        options={
+                            unitsList
+                                ? unitsList.map((unitsOption) => ({
+                                      value: unitsOption.name,
+                                      label: `${unitsOption.name} (${unitsOption.abv})`,
+                                  }))
+                                : []
+                        }
+                        onChange={(e) => setUnit(e.target.value)}
+                    ></Select>
+                    <Button type="submit" value="Save"></Button>
+                </form>
+            </RightDrawer>
         </BaseLayout>
     );
 }

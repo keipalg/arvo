@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { materialAndSupply, unit } from "../db/schema.js";
 import {
+    getCostPerUnit,
     getQuantityWithUnit,
     getStatus,
     getTotalCost,
@@ -40,4 +41,34 @@ export const getMaterialsList = async (userId: string) => {
             material.unitAbbreviation,
         ),
     }));
+};
+
+export const getMaterialTypes = async (userId: string) => {
+    return await db
+        .selectDistinct({
+            type: materialAndSupply.materialType,
+        })
+        .from(materialAndSupply)
+        .where(eq(materialAndSupply.userId, userId));
+};
+
+export type MaterialInsert = InferInsertModel<typeof materialAndSupply>;
+export const addMaterial = async (data: MaterialInsert) => {
+    return await db
+        .insert(materialAndSupply)
+        .values({
+            id: crypto.randomUUID(),
+            userId: data.userId,
+            name: data.name,
+            materialType: data.materialType,
+            unitId: data.unitId,
+            quantity: data.quantity,
+            purchasePrice: data.purchasePrice,
+            costPerUnit: getCostPerUnit(data.purchasePrice, data.quantity),
+            lastPurchaseDate: data.lastPurchaseDate,
+            supplier: data.supplier,
+            notes: data.notes,
+            threshold: data.threshold,
+        })
+        .returning({ id: materialAndSupply.id });
 };

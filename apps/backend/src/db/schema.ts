@@ -1,16 +1,16 @@
+import { relations, sql } from "drizzle-orm";
 import {
     boolean,
+    check,
     date,
     integer,
     numeric,
+    pgEnum,
     pgTable,
     text,
     timestamp,
     uuid,
-    check,
-    pgEnum,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
 import { user } from "../auth/auth-schema.ts";
 
 export const sampleTable = pgTable("sample", {
@@ -361,6 +361,7 @@ export const unit = pgTable("unit", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
     abbreviation: text("abbreviation").notNull(),
+    category: text("category").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -378,13 +379,29 @@ export const materialAndSupply = pgTable("material_and_supply", {
     unitId: uuid("unit_id")
         .references(() => unit.id)
         .notNull(),
-    quantity: integer("quantity").notNull(),
-    purchasePrice: numeric("purchase_price").notNull(),
-    costPerUnit: numeric("cost_per_unit").notNull(),
+    quantity: numeric("quantity", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
+    purchasePrice: numeric("purchase_price", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
+    costPerUnit: numeric("cost_per_unit", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
     lastPurchaseDate: date("last_purchase_date").notNull(),
     supplier: text("supplier"),
     notes: text("notes"),
-    threshold: integer("threshold"),
+    threshold: numeric("threshold", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()

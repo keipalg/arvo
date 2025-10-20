@@ -11,10 +11,17 @@ export const getStatus = (threshold: number, quantity: number): string => {
 };
 
 export const getTotalCost = (
+    cost_per_unit: number,
+    quantity: number,
+): number => {
+    return quantity * cost_per_unit;
+};
+
+export const getCostPerUnit = (
     purchase_price: number,
     quantity: number,
 ): number => {
-    return quantity * purchase_price;
+    return purchase_price / quantity;
 };
 
 export const getQuantityWithUnit = (
