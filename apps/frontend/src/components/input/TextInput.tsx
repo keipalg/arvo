@@ -20,8 +20,8 @@ const TextInput = ({
     onChange,
 }: TextInputProps) => {
     return (
-        <div className="flex flex-col gap-1">
-            <label>{label}</label>
+        <div className="flex flex-col">
+            <label className="font-semibold">{label}</label>
             <input
                 type={type}
                 name={name}
@@ -29,7 +29,7 @@ const TextInput = ({
                 onChange={onChange}
                 placeholder={placeholder}
                 step={step}
-                className="border rounded px-2 py-1 bg-white"
+                className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
             />
             {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>

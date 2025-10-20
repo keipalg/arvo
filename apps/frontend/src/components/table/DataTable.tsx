@@ -17,14 +17,14 @@ const DataTable = <T extends { id: number | string }>({
 }: DataTableProps<T>) => {
     return (
         <>
-            <div className="rounded-2xl border border-gray-100 overflow-clip">
-                <table>
+            <div className="rounded-2xl border border-gray-100">
+                <table className="w-full">
                     <thead className="bg-gray-50">
                         <tr>
                             {columns.map((column) => (
                                 <th
                                     key={String(column.key)}
-                                    className="px-6 py-3"
+                                    className="text-left px-4 py-3"
                                 >
                                     {column.header}
                                 </th>
@@ -41,7 +41,7 @@ const DataTable = <T extends { id: number | string }>({
                                 {columns.map((column) => (
                                     <td
                                         key={String(column.key)}
-                                        className="px-6 py-3"
+                                        className="px-4 py-3"
                                     >
                                         {column.render
                                             ? column.render(

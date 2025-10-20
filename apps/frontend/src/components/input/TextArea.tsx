@@ -14,12 +14,12 @@ const TextArea = ({
     onChange,
 }: TextAreaProps) => {
     return (
-        <div className="flex flex-col gap-1">
-            <label>{label}</label>
+        <div className="flex flex-col">
+            <label className="font-semibold">{label}</label>
             <textarea
                 name={name}
                 placeholder={placeholder}
-                className="border rounded px-2 py-1 bg-white"
+                className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
                 value={value}
                 onChange={onChange}
             />

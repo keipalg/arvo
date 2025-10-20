@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import Header from "./Header";
-import Footer from "./Footer";
-import Sidebar from "./Sidebar";
+import Header from "./layout/Header";
+import Sidebar from "./layout/Sidebar";
 
 type BaseLayoutProps = {
     title: string;
@@ -15,12 +14,13 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
 
     return (
         <>
-            <Header title={title}></Header>
-            <div className="min-h-screen flex flex-row relative overflow-x-hidden">
-                <Sidebar />
-                <main>{children}</main>
+            <Sidebar />
+            <div className="h-screen min-h-screen flex flex-col w-full relative overflow-x-hidden">
+                <main className="flex-1 overflow-auto py-4 pl-4 pr-4 md:pr-12">
+                    <Header />
+                    {children}
+                </main>
             </div>
-            <Footer />
         </>
     );
 };

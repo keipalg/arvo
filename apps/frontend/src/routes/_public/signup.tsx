@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../../auth/auth-client";
-import { PasswordInput } from "../../components/input/passwordInput";
+import { PasswordInput } from "../../components/input/PasswordInput";
 
 export const Route = createFileRoute("/_public/signup")({
     component: SignUp,
@@ -42,7 +42,7 @@ function SignUp() {
     };
 
     return (
-        <div className="flex justify-center">
+        <div className="fixed inset-0 flex justify-center items-center p-4">
             <div className="shadow-2xl max-w-100 text-center rounded-2xl p-5 flex flex-col gap-5">
                 <h3 className="text-2xl">Sign Up</h3>
                 <form

@@ -23,7 +23,7 @@ const NumberInput = ({
 }: NumberInputProps) => {
     return (
         <div className="flex flex-col gap-1">
-            {label && <label>{label}</label>}
+            {label && <label className="font-semibold">{label}</label>}
             <input
                 type="number"
                 name={name}
@@ -34,7 +34,7 @@ const NumberInput = ({
                 min={min}
                 max={max}
                 required // Enforce non-empty input
-                className="border rounded px-2 py-1 bg-white"
+                className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
             />
             {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>

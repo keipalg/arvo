@@ -8,7 +8,7 @@ const Button = ({ value, type = "button", onClick }: ButtonProps) => {
     return (
         <button
             type={type}
-            className="border rounded px-2 py-1 bg-blue-600 text-white"
+            className="border rounded-2xl px-2.5 py-3.5 bg-arvo-blue-100 text-arvo-white-0 cursor-pointer"
             onClick={onClick}
         >
             {value}

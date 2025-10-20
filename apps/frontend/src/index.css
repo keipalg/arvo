@@ -1,11 +1,10 @@
-/* :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+@import "tailwindcss";
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+:root {
+    font-family:
+        "National Park", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -17,16 +16,6 @@
     width: 100%;
 }
 
-a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-}
-
-a:hover {
-    color: #535bf2;
-}
-
 body {
     margin: 0;
     display: flex;
@@ -35,58 +24,42 @@ body {
     min-height: 100vh;
 }
 
-h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
+.icon-white {
+    filter: brightness(0) invert(1);
 }
 
-button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-}
+@theme {
+    --color-arvo-white-0: #ffffff;
+    --color-arvo-white-100: #f8f8f7;
 
-button:hover {
-    border-color: #646cff;
-}
+    --color-arvo-black-5: #e0dfdc;
+    --color-arvo-black-10: #99948a;
+    --color-arvo-black-25: #807b6f;
+    --color-arvo-black-50: #656158;
+    --color-arvo-black-75: #4a4640;
+    --color-arvo-black-100: #2b2c2c;
 
-button:focus,
-button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
-}
+    --color-arvo-blue-20: #f7f8fd;
+    --color-arvo-blue-60: #c0c6ef;
+    --color-arvo-blue-80: #7a88e1;
+    --color-arvo-blue-100: #2d42c9;
 
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
+    --color-arvo-green-20: #e0f6eb;
+    --color-arvo-green-50: #bed9cb;
+    --color-arvo-green-80: #31a56c;
+    --color-arvo-green-100: #267f53;
 
-    a:hover {
-        color: #747bff;
-    }
+    --color-arvo-orange-20: #fef2ec;
+    --color-arvo-orange-50: #fce3d5;
+    --color-arvo-orange-80: #f3935d;
+    --color-arvo-orange-100: #f0742f;
 
-    button {
-        background-color: #f9f9f9;
-    }
-}
- */
+    --color-arvo-yellow-20: #fff4d9;
+    --color-arvo-yellow-50: #fff4d9;
+    --color-arvo-yellow-80: #ffb533;
+    --color-arvo-yellow-100: #ffa200;
 
-@import "tailwindcss";
-
-#root {
-    width: 100%;
-}
-
-body {
-    margin: 0;
-    display: flex;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
+    --color-arvo-purple-20: #fefbfe;
+    --color-arvo-purple-50: #f9ebfb;
+    --color-arvo-purple-100: #dd83eb;
 }

@@ -18,6 +18,7 @@ import { Route as ProtectedSalesIndexRouteImport } from './routes/_protected/sal
 import { Route as ProtectedMaterialsIndexRouteImport } from './routes/_protected/materials/index'
 import { Route as ProtectedGoodsIndexRouteImport } from './routes/_protected/goods/index'
 import { Route as ProtectedExpensesIndexRouteImport } from './routes/_protected/expenses/index'
+import { Route as ProtectedDashboardIndexRouteImport } from './routes/_protected/dashboard/index'
 import { Route as ProtectedSettingsProfileRouteImport } from './routes/_protected/settings/profile'
 import { Route as ProtectedExpensesStudioOverheadIndexRouteImport } from './routes/_protected/expenses/studio-overhead/index'
 import { Route as ProtectedExpensesOperationalIndexRouteImport } from './routes/_protected/expenses/operational/index'
@@ -66,6 +67,11 @@ const ProtectedExpensesIndexRoute = ProtectedExpensesIndexRouteImport.update({
   path: '/expenses/',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedDashboardIndexRoute = ProtectedDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedSettingsProfileRoute =
   ProtectedSettingsProfileRouteImport.update({
     id: '/settings/profile',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
   '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/dashboard': typeof ProtectedDashboardIndexRoute
   '/expenses': typeof ProtectedExpensesIndexRoute
   '/goods': typeof ProtectedGoodsIndexRoute
   '/materials': typeof ProtectedMaterialsIndexRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/signup': typeof PublicSignupRoute
   '/': typeof PublicIndexRoute
   '/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/dashboard': typeof ProtectedDashboardIndexRoute
   '/expenses': typeof ProtectedExpensesIndexRoute
   '/goods': typeof ProtectedGoodsIndexRoute
   '/materials': typeof ProtectedMaterialsIndexRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/_public/signup': typeof PublicSignupRoute
   '/_public/': typeof PublicIndexRoute
   '/_protected/settings/profile': typeof ProtectedSettingsProfileRoute
+  '/_protected/dashboard/': typeof ProtectedDashboardIndexRoute
   '/_protected/expenses/': typeof ProtectedExpensesIndexRoute
   '/_protected/goods/': typeof ProtectedGoodsIndexRoute
   '/_protected/materials/': typeof ProtectedMaterialsIndexRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/'
     | '/settings/profile'
+    | '/dashboard'
     | '/expenses'
     | '/goods'
     | '/materials'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/'
     | '/settings/profile'
+    | '/dashboard'
     | '/expenses'
     | '/goods'
     | '/materials'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/_public/signup'
     | '/_public/'
     | '/_protected/settings/profile'
+    | '/_protected/dashboard/'
     | '/_protected/expenses/'
     | '/_protected/goods/'
     | '/_protected/materials/'
@@ -242,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedExpensesIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/dashboard/': {
+      id: '/_protected/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ProtectedDashboardIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/settings/profile': {
       id: '/_protected/settings/profile'
       path: '/settings/profile'
@@ -268,6 +287,7 @@ declare module '@tanstack/react-router' {
 
 interface ProtectedRouteChildren {
   ProtectedSettingsProfileRoute: typeof ProtectedSettingsProfileRoute
+  ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute
   ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute
   ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute
   ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute
@@ -278,6 +298,7 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedSettingsProfileRoute: ProtectedSettingsProfileRoute,
+  ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
   ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
   ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,
   ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
