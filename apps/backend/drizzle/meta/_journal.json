@@ -29,6 +29,13 @@
             "when": 1760847863869,
             "tag": "0003_premium_silver_samurai",
             "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "7",
+            "when": 1760933491499,
+            "tag": "0004_white_stardust",
+            "breakpoints": true
         }
     ]
 }
