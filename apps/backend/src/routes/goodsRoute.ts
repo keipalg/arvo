@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { router, protectedProcedure } from "./trpcBase.js";
 import {
     getGoodsList,
     addGood,
+    deleteGood,
     type GoodInsert,
 } from "../service/goodsService.js";
 import { goodsInputValidation } from "shared/validation/goodsValidation.js";
@@ -25,5 +27,12 @@ export const goodsRouter = router({
                 // TODO: Need to add Minimum Stock quantity
             };
             const goodData = await addGood(inputData);
+        }),
+
+    delete: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            await deleteGood(input.id);
+            return { success: true };
         }),
 });

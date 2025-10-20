@@ -36,7 +36,7 @@ function GoodsList() {
     const columns: Array<{
         key: keyof Goods;
         header: string;
-        render?: (value: Goods[keyof Goods]) => React.ReactNode;
+        render?: (value: Goods[keyof Goods], row: Goods) => React.ReactNode;
     }> = [
         {
             key: "name",
@@ -62,13 +62,16 @@ function GoodsList() {
         {
             key: "actions",
             header: "Actions",
-            render: () => (
+            render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
                         <button className="text-blue-400 hover:underline">
                             Edit
                         </button>
-                        <button className="text-blue-400 hover:underline">
+                        <button
+                            className="text-blue-400 hover:underline"
+                            onClick={() => handleDelete(row.id)}
+                        >
                             Delete
                         </button>
                     </div>
@@ -93,6 +96,16 @@ function GoodsList() {
 
     const addGoodMutation = useMutation(
         trpc.goods.add.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.goods.list.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const deleteGoodMutation = useMutation(
+        trpc.goods.delete.mutationOptions({
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.list.queryKey(),
@@ -131,6 +144,12 @@ function GoodsList() {
         setFormErrors({});
         addGoodMutation.mutate(result.data);
         setDrawerOpen(false);
+    };
+
+    const handleDelete = (id: string) => {
+        if (window.confirm("Are you sure you want to delete this good?")) {
+            deleteGoodMutation.mutate({ id });
+        }
     };
 
     return (
