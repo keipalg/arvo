@@ -52,6 +52,12 @@ export const getMaterialTypes = async (userId: string) => {
         .where(eq(materialAndSupply.userId, userId));
 };
 
+export const deleteMaterial = async (materialId: string) => {
+    await db
+        .delete(materialAndSupply)
+        .where(eq(materialAndSupply.id, materialId));
+};
+
 export type MaterialInsert = InferInsertModel<typeof materialAndSupply>;
 export const addMaterial = async (data: MaterialInsert) => {
     return await db
