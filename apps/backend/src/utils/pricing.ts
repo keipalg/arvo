@@ -3,35 +3,18 @@
 // ===========================================================================
 
 import {
-    DEFAULT_LABOR_COST_PCT,
+    DEFAULT_OPERATING_COST_PCT,
     DEFAULT_OVERHEAD_COST_PCT,
     DEFAULT_PROFIT_MARGIN_PCT,
 } from "./constants/accounting.js";
 
 /**
- * Calculate Cost Per Unit (for COGS)
- * @param input amount of material
- * @param output units produced per input
- * @returns material cost per unit
+ * Calculate Total Material Cost per product (COGS)
+ * @param input list of material costs
+ * @returns total material cost
  */
-export const getMaterialCostPerUnit = (
-    input: number,
-    output: number,
-): number => {
-    return input / output;
-};
-
-/**
- * Calculate labor cost per unit (for COGS)
- * @param laborPct labor cost percentage, otherwise use default value
- * @param mcpu material cost per unit
- * @returns labor cost per unit
- */
-export const getLaborCostPerUnit = (
-    laborPct: number = DEFAULT_LABOR_COST_PCT,
-    mcpu: number,
-): number => {
-    return laborPct * mcpu;
+export const getTotalMaterialCost = (...input: number[]): number => {
+    return input.reduce((acc, curr) => acc + curr, 0);
 };
 
 /**
@@ -72,7 +55,7 @@ export const getCOGS = (
  * @returns operating cost
  */
 export const getOperatingCost = (
-    operatingCostPct: number = DEFAULT_OVERHEAD_COST_PCT,
+    operatingCostPct: number = DEFAULT_OPERATING_COST_PCT,
     cogs: number,
 ) => {
     return operatingCostPct * cogs;

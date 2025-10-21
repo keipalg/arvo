@@ -7,7 +7,6 @@
 
 // For Pricing - COGS
 export const DEFAULT_OVERHEAD_COST_PCT: number = 0.2;
-export const DEFAULT_LABOR_COST_PCT: number = 0.5;
 // For Pricing - Operating Cost
 export const DEFAULT_OPERATING_COST_PCT: number = 0.5;
 // For Pricing - Sale Price
