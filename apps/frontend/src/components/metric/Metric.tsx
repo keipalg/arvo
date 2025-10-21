@@ -19,21 +19,21 @@ const metricStyles: Record<string, MetricStyleType> = {
         bgColor: "bg-arvo-green-20",
         borderColor: "border-arvo-green-50",
         badgeBgColor: "bg-arvo-green-100",
-        trendIconSrc: "icon/arrow-trend-upward.svg",
+        trendIconSrc: "/icon/arrow-trend-upward.svg",
     },
     negative: {
         textColor: "text-arvo-orange-100",
         bgColor: "bg-arvo-yellow-50",
         borderColor: "border-arvo-orange-50",
         badgeBgColor: "bg-arvo-orange-100",
-        trendIconSrc: "icon/arrow-trend-downward.svg",
+        trendIconSrc: "/icon/arrow-trend-downward.svg",
     },
     neutral: {
         textColor: "text-gray-500",
         bgColor: "bg-gray-100/10",
         borderColor: "border-gray-200",
         badgeBgColor: "bg-gray-600",
-        trendIconSrc: "icon/arrow-trend-upward.svg",
+        trendIconSrc: "/icon/arrow-trend-upward.svg",
     },
 };
 

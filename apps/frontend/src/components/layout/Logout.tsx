@@ -29,7 +29,7 @@ export const LogoutButton = () => {
     return (
         <>
             <div className="px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-80 hover:text-arvo-white-0 hover:rounded-xl cursor-pointer">
-                <img src="icon/logout.svg" className="w-6 h-6"></img>
+                <img src="/icon/logout.svg" className="w-6 h-6"></img>
                 <button
                     // Event handler
                     onClick={() => void handleLogout()}

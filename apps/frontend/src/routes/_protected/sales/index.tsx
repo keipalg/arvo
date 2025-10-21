@@ -86,13 +86,13 @@ function SalesList() {
                 <>
                     <div className="flex gap-2">
                         <button className="cursor-pointer">
-                            <img src="icon/edit.svg"></img>
+                            <img src="/icon/edit.svg"></img>
                         </button>
                         <button
                             className="cursor-pointer"
                             onClick={() => handleDelete(row.id)}
                         >
-                            <img className="w-5" src="icon/delete.svg"></img>
+                            <img className="w-5" src="/icon/delete.svg"></img>
                         </button>
                     </div>
                 </>
