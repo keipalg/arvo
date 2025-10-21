@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authClient } from "../auth/auth-client";
+import { authClient } from "../../auth/auth-client";
 import { useNavigate } from "@tanstack/react-router";
 
 // Function for logout button
@@ -27,15 +27,20 @@ export const LogoutButton = () => {
     };
     // Return React component for logout button.
     return (
-        <button
-            // Event handler
-            onClick={() => void handleLogout()}
-            //  If logout is successed,button will be disabled
-            disabled={isLoggingOut}
-            className="bg-black text-white px-2 mx-2 rounded-xl"
-        >
-            {/*If expression for during logging out and before logging out*/}
-            {isLoggingOut ? "Logging Out..." : "Logout"}
-        </button>
+        <>
+            <div className="px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-80 hover:text-arvo-white-0 hover:rounded-xl cursor-pointer">
+                <img src="/icon/logout.svg" className="w-6 h-6"></img>
+                <button
+                    // Event handler
+                    onClick={() => void handleLogout()}
+                    //  If logout is successed,button will be disabled
+                    disabled={isLoggingOut}
+                    className="text-left cursor-pointer"
+                >
+                    {/*If expression for during logging out and before logging out*/}
+                    {isLoggingOut ? "Logging Out..." : "Logout"}
+                </button>
+            </div>
+        </>
     );
 };

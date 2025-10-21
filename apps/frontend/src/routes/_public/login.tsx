@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../../auth/auth-client";
-import { PasswordInput } from "../../components/input/passwordInput";
+import { PasswordInput } from "../../components/input/PasswordInput";
 
 export const Route = createFileRoute("/_public/login")({
     component: Login,
@@ -47,7 +47,7 @@ function Login() {
     };
 
     return (
-        <div className="flex justify-center">
+        <div className="fixed inset-0 flex items-center justify-center p-4">
             <div className="shadow-2xl max-w-100 text-center rounded-2xl p-5 flex flex-col gap-5">
                 <h3 className="text-2xl">Login</h3>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">

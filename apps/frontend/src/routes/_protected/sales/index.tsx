@@ -14,6 +14,9 @@ import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import { salesInputValidation } from "shared/validation/salesValidation";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import SalesStatus from "../../../components/badge/SalesStatus";
+import PageTitle from "../../../components/layout/PageTitle";
+import Metric from "../../../components/metric/Metric";
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
 });
@@ -69,21 +72,27 @@ function SalesList() {
             render: (value) => <>{new Date(value).toLocaleDateString()}</>,
         },
         { key: "channel", header: "Channel" },
-        { key: "status", header: "Status" },
+        {
+            key: "status",
+            header: "Status",
+            render: (value) => (
+                <SalesStatus statusKey={String(value)}></SalesStatus>
+            ),
+        },
         {
             key: "actions",
             header: "Actions",
             render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
-                        <button className="text-blue-400 hover:underline">
-                            Edit
+                        <button className="cursor-pointer">
+                            <img src="/icon/edit.svg"></img>
                         </button>
                         <button
-                            className="text-blue-400 hover:underline"
+                            className="cursor-pointer"
                             onClick={() => handleDelete(row.id)}
                         >
-                            Delete
+                            <img className="w-5" src="/icon/delete.svg"></img>
                         </button>
                     </div>
                 </>
@@ -230,10 +239,29 @@ function SalesList() {
 
     return (
         <BaseLayout title="Sales List">
-            <h3 className="">Sales</h3>
+            <div className="flex justify-between">
+                <PageTitle title="Sales" />
+                <Button
+                    value="Add"
+                    onClick={() => setDrawerOpen(true)}
+                ></Button>
+            </div>
+            <div className="flex gap-6 py-2">
+                <Metric
+                    value={`${String(7)} items`}
+                    changePercent={-5}
+                    topText="Total Revenue"
+                    bottomText="than last month"
+                ></Metric>
+                <Metric
+                    value={`${String(6)} items`}
+                    changePercent={15}
+                    topText="Total Sales"
+                    bottomText="compared to last month"
+                ></Metric>
+            </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
-            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}

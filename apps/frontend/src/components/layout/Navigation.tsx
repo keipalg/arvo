@@ -1,4 +1,4 @@
-const Sidebar = () => {
+const Navigation = () => {
     type Tab = {
         name: string;
         path: string;
@@ -22,17 +22,17 @@ const Sidebar = () => {
 
     const renderTabs = (tabs: Tab[]) => {
         return (
-            <ul className="flex flex-col">
+            <ul className="flex flex-col gap-1">
                 {tabs.map((tab) => (
                     <li key={tab.name}>
                         <a
                             href={tab.path}
-                            className="block px-4 py-2 hover:bg-gray-400"
+                            className="block px-3 py-3 hover:bg-arvo-blue-80 hover:text-arvo-white-0 hover:rounded-xl"
                         >
                             {tab.name}
                         </a>
                         {tab.children && (
-                            <ul className="ml-4 mt-1 border-l border-gray-400">
+                            <ul className="flex flex-col gap-1 ml-4">
                                 {renderTabs(tab.children)}
                             </ul>
                         )}
@@ -42,11 +42,7 @@ const Sidebar = () => {
         );
     };
 
-    return (
-        <aside className="min-w-64 min-h-screen w-64 bg-gray-300">
-            <nav>{renderTabs(tabs)}</nav>
-        </aside>
-    );
+    return <nav>{renderTabs(tabs)}</nav>;
 };
 
-export default Sidebar;
+export default Navigation;
