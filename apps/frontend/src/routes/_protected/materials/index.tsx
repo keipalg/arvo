@@ -35,6 +35,9 @@ function MaterialsList() {
     const [notes, setNotes] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [editingMaterialId, setEditingMaterialId] = useState<string | null>(
+        null,
+    );
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
     const { data, isLoading, error } = useQuery(
@@ -43,7 +46,10 @@ function MaterialsList() {
     const columns: Array<{
         key: keyof Materials;
         header: string;
-        render?: (value: Materials[keyof Materials]) => React.ReactNode;
+        render?: (
+            value: Materials[keyof Materials],
+            row: Materials,
+        ) => React.ReactNode;
     }> = [
         { key: "type", header: "Type" },
         { key: "name", header: "Item" },
@@ -64,10 +70,13 @@ function MaterialsList() {
         {
             key: "actions",
             header: "Action",
-            render: () => (
+            render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
-                        <button className="text-blue-400 hover:underline">
+                        <button
+                            className="text-blue-400 hover:underline"
+                            onClick={() => handleEdit(row)}
+                        >
                             Edit
                         </button>
                     </div>
@@ -87,11 +96,32 @@ function MaterialsList() {
         setSupplier("");
         setNotes("");
         setFormErrors({});
+        setEditingMaterialId(null);
     };
 
     const closeDrawer = () => {
         setDrawerOpen(false);
         resetForm();
+    };
+
+    const handleEdit = (material: Materials) => {
+        setEditingMaterialId(material.id);
+        setItemName(material.name);
+        setType(material.type);
+        setQuantity(material.quantity);
+        setMinStockLevel(material.threshold || 0);
+        setCost(Number(material.purchasePrice) || 0);
+        setUnit(material.unitName);
+        setLastPurchaseDate(
+            material.lastPurchaseDate
+                ? new Date(material.lastPurchaseDate)
+                      .toISOString()
+                      .split("T")[0]
+                : "",
+        );
+        setSupplier(material.supplier || "");
+        setNotes(material.notes || "");
+        setDrawerOpen(true);
     };
 
     const tabledData = data?.map((element) => ({
@@ -101,6 +131,16 @@ function MaterialsList() {
 
     const addMaterialMutation = useMutation(
         trpc.materials.add.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.list.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const deleteMaterialMutation = useMutation(
+        trpc.materials.delete.mutationOptions({
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
@@ -139,6 +179,13 @@ function MaterialsList() {
         setFormErrors({});
         addMaterialMutation.mutate(result.data);
         closeDrawer();
+    };
+
+    const handleDelete = (id: string) => {
+        if (window.confirm("Are you sure you want to delete this material?")) {
+            deleteMaterialMutation.mutate({ id });
+            closeDrawer();
+        }
     };
 
     useEffect(() => {
@@ -239,6 +286,13 @@ function MaterialsList() {
                         onChange={(e) => setUnit(e.target.value)}
                     ></Select>
                     <Button type="submit" value="Save"></Button>
+                    {editingMaterialId && (
+                        <Button
+                            type="button"
+                            value="Delete"
+                            onClick={() => handleDelete(editingMaterialId)}
+                        ></Button>
+                    )}
                 </form>
             </RightDrawer>
         </BaseLayout>

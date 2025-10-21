@@ -1,12 +1,14 @@
+import { addMaterialsValidation } from "shared/validation/addMaterialsValidation.js";
+import { z } from "zod";
 import {
     addMaterial,
+    deleteMaterial,
     getMaterialsList,
     getMaterialTypes,
     type MaterialInsert,
 } from "../service/materialsService.js";
 import { getUnitByName } from "../service/unitsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
-import { addMaterialsValidation } from "shared/validation/addMaterialsValidation.js";
 
 export const materialsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -38,6 +40,12 @@ export const materialsRouter = router({
                 costPerUnit: 0,
             };
             await addMaterial(inputData);
+            return { success: true };
+        }),
+    delete: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            await deleteMaterial(input.id);
             return { success: true };
         }),
 });
