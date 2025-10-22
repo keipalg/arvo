@@ -1,0 +1,1 @@
+ALTER TABLE "user_preference" ADD COLUMN "orverhead_cost_percentage" numeric(12, 2);
