@@ -26,7 +26,7 @@ export const userPreference = pgTable("user_preference", {
     productTypeIds: uuid("product_type_ids").array().notNull(),
     profitPercentage: numeric("profit_percentage"),
     operatingCostPercentage: numeric("operating_cost_percentage"),
-    laborCostPercentage: numeric("labor_cost_percentage"),
+    laborCost: numeric("labor_cost"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
