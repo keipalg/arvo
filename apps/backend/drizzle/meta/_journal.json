@@ -43,6 +43,13 @@
             "when": 1760934400965,
             "tag": "0005_far_mathemanic",
             "breakpoints": true
+        },
+        {
+            "idx": 6,
+            "version": "7",
+            "when": 1761106857605,
+            "tag": "0006_skinny_crystal",
+            "breakpoints": true
         }
     ]
 }
