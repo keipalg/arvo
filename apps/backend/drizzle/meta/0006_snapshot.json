@@ -1,6 +1,6 @@
 {
-    "id": "7833b794-b8e9-4c87-aab7-2d7f28bc9107",
-    "prevId": "07fe8450-fc2d-4ef9-9f2b-921e5bb9b226",
+    "id": "1a874561-a7a1-4946-9167-ae80597536fc",
+    "prevId": "7833b794-b8e9-4c87-aab7-2d7f28bc9107",
     "version": "7",
     "dialect": "postgresql",
     "tables": {
@@ -1394,19 +1394,19 @@
                 },
                 "profit_percentage": {
                     "name": "profit_percentage",
-                    "type": "numeric",
+                    "type": "numeric(12, 2)",
                     "primaryKey": false,
                     "notNull": false
                 },
                 "operating_cost_percentage": {
                     "name": "operating_cost_percentage",
-                    "type": "numeric",
+                    "type": "numeric(12, 2)",
                     "primaryKey": false,
                     "notNull": false
                 },
                 "labor_cost": {
                     "name": "labor_cost",
-                    "type": "numeric",
+                    "type": "numeric(12, 2)",
                     "primaryKey": false,
                     "notNull": false
                 },

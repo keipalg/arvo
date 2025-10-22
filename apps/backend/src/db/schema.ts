@@ -24,9 +24,21 @@ export const userPreference = pgTable("user_preference", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     productTypeIds: uuid("product_type_ids").array().notNull(),
-    profitPercentage: numeric("profit_percentage"),
-    operatingCostPercentage: numeric("operating_cost_percentage"),
-    laborCost: numeric("labor_cost"),
+    profitPercentage: numeric("profit_percentage", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    operatingCostPercentage: numeric("operating_cost_percentage", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    laborCost: numeric("labor_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
