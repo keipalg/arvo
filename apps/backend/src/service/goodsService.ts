@@ -5,6 +5,10 @@ import {
     productType,
     collectionTag,
     goodToCollectionTag,
+    unit,
+    materialAndSupply,
+    materialOutputRatio,
+    goodToMaterialOutputRatio,
 } from "../db/schema.js";
 
 export const getGoodsList = async (userId: string) => {
@@ -22,7 +26,7 @@ export const getGoodsList = async (userId: string) => {
         })
         .from(good)
         .where(eq(good.userId, userId))
-        .innerJoin(productType, eq(productType.id, good.productTypeId))
+        .leftJoin(productType, eq(productType.id, good.productTypeId))
         .leftJoin(goodToCollectionTag, eq(goodToCollectionTag.goodId, good.id))
         .leftJoin(
             collectionTag,
@@ -30,6 +34,25 @@ export const getGoodsList = async (userId: string) => {
         );
 
     return goods;
+};
+
+export const getMaterialsList = async (userId: string) => {
+    return await db.query.materialAndSupply.findMany({
+        columns: {
+            id: true,
+            name: true,
+            unitId: true,
+            costPerUnit: true,
+        },
+        where: eq(materialAndSupply.userId, userId),
+        with: {
+            unit: {
+                columns: {
+                    abbreviation: true,
+                },
+            },
+        },
+    });
 };
 
 export type GoodInsert = InferInsertModel<typeof good>;
@@ -44,9 +67,38 @@ export const addGood = async (data: GoodInsert) => {
             retailPrice: data.retailPrice,
             image: data.image,
             note: data.note,
-            // TODO: Add minimum stock level
+            inventoryQuantity: data.inventoryQuantity,
+            minimumStockLevel: data.minimumStockLevel,
         })
         .returning({ id: good.id });
+};
+
+export type MaterialOutputRatioInsert = InferInsertModel<
+    typeof materialOutputRatio
+>;
+export const addMaterialOutputRatio = async (
+    data: MaterialOutputRatioInsert,
+) => {
+    return await db
+        .insert(materialOutputRatio)
+        .values({
+            id: crypto.randomUUID(),
+            materialId: data.materialId,
+            input: data.input,
+        })
+        .returning({ id: materialOutputRatio.id });
+};
+
+export type goodToMaterialOutputRatioInsert = InferInsertModel<
+    typeof goodToMaterialOutputRatio
+>;
+export const addGoodToMaterialOutputRatio = async (
+    data: goodToMaterialOutputRatioInsert,
+) => {
+    return await db.insert(goodToMaterialOutputRatio).values({
+        goodId: data.goodId,
+        materialOutputRatioId: data.materialOutputRatioId,
+    });
 };
 
 export const deleteGood = async (goodId: string) => {

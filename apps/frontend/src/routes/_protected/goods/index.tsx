@@ -7,12 +7,12 @@ import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
 import React, { useState } from "react";
 
+import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextArea from "../../../components/input/TextArea";
 import { goodsInputValidation } from "shared/validation/goodsValidation";
 import TextInput from "../../../components/input/TextInput";
-
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
 });
@@ -21,16 +21,39 @@ type Goods = inferRouterOutputs<AppRouter>["goods"]["list"][number] & {
     actions: string;
 };
 
+type Materials = {
+    materialId: string;
+    name: string;
+    amount: number;
+    unitAbbreviation: string;
+};
+
+type MaterialWithUnit = {
+    id: string;
+    name: string;
+    unitId: string;
+    costPerUnit: number;
+    unit: {
+        abbreviation: string;
+    };
+};
+
 function GoodsList() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [name, setName] = useState("");
-    // const [productType, setProductType] = useState("");
+    const [productType, setProductType] = useState(
+        "0199dac5-fa50-7308-ad62-fb0d1e8e6aa4",
+    );
     const [retailPrice, setRetailPrice] = useState(0.0);
     const [note, setNote] = useState("");
     const [inventoryQuantity, setInventoryQuantity] = useState(0);
+    const [minimumStockLevel, setMinimumStockLevel] = useState(0);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
+    const [materials, setMaterials] = useState<Materials[]>([]);
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
+    const { data: materialList } = useQuery(
+        trpc.goods.materials.queryOptions(),
+    );
     console.log("Raw data:", data);
 
     const columns: Array<{
@@ -82,17 +105,59 @@ function GoodsList() {
 
     const resetForm = () => {
         setName("");
-        // setProductType("");
+        setProductType("0199dac5-fa50-7308-ad62-fb0d1e8e6aa4");
         setRetailPrice(0.0);
         setInventoryQuantity(0);
+        setMaterials([]);
         setNote("");
+        setMinimumStockLevel(0);
+        setMaterials([]);
         setFormErrors({});
     };
 
+    const closeDrawer = () => {
+        setDrawerOpen(false);
+        resetForm();
+    };
     const tabledData = data?.map((element) => ({
         ...element,
         actions: "",
     }));
+
+    const addMaterialRow = () => {
+        setMaterials([
+            ...materials,
+            { materialId: "", name: "", amount: 0.0, unitAbbreviation: "" },
+        ]);
+    };
+
+    const updateMaterialRow = (
+        index: number,
+        field: keyof Materials,
+        value: string | number,
+    ) => {
+        setMaterials((prevMaterials) => {
+            const updatedMaterials = [...prevMaterials];
+            updatedMaterials[index] = {
+                ...updatedMaterials[index],
+                [field]: value,
+            };
+
+            if (field === "materialId") {
+                const chosenMaterial = materialList?.find(
+                    (material) => material.id === value,
+                );
+                if (chosenMaterial) {
+                    updatedMaterials[index].unitAbbreviation = (
+                        chosenMaterial as MaterialWithUnit
+                    ).unit.abbreviation;
+                }
+            }
+            console.log(updatedMaterials);
+
+            return updatedMaterials;
+        });
+    };
 
     const addGoodMutation = useMutation(
         trpc.goods.add.mutationOptions({
@@ -114,19 +179,16 @@ function GoodsList() {
         }),
     );
 
-    const closeDrawer = () => {
-        setDrawerOpen(false);
-        resetForm();
-    };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const result = goodsInputValidation.safeParse({
             name,
-            // productType,
+            productTypeId: productType,
             retailPrice,
             note,
             inventoryQuantity,
+            minimumStockLevel,
+            materials,
         });
 
         if (!result.success) {
@@ -175,7 +237,14 @@ function GoodsList() {
                         onChange={(e) => setName(e.target.value)}
                         error={formErrors.name}
                     ></TextInput>
-                    {/* TODO: need to add product type */}
+                    <TextInput
+                        label="Product Type"
+                        name="productType"
+                        value={productType}
+                        onChange={(e) => setName(e.target.value)}
+                        error={formErrors.productType}
+                    ></TextInput>
+
                     <TextInput
                         label="Quantity"
                         type="number"
@@ -184,9 +253,60 @@ function GoodsList() {
                             setInventoryQuantity(Number(e.target.value))
                         }
                         error={formErrors.inventoryQuantity}
-                    >
-                        {/*TODO: need to add minimum quantity  */}
-                    </TextInput>
+                    ></TextInput>
+                    <TextInput
+                        label="Min. Stock Level"
+                        type="number"
+                        value={minimumStockLevel}
+                        onChange={(e) =>
+                            setMinimumStockLevel(Number(e.target.value))
+                        }
+                        error={formErrors.minimumStockLevel}
+                    ></TextInput>
+                    <Button
+                        type="button"
+                        value="Add Material"
+                        onClick={addMaterialRow}
+                    ></Button>
+                    {materials.map((row, index) => (
+                        <div key={index}>
+                            <Select
+                                label="Recipe per item"
+                                value={row.materialId}
+                                options={[
+                                    { value: "", label: "" },
+                                    ...(materialList?.map((material) => ({
+                                        value: material.id,
+                                        label: material.name,
+                                    })) || []),
+                                ]}
+                                onChange={(e) =>
+                                    updateMaterialRow(
+                                        index,
+                                        "materialId",
+                                        e.target.value,
+                                    )
+                                }
+                            />
+
+                            <TextInput
+                                label="Amount"
+                                type="number"
+                                value={row.amount}
+                                step="0.01"
+                                onChange={(e) =>
+                                    updateMaterialRow(
+                                        index,
+                                        "amount",
+                                        Number(e.target.value),
+                                    )
+                                }
+                            ></TextInput>
+                            {row.unitAbbreviation && (
+                                <span>Unit: {row.unitAbbreviation}</span>
+                            )}
+                        </div>
+                    ))}
                     <TextInput
                         label="Price (per unit)"
                         type="number"
@@ -201,10 +321,7 @@ function GoodsList() {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     ></TextArea>
-                    <Button
-                        value="Cancel"
-                        onClick={() => setDrawerOpen(false)}
-                    ></Button>
+                    <Button value="Cancel"></Button>
                     <Button type="submit" value="Add Product"></Button>
                 </form>
             </RightDrawer>
