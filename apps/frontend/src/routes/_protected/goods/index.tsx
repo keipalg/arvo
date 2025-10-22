@@ -5,7 +5,7 @@ import DataTable from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
@@ -28,6 +28,11 @@ type Materials = {
     unitAbbreviation: string;
 };
 
+interface ProductType {
+    id: string;
+    name: string;
+}
+
 type MaterialWithUnit = {
     id: string;
     name: string;
@@ -41,9 +46,7 @@ type MaterialWithUnit = {
 function GoodsList() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [name, setName] = useState("");
-    const [productType, setProductType] = useState(
-        "0199dac5-fa50-7308-ad62-fb0d1e8e6aa4",
-    );
+    const [productType, setProductType] = useState("");
     const [retailPrice, setRetailPrice] = useState(0.0);
     const [note, setNote] = useState("");
     const [inventoryQuantity, setInventoryQuantity] = useState(0);
@@ -54,7 +57,14 @@ function GoodsList() {
     const { data: materialList } = useQuery(
         trpc.goods.materials.queryOptions(),
     );
-    console.log("Raw data:", data);
+    const { data: productTypesList } = useQuery(
+        trpc.goods.productTypes.queryOptions(),
+    ) as {
+        data: ProductType[] | undefined;
+    };
+
+    console.log("Raw product data:", data);
+    console.log("Raw productTypes data:", productTypesList);
 
     const columns: Array<{
         key: keyof Goods;
@@ -105,7 +115,7 @@ function GoodsList() {
 
     const resetForm = () => {
         setName("");
-        setProductType("0199dac5-fa50-7308-ad62-fb0d1e8e6aa4");
+        setProductType(productTypesList?.[0]?.id || "");
         setRetailPrice(0.0);
         setInventoryQuantity(0);
         setMaterials([]);
@@ -214,6 +224,12 @@ function GoodsList() {
         }
     };
 
+    useEffect(() => {
+        if (productTypesList && productTypesList.length > 0 && !productType) {
+            setProductType(productTypesList[0].id);
+        }
+    }, [productType, productTypesList]);
+
     return (
         <BaseLayout title="Product List">
             <h3 className="">Your Products</h3>
@@ -237,13 +253,19 @@ function GoodsList() {
                         onChange={(e) => setName(e.target.value)}
                         error={formErrors.name}
                     ></TextInput>
-                    <TextInput
+                    <Select
                         label="Product Type"
                         name="productType"
                         value={productType}
-                        onChange={(e) => setName(e.target.value)}
-                        error={formErrors.productType}
-                    ></TextInput>
+                        options={[
+                            { value: "", label: "" },
+                            ...(productTypesList?.map((productType) => ({
+                                value: productType.id,
+                                label: productType.name,
+                            })) || []),
+                        ]}
+                        onChange={(e) => setProductType(e.target.value)}
+                    ></Select>
 
                     <TextInput
                         label="Quantity"
@@ -263,6 +285,7 @@ function GoodsList() {
                         }
                         error={formErrors.minimumStockLevel}
                     ></TextInput>
+                    <div>Recipe Per Item</div>
                     <Button
                         type="button"
                         value="Add Material"
@@ -271,7 +294,7 @@ function GoodsList() {
                     {materials.map((row, index) => (
                         <div key={index}>
                             <Select
-                                label="Recipe per item"
+                                label="Material"
                                 value={row.materialId}
                                 options={[
                                     { value: "", label: "" },

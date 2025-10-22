@@ -1,4 +1,4 @@
-import { eq, type InferInsertModel } from "drizzle-orm";
+import { sql, eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
     good,
@@ -9,6 +9,7 @@ import {
     materialAndSupply,
     materialOutputRatio,
     goodToMaterialOutputRatio,
+    userPreference,
 } from "../db/schema.js";
 
 export const getGoodsList = async (userId: string) => {
@@ -53,6 +54,20 @@ export const getMaterialsList = async (userId: string) => {
             },
         },
     });
+};
+
+export const getProductTypesList = async (userId: string) => {
+    return await db
+        .select({
+            id: productType.id,
+            name: productType.name,
+        })
+        .from(productType)
+        .innerJoin(
+            userPreference,
+            sql`${productType.id} = ANY(${userPreference.productTypeIds} )`,
+        )
+        .where(eq(userPreference.userId, userId));
 };
 
 export type GoodInsert = InferInsertModel<typeof good>;

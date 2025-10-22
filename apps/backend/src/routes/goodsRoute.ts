@@ -5,6 +5,7 @@ import {
     addGood,
     deleteGood,
     getMaterialsList,
+    getProductTypesList,
     type MaterialOutputRatioInsert,
     type GoodInsert,
     addMaterialOutputRatio,
@@ -22,6 +23,10 @@ export const goodsRouter = router({
         return await getMaterialsList(ctx.user.id);
     }),
 
+    productTypes: protectedProcedure.query(async ({ ctx }) => {
+        return await getProductTypesList(ctx.user.id);
+    }),
+
     add: protectedProcedure
         .input(goodsInputValidation)
         .mutation(async ({ ctx, input }) => {
@@ -29,9 +34,7 @@ export const goodsRouter = router({
                 id: "",
                 userId: ctx.user.id,
                 name: input.name,
-                productTypeId:
-                    input.productTypeId ??
-                    "0199dac5-fa50-7308-ad62-fb0d1e8e6aa4",
+                productTypeId: input.productTypeId,
                 retailPrice: input.retailPrice,
                 note: input.note,
                 inventoryQuantity: input.inventoryQuantity,
