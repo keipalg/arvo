@@ -39,6 +39,11 @@ export const userPreference = pgTable("user_preference", {
         scale: 2,
         mode: "number",
     }),
+    orverheadCostPercentage: numeric("orverhead_cost_percentage", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()

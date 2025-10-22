@@ -50,6 +50,13 @@
             "when": 1761106857605,
             "tag": "0006_skinny_crystal",
             "breakpoints": true
+        },
+        {
+            "idx": 7,
+            "version": "7",
+            "when": 1761166240195,
+            "tag": "0007_flashy_purifiers",
+            "breakpoints": true
         }
     ]
 }
