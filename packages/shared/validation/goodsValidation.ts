@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const goodsInputValidation = z.object({
     name: z.string().nonempty("Product name is required"),
-    productTypeId: z.uuid(),
+    productTypeId: z.uuid("Please select a product type"),
     inventoryQuantity: z.number(),
     retailPrice: z.number(),
     note: z.string().optional(),
