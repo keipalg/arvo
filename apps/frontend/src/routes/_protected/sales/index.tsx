@@ -17,6 +17,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import SalesStatus from "../../../components/badge/SalesStatus";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
+import SelectCustom from "../../../components/input/SelectCustom";
+import NumberInput from "../../../components/input/NumberInput";
+import FormLabel from "../../../components/input/FormLabel";
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
 });
@@ -27,6 +30,7 @@ type Sales = inferRouterOutputs<AppRouter>["sales"]["list"][number] & {
 type Products = {
     productId: string;
     quantity: number;
+    maxQuantity: number;
     retailPrice: number;
 };
 
@@ -40,8 +44,11 @@ function SalesList() {
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [products, setProducts] = useState<Products[]>([]);
     const [salesNumber, setSalesNumber] = useState(1);
-    const [discount, setDiscount] = useState("0.00");
-    const [tax, setTax] = useState("0.00");
+    const [discount, setDiscount] = useState(0.0);
+    const [shippingFee, setShippingFee] = useState(0.0);
+    const [tax, setTax] = useState(0.0);
+    const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
+    const [totalPrice, setTotalPrice] = useState(0.0);
 
     const { data: channels } = useQuery(trpc.channel.list.queryOptions());
     const { data: statusList } = useQuery(trpc.status.list.queryOptions());
@@ -58,7 +65,13 @@ function SalesList() {
         {
             key: "salesNumber",
             header: "Sales Number",
-            render: (value) => <>#{String(value).padStart(7, "0")}</>,
+            render: (value) => {
+                return typeof value === "number" ? (
+                    <>#{value.toString().padStart(7, "0")}</>
+                ) : (
+                    <></>
+                );
+            },
         },
         { key: "customer", header: "Customer" },
         {
@@ -69,15 +82,29 @@ function SalesList() {
         {
             key: "date",
             header: "Date",
-            render: (value) => <>{new Date(value).toLocaleDateString()}</>,
+            render: (value) => {
+                if (typeof value === "string" || value instanceof Date) {
+                    const dateObj = new Date(value);
+                    return isNaN(dateObj.getTime()) ? (
+                        <></>
+                    ) : (
+                        <>{dateObj.toLocaleDateString()}</>
+                    );
+                }
+                return <></>;
+            },
         },
         { key: "channel", header: "Channel" },
         {
             key: "status",
             header: "Status",
-            render: (value) => (
-                <SalesStatus statusKey={String(value)}></SalesStatus>
-            ),
+            render: (value) => {
+                return typeof value === "string" ? (
+                    <SalesStatus statusKey={String(value)} />
+                ) : (
+                    <></>
+                );
+            },
         },
         {
             key: "actions",
@@ -85,14 +112,11 @@ function SalesList() {
             render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
-                        <button className="cursor-pointer">
-                            <img src="/icon/edit.svg"></img>
-                        </button>
                         <button
                             className="cursor-pointer"
-                            onClick={() => handleDelete(row.id)}
+                            onClick={() => handleEdit(row)}
                         >
-                            <img className="w-5" src="/icon/delete.svg"></img>
+                            <img src="/icon/edit.svg"></img>
                         </button>
                     </div>
                 </>
@@ -108,8 +132,10 @@ function SalesList() {
         setNotes("");
         setProducts([]);
         setSalesNumber(nextSalesNumber || 1);
-        setDiscount("0.00");
-        setTax("0.00");
+        setDiscount(0.0);
+        setShippingFee(0.0);
+        setTax(0.0);
+        setEditingSaleId(null);
         setFormErrors({});
     };
 
@@ -121,7 +147,7 @@ function SalesList() {
     const addProductRow = () => {
         setProducts([
             ...products,
-            { productId: "", quantity: 1, retailPrice: 0.0 },
+            { productId: "", quantity: 0, maxQuantity: 0, retailPrice: 0.0 },
         ]);
     };
 
@@ -136,6 +162,38 @@ function SalesList() {
                 ...updatedProducts[index],
                 [field]: value,
             };
+
+            if (
+                field === "productId" &&
+                typeof value === "string" &&
+                productList
+            ) {
+                const selectedProduct = productList.find(
+                    (product) => product.id === value,
+                );
+                if (selectedProduct) {
+                    updatedProducts[index].retailPrice =
+                        selectedProduct?.retailPrice || 0.0;
+                    updatedProducts[index].maxQuantity =
+                        selectedProduct?.inventoryQuantity || 0;
+
+                    if (
+                        updatedProducts[index].quantity >
+                        updatedProducts[index].maxQuantity
+                    ) {
+                        updatedProducts[index].quantity =
+                            updatedProducts[index].maxQuantity;
+                    }
+                }
+            }
+            return updatedProducts;
+        });
+    };
+
+    const removeProductRow = (index: number) => {
+        setProducts((prevProducts) => {
+            const updatedProducts = [...prevProducts];
+            updatedProducts.splice(index, 1);
             return updatedProducts;
         });
     };
@@ -178,12 +236,6 @@ function SalesList() {
             setSalesNumber(latestNextSalesNumber);
         }
 
-        let calculatedTotalPrice = 0;
-        products.forEach((product) => {
-            const price = product.retailPrice;
-            calculatedTotalPrice += price * product.quantity;
-        });
-
         const result = salesInputValidation.safeParse({
             customer,
             salesNumber: latestNextSalesNumber ?? salesNumber,
@@ -191,8 +243,11 @@ function SalesList() {
             date,
             products,
             statusKey: status,
-            totalPrice: calculatedTotalPrice.toFixed(2),
+            totalPrice: totalPrice,
             note: notes,
+            discount,
+            shippingFee,
+            taxPercentage: tax,
         });
 
         if (!result.success) {
@@ -203,19 +258,58 @@ function SalesList() {
                 }
             });
             console.log(errors);
+            console.log(result.error.format().products);
             setFormErrors(errors);
             return;
         }
 
         setFormErrors({});
-        addSaleMutation.mutate(result.data);
-        setDrawerOpen(false);
-        setProducts([]);
+        addSaleMutation.mutate(result.data, {
+            onSuccess: () => {
+                closeDrawer();
+                setProducts([]);
+            },
+            onError: (error) => {
+                console.error("Error adding sale:", error);
+            },
+        });
+    };
+
+    const handleEdit = (sale: Sales) => {
+        setDrawerOpen(true);
+        setCustomer(sale.customer);
+        setChannel(sale.channel);
+        setDate(
+            sale.date ? new Date(sale.date).toISOString().slice(0, 16) : "",
+        );
+        setStatus(sale.status);
+        setSalesNumber(sale.salesNumber);
+        setEditingSaleId(sale.id);
+        setNotes(sale.note || "");
+        setDiscount(sale.discount ?? 0.0);
+        setShippingFee(sale.shippingFee ?? 0.0);
+        setTax(sale.taxPercentage ?? 0.0);
+
+        // Map sale details to products for editing, using latest inventory for maxQuantity
+        setProducts(
+            (sale.products || []).map((product) => {
+                const targetProduct = productList?.find(
+                    (p) => p.id === product.id,
+                );
+                return {
+                    productId: product.id,
+                    quantity: product.quantity,
+                    maxQuantity: targetProduct?.inventoryQuantity ?? 0,
+                    retailPrice: product.pricePerItem,
+                };
+            }),
+        );
     };
 
     const handleDelete = (id: string) => {
         if (window.confirm("Are you sure you want to delete this sale?")) {
             deleteSaleMutation.mutate({ id });
+            closeDrawer();
         }
     };
 
@@ -236,6 +330,16 @@ function SalesList() {
             setSalesNumber(nextSalesNumber);
         }
     }, [nextSalesNumber]);
+
+    useEffect(() => {
+        const subtotal = products.reduce(
+            (sum, product) => sum + product.retailPrice * product.quantity,
+            0,
+        );
+        const calculatedTotalPrice =
+            (subtotal - discount + shippingFee) * (1 + tax / 100);
+        setTotalPrice(Number(calculatedTotalPrice.toFixed(2)));
+    }, [products, discount, shippingFee, tax]);
 
     return (
         <BaseLayout title="Sales List">
@@ -278,6 +382,7 @@ function SalesList() {
                         label="Customer"
                         name="customer"
                         value={customer}
+                        required={true}
                         onChange={(e) => setCustomer(e.target.value)}
                         error={formErrors.customer}
                     ></TextInput>
@@ -330,24 +435,13 @@ function SalesList() {
                                 }
                             ></Select>
 
-                            <TextInput
-                                label="Quantity"
-                                type="number"
-                                value={String(row.quantity)}
-                                onChange={(e) =>
-                                    updateProductRow(
-                                        index,
-                                        "quantity",
-                                        Number(e.target.value),
-                                    )
-                                }
-                            ></TextInput>
-
-                            <TextInput
-                                label="Price"
-                                type="number"
+                            <NumberInput
+                                label="Price per item"
                                 value={row.retailPrice}
                                 step="0.01"
+                                min="0"
+                                required={true}
+                                disabled={true}
                                 onChange={(e) =>
                                     updateProductRow(
                                         index,
@@ -355,10 +449,51 @@ function SalesList() {
                                         e.target.value,
                                     )
                                 }
-                            ></TextInput>
+                            ></NumberInput>
+
+                            <NumberInput
+                                label="Quantity"
+                                value={row.quantity}
+                                min="0"
+                                max={String(row.maxQuantity)}
+                                onChange={(e) =>
+                                    updateProductRow(
+                                        index,
+                                        "quantity",
+                                        Number(e.target.value),
+                                    )
+                                }
+                                onBlur={(e) => {
+                                    if (
+                                        Number(e.target.value) > row.maxQuantity
+                                    ) {
+                                        updateProductRow(
+                                            index,
+                                            "quantity",
+                                            row.maxQuantity,
+                                        );
+                                    }
+                                }}
+                            ></NumberInput>
+
+                            <FormLabel label="Price" />
+                            <div>
+                                ${(row.retailPrice * row.quantity).toFixed(2)}
+                            </div>
+
+                            <Button
+                                type="button"
+                                value="Remove Product"
+                                onClick={() => removeProductRow(index)}
+                            ></Button>
                         </div>
                     ))}
-                    <Select
+                    {formErrors.products && (
+                        <div className="text-red-500 text-sm">
+                            {formErrors.products}
+                        </div>
+                    )}
+                    <SelectCustom
                         label="Status"
                         name="status"
                         value={status}
@@ -367,38 +502,69 @@ function SalesList() {
                                 ? statusList.map((statusOption) => ({
                                       value: statusOption.key,
                                       label: statusOption.name,
+                                      render: (
+                                          <SalesStatus
+                                              statusKey={String(
+                                                  statusOption.key,
+                                              )}
+                                          ></SalesStatus>
+                                      ),
                                   }))
                                 : []
                         }
-                        onChange={(e) => setStatus(e.target.value)}
-                    ></Select>
+                        onChange={setStatus}
+                    ></SelectCustom>
                     <TextArea
                         label="Additional Notes"
                         name="notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                     ></TextArea>
-                    <TextInput
+                    <NumberInput
                         label="Discount"
-                        type="number"
                         name="discount"
                         value={discount}
                         step="0.01"
-                        onChange={(e) => setDiscount(e.target.value)}
-                    ></TextInput>
-                    <TextInput
+                        min="0"
+                        onChange={(e) => setDiscount(Number(e.target.value))}
+                        error={formErrors.discount}
+                    ></NumberInput>
+                    <NumberInput
+                        label="Shipping Fee"
+                        name="shippingFee"
+                        value={shippingFee}
+                        step="0.01"
+                        min="0"
+                        onChange={(e) => setShippingFee(Number(e.target.value))}
+                        error={formErrors.shippingFee}
+                    ></NumberInput>
+                    <NumberInput
                         label="Tax"
-                        type="number"
                         name="tax"
                         value={tax}
-                        step="0.01"
-                        onChange={(e) => setTax(e.target.value)}
-                    ></TextInput>
-                    <Button type="submit" value="Add Sale"></Button>
-                    <Button
-                        value="Cancel"
-                        onClick={() => setDrawerOpen(false)}
-                    ></Button>
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        onChange={(e) => setTax(Number(e.target.value))}
+                        error={formErrors.tax}
+                    ></NumberInput>
+                    <div>
+                        <FormLabel label="Total Price" />
+                        <div>${totalPrice.toFixed(2)}</div>
+                        <input
+                            type="hidden"
+                            name="totalPrice"
+                            value={Number(totalPrice)}
+                        />
+                    </div>
+                    <Button type="submit" value="Save"></Button>
+                    {editingSaleId && (
+                        <Button
+                            type="button"
+                            value="Delete"
+                            onClick={() => handleDelete(editingSaleId)}
+                        />
+                    )}
                 </form>
             </RightDrawer>
         </BaseLayout>

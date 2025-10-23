@@ -2,6 +2,7 @@ import { and, eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { materialAndSupply, unit } from "../db/schema.js";
 import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
+import { v7 as uuidv7 } from "uuid";
 
 /**
  * Get list of materials for a specific user
@@ -95,7 +96,7 @@ export const addMaterial = async (data: MaterialInsert) => {
     return await db
         .insert(materialAndSupply)
         .values({
-            id: crypto.randomUUID(),
+            id: uuidv7(),
             userId: data.userId,
             name: data.name,
             materialType: data.materialType,

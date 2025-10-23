@@ -1,11 +1,14 @@
-type TextInputProps = {
+import type { BaseInputProps } from "./BaseInputProps";
+import FormLabel from "./FormLabel";
+
+type TextInputProps = BaseInputProps & {
     type?: string;
     name?: string;
     placeholder?: string;
-    label?: string;
     value: string | number;
     error?: string;
     step?: string;
+    required?: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -17,11 +20,12 @@ const TextInput = ({
     value,
     error,
     step,
+    required,
     onChange,
 }: TextInputProps) => {
     return (
         <div className="flex flex-col">
-            <label className="font-semibold">{label}</label>
+            <FormLabel label={label} required={required} />
             <input
                 type={type}
                 name={name}

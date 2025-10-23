@@ -301,10 +301,32 @@ export const sale = pgTable("sale", {
         .notNull()
         .references(() => status.id, { onDelete: "cascade" }),
     note: text("note"),
-    discount: numeric("discount").default("0").notNull(),
-    shippingFee: numeric("shipping_fee").default("0").notNull(),
-    taxPercentage: numeric("tax_percentage").default("0").notNull(),
-    totalPrice: numeric("total_price").notNull(),
+    discount: numeric("discount", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
+    shippingFee: numeric("shipping_fee", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
+    taxPercentage: numeric("tax_percentage", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
+    totalPrice: numeric("total_price", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
     profit: numeric("profit"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -322,7 +344,11 @@ export const saleDetail = pgTable("sale_detail", {
         .notNull()
         .references(() => good.id),
     quantity: integer("quantity").notNull(),
-    pricePerItem: numeric("price_per_item").notNull(),
+    pricePerItem: numeric("price_per_item", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()

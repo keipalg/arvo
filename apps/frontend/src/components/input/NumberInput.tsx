@@ -1,7 +1,9 @@
-type NumberInputProps = {
+import type { BaseInputProps } from "./BaseInputProps";
+import FormLabel from "./FormLabel";
+
+type NumberInputProps = BaseInputProps & {
     name?: string;
     placeholder?: string;
-    label?: string;
     value: number;
     error?: string;
     step?: string;
@@ -9,11 +11,13 @@ type NumberInputProps = {
     max?: string;
     disabled?: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 };
 
 const NumberInput = ({
     name,
     placeholder,
+    required,
     label,
     value,
     error,
@@ -22,15 +26,17 @@ const NumberInput = ({
     max,
     disabled,
     onChange,
+    onBlur,
 }: NumberInputProps) => {
     return (
         <div className="flex flex-col gap-1">
-            {label && <label className="font-semibold">{label}</label>}
+            <FormLabel label={label} required={required} />
             <input
                 type="number"
                 name={name}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 placeholder={placeholder}
                 step={step}
                 min={min}

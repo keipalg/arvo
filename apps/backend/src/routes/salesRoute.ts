@@ -3,61 +3,221 @@ import { router, protectedProcedure } from "./trpcBase.js";
 import {
     addSale,
     addSaleDetail,
+    updateInventoryQuantity as increaseDecreaseInventoryQuantity,
     deleteSale,
     getMaxSalesNumber,
-    getProductsList,
     getSalesList,
     type SaleDetailInsert,
     type SaleInsert,
+    getSaleDetailsBySaleId,
+    deleteSaleDetailsBySaleId,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
-import { salesInputValidation } from "shared/validation/salesValidation.js";
+import {
+    salesInputValidation,
+    salesUpdateValidation,
+} from "shared/validation/salesValidation.js";
+import {
+    getGoodInfoByIds,
+    getProductsListForSales,
+} from "../service/goodsService.js";
+import { isProductsError, isTotalPriceError } from "../utils/salesUtil.js";
+import { TRPCError } from "@trpc/server";
+import { db } from "../db/client.js";
 
 export const salesRouter = router({
+    /**
+     * Get list of sales.
+     */
     list: protectedProcedure.query(async ({ ctx }) => {
-        return await getSalesList(ctx.user.id);
+        const salesList = await getSalesList(ctx.user.id);
+
+        type SaleWithProducts = (typeof salesList)[number] & {
+            products: Awaited<ReturnType<typeof getSaleDetailsBySaleId>>;
+        };
+
+        for (const sale of salesList) {
+            const saleDetails = await getSaleDetailsBySaleId(sale.id);
+            (sale as SaleWithProducts & typeof saleDetails).products =
+                saleDetails;
+        }
+        return salesList as SaleWithProducts[];
     }),
+    /**
+     * Get list of products.
+     */
     products: protectedProcedure.query(async ({ ctx }) => {
-        return await getProductsList(ctx.user.id);
+        return await getProductsListForSales(ctx.user.id);
     }),
+    /**
+     * Add a new sale.
+     */
     add: protectedProcedure
         .input(salesInputValidation)
         .mutation(async ({ ctx, input }) => {
-            const statusInfo = await getStatusByKey(input.statusKey);
-            const inputData: SaleInsert = {
-                id: "",
-                userId: ctx.user.id,
-                customer: input.customer,
-                salesNumber: input.salesNumber ?? 1,
-                channelId: input.channelId,
-                date: input.date ? new Date(input.date) : new Date(),
-                statusId: statusInfo!.id,
-                totalPrice: input.totalPrice ?? "100.00",
-                note: input.note,
-                discount: input.discount,
-                shippingFee: input.shippingFee,
-                taxPercentage: input.taxPercentage,
-            };
-            const saledata = await addSale(inputData);
+            const productList = input.products.map((p) => p.productId);
+            const dbProductList = await getGoodInfoByIds(
+                ctx.user.id,
+                productList,
+            );
 
-            input.products.forEach(async (product) => {
-                const inputSaleDetail: SaleDetailInsert = {
+            if (isProductsError(input, dbProductList)) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "One or more products are invalid",
+                    cause: { field: "products" },
+                });
+            }
+
+            if (isTotalPriceError(input)) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Total price cannot be negative",
+                    cause: { field: "totalPrice" },
+                });
+            }
+
+            const statusInfo = await getStatusByKey(input.statusKey);
+
+            await db.transaction(async (tx) => {
+                const inputData: SaleInsert = {
                     id: "",
-                    saleId: saledata[0].id,
-                    goodId: product.productId,
-                    quantity: product.quantity,
-                    pricePerItem: product.retailPrice,
+                    userId: ctx.user.id,
+                    customer: input.customer,
+                    salesNumber: input.salesNumber,
+                    channelId: input.channelId,
+                    date: input.date ? new Date(input.date) : new Date(),
+                    statusId: statusInfo!.id,
+                    totalPrice: input.totalPrice,
+                    note: input.note,
+                    discount: input.discount,
+                    shippingFee: input.shippingFee,
+                    taxPercentage: input.taxPercentage,
                 };
-                await addSaleDetail(inputSaleDetail);
+                const saledata = await addSale(inputData, tx);
+
+                input.products.forEach(async (product) => {
+                    const inputSaleDetail: SaleDetailInsert = {
+                        id: "",
+                        saleId: saledata[0].id,
+                        goodId: product.productId,
+                        quantity: product.quantity,
+                        pricePerItem: product.retailPrice,
+                    };
+                    await addSaleDetail(inputSaleDetail, tx);
+                    await increaseDecreaseInventoryQuantity(
+                        product.productId,
+                        -product.quantity,
+                        tx,
+                    );
+                });
+
+                // TODO: Add Material Used record
             });
+
             return { success: true };
         }),
+    /**
+     * Update selected sale.
+     */
+    update: protectedProcedure
+        .input(salesUpdateValidation)
+        .mutation(async ({ ctx, input }) => {
+            const productList = input.products.map((p) => p.productId);
+            const dbProductList = await getGoodInfoByIds(
+                ctx.user.id,
+                productList,
+            );
+            await db.transaction(async (tx) => {
+                if (isProductsError(input, dbProductList)) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "One or more products are invalid",
+                        cause: { field: "products" },
+                    });
+                }
+
+                if (isTotalPriceError(input)) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Total price cannot be negative",
+                        cause: { field: "totalPrice" },
+                    });
+                }
+
+                const saleDetails = await getSaleDetailsBySaleId(input.id, tx);
+                for (const detail of saleDetails) {
+                    await increaseDecreaseInventoryQuantity(
+                        detail.goodId,
+                        detail.quantity,
+                        tx,
+                    );
+                }
+
+                const statusInfo = await getStatusByKey(input.statusKey);
+                const updateData: SaleInsert = {
+                    id: input.id,
+                    userId: ctx.user.id,
+                    customer: input.customer,
+                    salesNumber: input.salesNumber,
+                    channelId: input.channelId,
+                    date: input.date ? new Date(input.date) : new Date(),
+                    statusId: statusInfo!.id,
+                    totalPrice: input.totalPrice,
+                    note: input.note,
+                    discount: input.discount,
+                    shippingFee: input.shippingFee,
+                    taxPercentage: input.taxPercentage,
+                };
+                await addSale(updateData, tx);
+
+                await deleteSaleDetailsBySaleId(input.id, tx);
+
+                for (const product of input.products) {
+                    const inputSaleDetail: SaleDetailInsert = {
+                        id: "",
+                        saleId: input.id,
+                        goodId: product.productId,
+                        quantity: product.quantity,
+                        pricePerItem: product.retailPrice,
+                    };
+                    await addSaleDetail(inputSaleDetail, tx);
+                    await increaseDecreaseInventoryQuantity(
+                        product.productId,
+                        -product.quantity,
+                        tx,
+                    );
+                }
+
+                // TODO: Update Material Used record
+            });
+
+            return { success: true };
+        }),
+    /**
+     * Delete a sale.
+     */
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(async ({ input }) => {
-            await deleteSale(input.id);
+            await db.transaction(async (tx) => {
+                const saleDetails = await getSaleDetailsBySaleId(input.id, tx);
+                for (const detail of saleDetails) {
+                    await increaseDecreaseInventoryQuantity(
+                        detail.goodId,
+                        detail.quantity,
+                        tx,
+                    );
+                }
+                await deleteSale(input.id, tx);
+
+                // TODO: Delete Material Used record
+            });
             return { success: true };
         }),
+    /**
+     * Get the next sales number.
+     */
     nextSalesNumber: protectedProcedure.query(async ({ ctx }) => {
         const maxNumber = await getMaxSalesNumber(ctx.user.id);
         return maxNumber + 1;

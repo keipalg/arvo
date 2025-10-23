@@ -1,3 +1,5 @@
+import FormLabel from "./FormLabel";
+
 export const FileInput = ({
     onChange,
     label,
@@ -9,7 +11,7 @@ export const FileInput = ({
 }) => {
     return (
         <div className="flex flex-col gap-1">
-            <label>{label}</label>
+            <FormLabel label={label} />
             <input
                 type="file"
                 className="border rounded px-2 py-1 bg-white"

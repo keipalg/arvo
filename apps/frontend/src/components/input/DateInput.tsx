@@ -1,3 +1,5 @@
+import FormLabel from "./FormLabel";
+
 export const DateInput = ({
     onChange,
     value,
@@ -9,7 +11,7 @@ export const DateInput = ({
 }) => {
     return (
         <div className="flex flex-col gap-1">
-            <label>{label}</label>
+            <FormLabel label={label} />
             <input
                 type="date"
                 className="border rounded px-2 py-1 bg-white"
