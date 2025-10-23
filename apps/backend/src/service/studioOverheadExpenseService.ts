@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { studio_overhead_expense } from "../db/schema.js";
 
@@ -7,4 +7,22 @@ export const getStudioOverheadExpenseList = async (user_id: string) => {
         .select()
         .from(studio_overhead_expense)
         .where(eq(studio_overhead_expense.user_id, user_id));
+};
+
+export type StudioOverheadInsert = InferInsertModel<
+    typeof studio_overhead_expense
+>;
+export const addStudioOverheadExpense = async (data: StudioOverheadInsert) => {
+    return await db.insert(studio_overhead_expense).values({
+        id: crypto.randomUUID(),
+        user_id: data.user_id,
+        name: data.name,
+        createdAt: data.createdAt,
+        payment_method: data.payment_method,
+        expense_type: data.expense_type,
+        cost: data.cost,
+        payee: data.payee,
+        notes: data.notes,
+        attach_recipt: data.attach_recipt,
+    });
 };

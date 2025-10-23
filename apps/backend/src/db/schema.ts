@@ -76,55 +76,32 @@ export const operational_expense_type_enum = pgEnum(
     ],
 );
 
-export const operational_expense = pgTable(
-    "operational_expense",
-    {
-        id: uuid("id").primaryKey(),
-        expense_type: operational_expense_type_enum("expense_type"),
-        user_id: uuid("user_id")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-        name: text("name"),
-        cost: numeric("cost"),
-        payee: text("payee"),
-        payment_method: payment_method_enum("payment_method"),
-        good_id: uuid("good_id").references(() => good.id, {
-            onDelete: "cascade",
-        }),
-        materialAndSupply_id: uuid("materialAndSupply_id").references(
-            () => materialAndSupply.id,
-            {
-                onDelete: "cascade",
-            },
-        ),
-        quantity: numeric("quantity"),
-        notes: text("notes"),
-        attach_recipt: text("attach_recipt"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        start_date: timestamp("start_date"),
-        due_date: timestamp("due_date"),
-    },
-    (t) => ({
-        inventory_loss_check: check(
-            "inventory_loss_check",
-            sql`
-				(${t.expense_type} <> 'inventory_loss')
-				OR (
-					(${t.good_id} IS NOT NULL AND ${t.materialAndSupply_id} IS NULL AND ${t.quantity} IS NOT NULL)
-					OR
-					(${t.good_id} IS NULL AND ${t.materialAndSupply_id} IS NOT NULL AND ${t.quantity} IS NOT NULL)
-				)
-			`,
-        ),
-        other_type_check: check(
-            "other_type_check",
-            sql`
-				(${t.expense_type} = 'inventory_loss')
-				OR (${t.name} IS NOT NULL AND ${t.cost} IS NOT NULL AND ${t.payee} IS NOT NULL AND ${t.payment_method} IS NOT NULL)
-			`,
-        ),
+export const operational_expense = pgTable("operational_expense", {
+    id: uuid("id").primaryKey(),
+    expense_type: operational_expense_type_enum("expense_type").notNull(),
+    user_id: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    cost: numeric("cost").notNull(),
+    payee: text("payee").notNull(),
+    payment_method: payment_method_enum("payment_method").notNull(),
+    good_id: uuid("good_id").references(() => good.id, {
+        onDelete: "cascade",
     }),
-);
+    materialAndSupply_id: uuid("materialAndSupply_id").references(
+        () => materialAndSupply.id,
+        {
+            onDelete: "cascade",
+        },
+    ),
+    quantity: numeric("quantity").notNull(),
+    notes: text("notes").notNull(),
+    attach_recipt: text("attach_recipt").notNull(),
+    createdAt: timestamp("created_at").notNull(),
+    start_date: timestamp("start_date"),
+    due_date: timestamp("due_date"),
+});
 
 /* Studio Overhead Expense */
 export const studio_overhead_expense_type_enum = pgEnum(

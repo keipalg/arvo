@@ -14,8 +14,7 @@ const Navigation = () => {
             name: "Expenses",
             path: "/expenses",
             children: [
-                { name: "Operational Expenses", path: "/expenses/operational" },
-                { name: "Studio Overhead", path: "/expenses/studio-overhead" },
+                { name: "Business Expenses", path: "/expenses/business" },
             ],
         },
     ];
