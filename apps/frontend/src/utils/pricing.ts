@@ -6,7 +6,7 @@ import {
     DEFAULT_OPERATING_COST_PCT,
     DEFAULT_OVERHEAD_COST_PCT,
     DEFAULT_PROFIT_MARGIN_PCT,
-} from "./constants/accounting.js";
+} from "../../../backend/src/utils/constants/accounting.js";
 
 /**
  * Calculate Total Material Cost per product (COGS)
@@ -77,4 +77,24 @@ export const getSalePrice = (
     profitMarginPct: number = DEFAULT_PROFIT_MARGIN_PCT,
 ) => {
     return (cogs + operatingCost) / (1 - profitMarginPct);
+};
+
+//===========================================================================
+// Net profit margine
+// ===========================================================================
+
+/**
+ * Calculate sale price
+ * @param salesPrice retail price user inputed
+ * @param cogs cost of good sold (COGS)
+ * @param operatingCost operating cost
+ * @param profitMarginPct profit margin percentage
+ * @returns sale price of the product
+ */
+export const getNetProfitMargine = (
+    salesPrice: number,
+    cogs: number,
+    operatingCost: number,
+) => {
+    return ((salesPrice - (cogs + operatingCost)) / salesPrice) * 100;
 };

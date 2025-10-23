@@ -10,6 +10,7 @@ import {
     materialOutputRatio,
     goodToMaterialOutputRatio,
     userPreference,
+    userToUserPreference,
 } from "../db/schema.js";
 
 export const getGoodsList = async (userId: string) => {
@@ -70,6 +71,18 @@ export const getProductTypesList = async (userId: string) => {
         .where(eq(userPreference.userId, userId));
 };
 
+export const getUserPreference = async (userId: string) => {
+    return await db.query.userPreference.findMany({
+        columns: {
+            profitPercentage: true,
+            operatingCostPercentage: true,
+            laborCost: true,
+            overheadCostPercentage: true,
+        },
+        where: eq(userPreference.userId, userId),
+    });
+};
+
 export type GoodInsert = InferInsertModel<typeof good>;
 export const addGood = async (data: GoodInsert) => {
     return await db
@@ -84,6 +97,11 @@ export const addGood = async (data: GoodInsert) => {
             note: data.note,
             inventoryQuantity: data.inventoryQuantity,
             minimumStockLevel: data.minimumStockLevel,
+            materialCost: data.materialCost,
+            laborCost: data.laborCost,
+            overheadCost: data.overheadCost,
+            operatingCost: data.operatingCost,
+            netProfit: data.netProfit,
         })
         .returning({ id: good.id });
 };
