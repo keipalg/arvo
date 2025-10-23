@@ -57,6 +57,13 @@
             "when": 1761166240195,
             "tag": "0007_flashy_purifiers",
             "breakpoints": true
+        },
+        {
+            "idx": 8,
+            "version": "7",
+            "when": 1761185057526,
+            "tag": "0008_windy_firelord",
+            "breakpoints": true
         }
     ]
 }
