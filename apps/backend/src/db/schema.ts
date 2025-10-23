@@ -39,7 +39,7 @@ export const userPreference = pgTable("user_preference", {
         scale: 2,
         mode: "number",
     }),
-    orverheadCostPercentage: numeric("orverhead_cost_percentage", {
+    overheadCostPercentage: numeric("overhead_cost_percentage", {
         precision: 12,
         scale: 2,
         mode: "number",
@@ -174,7 +174,7 @@ export const good = pgTable("good", {
         scale: 2,
         mode: "number",
     }),
-    orverheadCost: numeric("orverhead_cost", {
+    overheadCost: numeric("overhead_cost", {
         precision: 12,
         scale: 2,
         mode: "number",

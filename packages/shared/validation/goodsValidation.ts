@@ -7,6 +7,11 @@ export const goodsInputValidation = z.object({
     retailPrice: z.number(),
     note: z.string().optional(),
     minimumStockLevel: z.number(),
+    materialCost: z.number(),
+    laborCost: z.number(),
+    overheadCost: z.number(),
+    operatingCost: z.number(),
+    netProfit: z.number(),
 
     materials: z.array(
         z.object({
@@ -14,6 +19,7 @@ export const goodsInputValidation = z.object({
             amount: z.number().min(0.01, "amount must be at least 1"),
         }),
     ),
+
     // TODO: how to do for image?
 });
 

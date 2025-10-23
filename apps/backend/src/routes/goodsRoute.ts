@@ -6,6 +6,7 @@ import {
     deleteGood,
     getMaterialsList,
     getProductTypesList,
+    getUserPreference,
     type MaterialOutputRatioInsert,
     type GoodInsert,
     addMaterialOutputRatio,
@@ -13,6 +14,7 @@ import {
     addGoodToMaterialOutputRatio,
 } from "../service/goodsService.js";
 import { goodsInputValidation } from "shared/validation/goodsValidation.js";
+import { userPreference } from "../db/schema.js";
 
 export const goodsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -27,6 +29,10 @@ export const goodsRouter = router({
         return await getProductTypesList(ctx.user.id);
     }),
 
+    userPreference: protectedProcedure.query(async ({ ctx }) => {
+        return await getUserPreference(ctx.user.id);
+    }),
+
     add: protectedProcedure
         .input(goodsInputValidation)
         .mutation(async ({ ctx, input }) => {
@@ -39,6 +45,11 @@ export const goodsRouter = router({
                 note: input.note,
                 inventoryQuantity: input.inventoryQuantity,
                 minimumStockLevel: input.minimumStockLevel,
+                materialCost: input.materialCost,
+                laborCost: input.laborCost,
+                overheadCost: input.overheadCost,
+                operatingCost: input.operatingCost,
+                netProfit: input.netProfit,
             };
             const goodData = await addGood(inputData);
 
