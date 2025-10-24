@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_protected/expenses/business/")({
 });
 
 type BusinessExpense = {
-    id: string | number;
+    id: string;
     expense_category: "Operational Expenses" | "Overhead Expenses";
     expense_type:
         | "marketing"
@@ -71,6 +71,7 @@ function BusinessExpense() {
     const [businessExpenseFormData, setBusinessExpenseFormData] = useState(
         initialBusinessExpense,
     );
+    console.log("businessExpenseFormData", businessExpenseFormData);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [validationError, setValidationError] = useState<
@@ -82,19 +83,34 @@ function BusinessExpense() {
         trpc.materials.list.queryOptions(),
     );
     const {
-        data: operationalExpensesList,
+        data: rowDataOperationalExpensesList,
         isLoading: isLoadingOperational,
         error: errorOperational,
     } = useQuery(trpc.operationalExpense.list.queryOptions());
+    const operationalExpensesList = rowDataOperationalExpensesList
+        ? rowDataOperationalExpensesList.map((item) => ({
+              ...item,
+              expense_category:
+                  "Operational Expenses" as BusinessExpense["expense_category"],
+          }))
+        : [];
     const {
-        data: studioOverheadExpensesList,
+        data: rowDataStudioOverheadExpensesList,
         isLoading: isLoadingStudio,
         error: errorStudio,
     } = useQuery(trpc.studioOverheadExpense.list.queryOptions());
+    const studioOverheadExpensesList = rowDataStudioOverheadExpensesList
+        ? rowDataStudioOverheadExpensesList.map((item) => ({
+              ...item,
+              expense_category:
+                  "Overhead Expenses" as BusinessExpense["expense_category"],
+          }))
+        : [];
     const combinedExpensesList = [
         ...(operationalExpensesList ?? []),
         ...(studioOverheadExpensesList ?? []),
     ];
+    console.log("combinedExpensesList", combinedExpensesList);
 
     const closeDrawer = () => {
         setDrawerOpen(false);
@@ -104,6 +120,28 @@ function BusinessExpense() {
 
     const addOperationalExpenseMutation = useMutation(
         trpc.operationalExpense.add.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.operationalExpense.list.queryKey(),
+                });
+                closeDrawer();
+            },
+        }),
+    );
+
+    const updateOperationalExpenseMutation = useMutation(
+        trpc.operationalExpense.update.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.operationalExpense.list.queryKey(),
+                });
+                closeDrawer();
+            },
+        }),
+    );
+
+    const deleteOperationalExpenseMutation = useMutation(
+        trpc.operationalExpense.delete.mutationOptions({
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.operationalExpense.list.queryKey(),
@@ -125,6 +163,7 @@ function BusinessExpense() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Operational Expense
         if (
             businessExpenseFormData.expense_category === "Operational Expenses"
         ) {
@@ -186,8 +225,17 @@ function BusinessExpense() {
                 return;
             }
 
+            if (businessExpenseFormData.id) {
+                updateOperationalExpenseMutation.mutate({
+                    id: businessExpenseFormData.id,
+                    ...result.data,
+                });
+            } else {
+                addOperationalExpenseMutation.mutate(result.data);
+            }
             setValidationError({});
-            addOperationalExpenseMutation.mutate(result.data);
+
+            // Studio Overhead Expense
         } else {
             const normalizedBusinessExpenseFormData = {
                 expense_type: businessExpenseFormData.expense_type,
@@ -217,8 +265,16 @@ function BusinessExpense() {
             }
 
             setValidationError({});
-            addStudioOverheadExpenseMutation.mutate(result.data);
+            if (businessExpenseFormData.id) {
+                // work on later
+            } else {
+                addStudioOverheadExpenseMutation.mutate(result.data);
+            }
         }
+    };
+
+    const handleDelete = (id: string) => {
+        deleteOperationalExpenseMutation.mutate({ id });
     };
 
     const columns: Array<{
@@ -226,6 +282,7 @@ function BusinessExpense() {
         header: string;
         render?: (
             value: BusinessExpenseWithActions[keyof BusinessExpenseWithActions],
+            row: BusinessExpenseWithActions,
         ) => React.ReactNode;
     }> = [
         {
@@ -275,13 +332,25 @@ function BusinessExpense() {
         {
             key: "actions",
             header: "Actions",
-            render: () => (
+            render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
-                        <button className="text-blue-400 hover:underline">
+                        <button
+                            className="text-blue-400 hover:underline"
+                            onClick={() => {
+                                setBusinessExpenseFormData({
+                                    ...row,
+                                    cost: Number(row.cost),
+                                });
+                                setDrawerOpen(true);
+                            }}
+                        >
                             Edit
                         </button>
-                        <button className="text-blue-400 hover:underline">
+                        <button
+                            className="text-blue-400 hover:underline"
+                            onClick={() => handleDelete(String(row.id))}
+                        >
                             Delete
                         </button>
                     </div>
