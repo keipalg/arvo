@@ -61,7 +61,19 @@ export const operationalExpenseRouter = router({
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(async ({ input }) => {
-            await deleteOperationalExpense(input.id);
+            try {
+                await deleteOperationalExpense(input.id);
+            } catch (err: any) {
+                console.error(
+                    "operationalExpense.delete failed. input:",
+                    JSON.stringify(input),
+                );
+                console.error(
+                    "operationalExpense.delete error:",
+                    err?.message ?? err,
+                );
+                throw err;
+            }
             return { success: true };
         }),
 
