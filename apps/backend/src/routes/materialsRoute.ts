@@ -1,4 +1,3 @@
-import { addMaterialsValidation } from "shared/validation/addMaterialsValidation.js";
 import { z } from "zod";
 import {
     addMaterial,
@@ -9,6 +8,7 @@ import {
 } from "../service/materialsService.js";
 import { getUnitByName } from "../service/unitsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
+import { addMaterialsValidation } from "shared/validation/addMaterialsValidation.js";
 
 export const materialsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -20,7 +20,6 @@ export const materialsRouter = router({
     add: protectedProcedure
         .input(addMaterialsValidation)
         .mutation(async ({ ctx, input }) => {
-            console.log(`Unit: ${input.unit}`);
             const unit = await getUnitByName(input.unit);
             if (!unit) {
                 throw new Error("Unit not found");
@@ -31,13 +30,12 @@ export const materialsRouter = router({
                 name: input.name,
                 materialType: input.type,
                 quantity: input.quantity,
-                purchasePrice: input.cost,
                 lastPurchaseDate: input.lastPurchaseDate,
                 supplier: input.supplierName,
                 notes: input.notes,
                 threshold: input.minStockLevel,
                 id: "",
-                costPerUnit: 0,
+                costPerUnit: input.costPerUnit,
             };
             await addMaterial(inputData);
             return { success: true };

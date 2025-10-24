@@ -20,7 +20,6 @@ export const getUnitById = async (id: string) => {
 };
 
 export const getUnitByName = async (name: string) => {
-    console.log(`name: ${name}`);
     return await db.query.unit.findFirst({
         where: eq(unit.name, name),
     });
