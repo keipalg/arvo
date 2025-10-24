@@ -1,0 +1,2 @@
+ALTER TABLE "material_and_supply" ADD CONSTRAINT "quantity_check" CHECK ("material_and_supply"."quantity" >= 0);--> statement-breakpoint
+ALTER TABLE "material_and_supply" ADD CONSTRAINT "cost_per_unit_check" CHECK ("material_and_supply"."cost_per_unit" >= 0);

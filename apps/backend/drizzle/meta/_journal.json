@@ -78,6 +78,13 @@
             "when": 1761273629029,
             "tag": "0010_hard_joystick",
             "breakpoints": true
+        },
+        {
+            "idx": 11,
+            "version": "7",
+            "when": 1761288743836,
+            "tag": "0011_stiff_vengeance",
+            "breakpoints": true
         }
     ]
 }

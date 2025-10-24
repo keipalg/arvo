@@ -363,40 +363,50 @@ export const unit = pgTable("unit", {
         .notNull(),
 });
 
-export const materialAndSupply = pgTable("material_and_supply", {
-    id: uuid("id").primaryKey(),
-    userId: uuid("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    materialType: text("material_type").notNull(),
-    unitId: uuid("unit_id")
-        .references(() => unit.id)
-        .notNull(),
-    quantity: numeric("quantity", {
-        precision: 12,
-        scale: 2,
-        mode: "number",
-    }).notNull(),
-    costPerUnit: numeric("cost_per_unit", {
-        precision: 12,
-        scale: 2,
-        mode: "number",
-    }).notNull(),
-    lastPurchaseDate: date("last_purchase_date").notNull(),
-    supplier: text("supplier"),
-    notes: text("notes"),
-    threshold: numeric("threshold", {
-        precision: 12,
-        scale: 2,
-        mode: "number",
+export const materialAndSupply = pgTable(
+    "material_and_supply",
+    {
+        id: uuid("id").primaryKey(),
+        userId: uuid("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        name: text("name").notNull(),
+        materialType: text("material_type").notNull(),
+        unitId: uuid("unit_id")
+            .references(() => unit.id)
+            .notNull(),
+        quantity: numeric("quantity", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        costPerUnit: numeric("cost_per_unit", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        lastPurchaseDate: date("last_purchase_date").notNull(),
+        supplier: text("supplier"),
+        notes: text("notes"),
+        threshold: numeric("threshold", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .defaultNow()
+            .$onUpdate(() => new Date())
+            .notNull(),
+    },
+    (table) => ({
+        quantityCheck: check("quantity_check", sql`${table.quantity} >= 0`),
+        costPerUnitCheck: check(
+            "cost_per_unit_check",
+            sql`${table.costPerUnit} >= 0`,
+        ),
     }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => new Date())
-        .notNull(),
-});
+);
 
 export const materialAndSupplyToUnit = relations(
     materialAndSupply,
