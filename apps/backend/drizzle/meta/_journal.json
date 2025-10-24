@@ -71,6 +71,13 @@
             "when": 1761257952097,
             "tag": "0009_little_lord_hawal",
             "breakpoints": true
+        },
+        {
+            "idx": 10,
+            "version": "7",
+            "when": 1761273629029,
+            "tag": "0010_hard_joystick",
+            "breakpoints": true
         }
     ]
 }

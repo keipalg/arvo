@@ -1,0 +1,1 @@
+ALTER TABLE "material_and_supply" DROP COLUMN "purchase_price";

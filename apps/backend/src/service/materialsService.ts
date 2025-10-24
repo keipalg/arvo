@@ -1,12 +1,7 @@
 import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { materialAndSupply, unit } from "../db/schema.js";
-import {
-    getCostPerUnit,
-    getQuantityWithUnit,
-    getStatus,
-    getTotalCost,
-} from "../utils/materialsUtil.js";
+import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
 
 export const getMaterialsList = async (userId: string) => {
     const materials = await db
@@ -17,7 +12,6 @@ export const getMaterialsList = async (userId: string) => {
             unitName: unit.name,
             unitAbbreviation: unit.abbreviation,
             quantity: materialAndSupply.quantity,
-            purchasePrice: materialAndSupply.purchasePrice,
             costPerUnit: materialAndSupply.costPerUnit,
             lastPurchaseDate: materialAndSupply.lastPurchaseDate,
             supplier: materialAndSupply.supplier,
@@ -32,10 +26,6 @@ export const getMaterialsList = async (userId: string) => {
     return materials.map((material) => ({
         ...material,
         status: getStatus(material.threshold as number, material.quantity),
-        totalCost: getTotalCost(
-            Number(material.costPerUnit),
-            material.quantity,
-        ),
         formattedQuantity: getQuantityWithUnit(
             material.quantity,
             material.unitAbbreviation,
@@ -69,12 +59,29 @@ export const addMaterial = async (data: MaterialInsert) => {
             materialType: data.materialType,
             unitId: data.unitId,
             quantity: data.quantity,
-            purchasePrice: data.purchasePrice,
-            costPerUnit: getCostPerUnit(data.purchasePrice, data.quantity),
+            costPerUnit: data.costPerUnit,
             lastPurchaseDate: data.lastPurchaseDate,
             supplier: data.supplier,
             notes: data.notes,
             threshold: data.threshold,
         })
+        .returning({ id: materialAndSupply.id });
+};
+
+export type MaterialUpdate = Partial<
+    Omit<MaterialInsert, "id" | "userId" | "createdAt" | "updatedAt">
+>;
+export const updateMaterial = async (
+    materialId: string,
+    userId: string,
+    data: MaterialUpdate,
+) => {
+    return await db
+        .update(materialAndSupply)
+        .set(data)
+        .where(
+            eq(materialAndSupply.id, materialId) &&
+                eq(materialAndSupply.userId, userId),
+        )
         .returning({ id: materialAndSupply.id });
 };

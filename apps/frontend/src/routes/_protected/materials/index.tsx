@@ -28,7 +28,7 @@ function MaterialsList() {
     const [type, setType] = useState("");
     const [quantity, setQuantity] = useState(0);
     const [minStockLevel, setMinStockLevel] = useState(0);
-    const [cost, setCost] = useState(0);
+    const [costPerUnit, setCostPerUnit] = useState(0);
     const [unit, setUnit] = useState("");
     const [lastPurchaseDate, setLastPurchaseDate] = useState("");
     const [supplier, setSupplier] = useState("");
@@ -55,8 +55,8 @@ function MaterialsList() {
         { key: "name", header: "Item" },
         { key: "formattedQuantity", header: "Quantity" },
         {
-            key: "totalCost",
-            header: "Cost",
+            key: "costPerUnit",
+            header: "Unit Price",
             render: (value) => <>${Number(value).toFixed(2)}</>,
         },
         {
@@ -90,7 +90,7 @@ function MaterialsList() {
         setType("");
         setQuantity(0);
         setMinStockLevel(0);
-        setCost(0);
+        setCostPerUnit(0);
         setUnit("");
         setLastPurchaseDate("");
         setSupplier("");
@@ -110,7 +110,7 @@ function MaterialsList() {
         setType(material.type);
         setQuantity(material.quantity);
         setMinStockLevel(material.threshold || 0);
-        setCost(Number(material.purchasePrice) || 0);
+        setCostPerUnit(Number(material.costPerUnit) || 0);
         setUnit(material.unitName);
         setLastPurchaseDate(
             material.lastPurchaseDate
@@ -157,7 +157,7 @@ function MaterialsList() {
             type,
             unit,
             quantity,
-            cost,
+            costPerUnit,
             minStockLevel,
             lastPurchaseDate,
             supplierName: supplier,
@@ -243,13 +243,13 @@ function MaterialsList() {
                         min="0"
                     ></NumberInput>
                     <NumberInput
-                        label="Cost"
+                        label="Unit Price"
                         name="type"
-                        value={cost}
-                        onChange={(e) => setCost(Number(e.target.value))}
+                        value={costPerUnit}
+                        onChange={(e) => setCostPerUnit(Number(e.target.value))}
                         error={formErrors.cost}
                         min="0"
-                        step="0.1"
+                        step="0.01"
                     ></NumberInput>
                     <TextInput
                         label="Last Purchase Date"

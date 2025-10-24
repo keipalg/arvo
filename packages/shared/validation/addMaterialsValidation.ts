@@ -8,10 +8,10 @@ export const addMaterialsValidation = z.object({
         .number()
         .nonnegative("Quantity should be positive")
         .nonoptional("Quantity is required"),
-    cost: z
+    costPerUnit: z
         .number()
         .nonnegative("Cost should be positive")
-        .nonoptional("Cost is reqruired"),
+        .nonoptional("Cost is required"),
     minStockLevel: z
         .number()
         .nonnegative("Minimum stock level should be positive"),

@@ -378,11 +378,6 @@ export const materialAndSupply = pgTable("material_and_supply", {
         scale: 2,
         mode: "number",
     }).notNull(),
-    purchasePrice: numeric("purchase_price", {
-        precision: 12,
-        scale: 2,
-        mode: "number",
-    }).notNull(),
     costPerUnit: numeric("cost_per_unit", {
         precision: 12,
         scale: 2,
