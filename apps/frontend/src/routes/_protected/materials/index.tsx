@@ -13,7 +13,12 @@ import TextInput from "../../../components/input/TextInput";
 import NumberInput from "../../../components/input/NumberInput";
 import TextArea from "../../../components/input/TextArea";
 import Select from "../../../components/input/Select";
-import { addMaterialsValidation } from "shared/validation/materialsValidation";
+import {
+    addMaterialsValidation,
+    updateMaterialsValidation,
+} from "shared/validation/materialsValidation";
+import PageTitle from "../../../components/layout/PageTitle";
+import Metric from "../../../components/metric/Metric";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -24,6 +29,8 @@ type Materials = inferRouterOutputs<AppRouter>["materials"]["list"][number] & {
 };
 
 function MaterialsList() {
+    const tooltip =
+        "Materials are raw items that go into direct creation of your product.";
     const [itemName, setItemName] = useState("");
     const [type, setType] = useState("");
     const [quantity, setQuantity] = useState(0);
@@ -74,10 +81,10 @@ function MaterialsList() {
                 <>
                     <div className="flex gap-2">
                         <button
-                            className="text-blue-400 hover:underline"
+                            className="cursor-pointer"
                             onClick={() => handleEdit(row)}
                         >
-                            Edit
+                            <img src="/icon/edit.svg"></img>
                         </button>
                     </div>
                 </>
@@ -139,6 +146,16 @@ function MaterialsList() {
         }),
     );
 
+    const updateMaterialMutation = useMutation(
+        trpc.materials.update.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.list.queryKey(),
+                });
+            },
+        }),
+    );
+
     const deleteMaterialMutation = useMutation(
         trpc.materials.delete.mutationOptions({
             onSuccess: async () => {
@@ -152,33 +169,66 @@ function MaterialsList() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const result = addMaterialsValidation.safeParse({
-            name: itemName,
-            type,
-            unit,
-            quantity,
-            costPerUnit,
-            minStockLevel,
-            lastPurchaseDate,
-            supplierName: supplier,
-            notes,
-        });
-
-        if (!result.success) {
-            const errors: Record<string, string> = {};
-            result.error.issues.forEach((issue) => {
-                if (issue.path.length > 0) {
-                    errors[issue.path[0] as string] = issue.message;
-                }
+        if (editingMaterialId) {
+            // Update existing material
+            const result = updateMaterialsValidation.safeParse({
+                id: editingMaterialId,
+                name: itemName,
+                type,
+                unit,
+                quantity,
+                costPerUnit,
+                minStockLevel,
+                lastPurchaseDate,
+                supplierName: supplier,
+                notes,
             });
-            console.log(errors);
-            setFormErrors(errors);
-            return;
-        }
 
-        setFormErrors({});
-        addMaterialMutation.mutate(result.data);
-        closeDrawer();
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            updateMaterialMutation.mutate(result.data);
+            closeDrawer();
+        } else {
+            // Add new material
+            const result = addMaterialsValidation.safeParse({
+                name: itemName,
+                type,
+                unit,
+                quantity,
+                costPerUnit,
+                minStockLevel,
+                lastPurchaseDate,
+                supplierName: supplier,
+                notes,
+            });
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            addMaterialMutation.mutate(result.data);
+            closeDrawer();
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -196,14 +246,31 @@ function MaterialsList() {
 
     return (
         <BaseLayout title="Materials List">
-            <h3 className="">Materials</h3>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
-            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
+            <div className="flex justify-between">
+                <PageTitle title="My Materials" info={tooltip} />
+                <Button
+                    value="Add New Material"
+                    onClick={() => setDrawerOpen(true)}
+                    icon="/icon/plus.svg"
+                ></Button>
+            </div>
+            <div className="flex gap-6 py-2">
+                <Metric
+                    value={`$ 348`}
+                    changePercent={-5}
+                    topText="Total Inventory Cost (to be implemented)"
+                    bottomText="compared to last month"
+                ></Metric>
+            </div>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+                <h2 className="text-xl font-bold mb-4">
+                    {editingMaterialId ? "Edit Material" : "Add Material"}
+                </h2>
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -216,7 +283,7 @@ function MaterialsList() {
                         onChange={(e) => setItemName(e.target.value)}
                         error={formErrors.name}
                     ></TextInput>
-                    {/* To be update to dynamic text input type where user can select existing types */}
+                    {/* TODO be update to dynamic text input type where user can select existing types */}
                     <TextInput
                         label="Material Type"
                         name="type"
@@ -231,6 +298,7 @@ function MaterialsList() {
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
                         min="0"
+                        // disabled={!!editingMaterialId} // TODO - to disable later for add quantity implementation
                     ></NumberInput>
                     <NumberInput
                         label="Min. Stock Level"
@@ -285,14 +353,16 @@ function MaterialsList() {
                         }
                         onChange={(e) => setUnit(e.target.value)}
                     ></Select>
-                    <Button type="submit" value="Save"></Button>
-                    {editingMaterialId && (
-                        <Button
-                            type="button"
-                            value="Delete"
-                            onClick={() => handleDelete(editingMaterialId)}
-                        ></Button>
-                    )}
+                    <div className="flex gap-2">
+                        {editingMaterialId && (
+                            <Button
+                                type="button"
+                                value="Delete"
+                                onClick={() => handleDelete(editingMaterialId)}
+                            ></Button>
+                        )}
+                        <Button type="submit" value="Save"></Button>
+                    </div>
                 </form>
             </RightDrawer>
         </BaseLayout>
