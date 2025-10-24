@@ -13,7 +13,7 @@ import TextInput from "../../../components/input/TextInput";
 import NumberInput from "../../../components/input/NumberInput";
 import TextArea from "../../../components/input/TextArea";
 import Select from "../../../components/input/Select";
-import { addMaterialsValidation } from "shared/validation/addMaterialsValidation";
+import { addMaterialsValidation } from "shared/validation/materialsValidation";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
