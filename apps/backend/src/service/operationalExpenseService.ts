@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { operational_expense } from "../db/schema.js";
 
@@ -7,4 +7,25 @@ export const getOperationalExpenseList = async (user_id: string) => {
         .select()
         .from(operational_expense)
         .where(eq(operational_expense.user_id, user_id));
+};
+
+export type OperationalInsert = InferInsertModel<typeof operational_expense>;
+export const addOperationalExpense = async (data: OperationalInsert) => {
+    return await db.insert(operational_expense).values({
+        id: crypto.randomUUID(),
+        user_id: data.user_id,
+        name: data.name,
+        createdAt: data.createdAt,
+        payment_method: data.payment_method,
+        expense_type: data.expense_type,
+        cost: data.cost,
+        payee: data.payee,
+        good_id: data.good_id,
+        materialAndSupply_id: data.materialAndSupply_id,
+        quantity: data.quantity,
+        notes: data.notes,
+        attach_recipt: data.attach_recipt,
+        start_date: data.start_date,
+        due_date: data.due_date,
+    });
 };
