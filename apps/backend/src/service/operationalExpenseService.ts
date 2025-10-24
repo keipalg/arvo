@@ -29,3 +29,19 @@ export const addOperationalExpense = async (data: OperationalInsert) => {
         due_date: data.due_date,
     });
 };
+
+export const deleteOperationalExpense = async (id: string) => {
+    return await db
+        .delete(operational_expense)
+        .where(eq(operational_expense.id, id));
+};
+
+export const updateOperationalExpense = async (
+    id: string,
+    data: Partial<OperationalInsert>,
+) => {
+    return await db
+        .update(operational_expense)
+        .set(data)
+        .where(eq(operational_expense.id, id));
+};
