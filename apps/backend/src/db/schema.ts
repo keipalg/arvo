@@ -197,6 +197,26 @@ export const productionBatch = pgTable("production_batch", {
     productionDate: timestamp("production_date", {
         withTimezone: true,
     }).notNull(),
+    statusId: uuid("").references(() => productionStatus.id, {
+        onDelete: "cascade",
+    }),
+    quantity: integer("quantity"),
+    productionCost: numeric("production_cost", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
+export const productionStatus = pgTable("production_status", {
+    id: uuid("id").primaryKey(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
