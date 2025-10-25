@@ -1,6 +1,7 @@
 import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { studio_overhead_expense } from "../db/schema.js";
+import { v7 as uuidv7 } from "uuid";
 
 export const getStudioOverheadExpenseList = async (user_id: string) => {
     return await db
@@ -14,7 +15,7 @@ export type StudioOverheadInsert = InferInsertModel<
 >;
 export const addStudioOverheadExpense = async (data: StudioOverheadInsert) => {
     return await db.insert(studio_overhead_expense).values({
-        id: crypto.randomUUID(),
+        id: uuidv7(),
         user_id: data.user_id,
         name: data.name,
         createdAt: data.createdAt,

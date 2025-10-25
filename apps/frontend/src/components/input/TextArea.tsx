@@ -1,8 +1,11 @@
-type TextAreaProps = {
+import type { BaseInputProps } from "./BaseInputProps";
+import FormLabel from "./FormLabel";
+
+type TextAreaProps = BaseInputProps & {
     name?: string;
     placeholder?: string;
-    label?: string;
     value: string;
+    error?: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
@@ -11,11 +14,12 @@ const TextArea = ({
     placeholder,
     label,
     value,
+    error,
     onChange,
 }: TextAreaProps) => {
     return (
         <div className="flex flex-col">
-            <label className="font-semibold">{label}</label>
+            <FormLabel label={label} />
             <textarea
                 name={name}
                 placeholder={placeholder}
@@ -23,6 +27,7 @@ const TextArea = ({
                 value={value}
                 onChange={onChange}
             />
+            {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
     );
 };

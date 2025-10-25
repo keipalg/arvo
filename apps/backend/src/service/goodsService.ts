@@ -1,4 +1,4 @@
-import { sql, eq, type InferInsertModel } from "drizzle-orm";
+import { sql, eq, type InferInsertModel, inArray, and } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
     good,
@@ -12,6 +12,7 @@ import {
     userPreference,
     userToUserPreference,
 } from "../db/schema.js";
+import { v7 as uuidv7 } from "uuid";
 
 export const getGoodsList = async (userId: string) => {
     const goods = await db
@@ -88,7 +89,7 @@ export const addGood = async (data: GoodInsert) => {
     return await db
         .insert(good)
         .values({
-            id: crypto.randomUUID(),
+            id: uuidv7(),
             userId: data.userId,
             name: data.name,
             productTypeId: data.productTypeId,
@@ -115,7 +116,7 @@ export const addMaterialOutputRatio = async (
     return await db
         .insert(materialOutputRatio)
         .values({
-            id: crypto.randomUUID(),
+            id: uuidv7(),
             materialId: data.materialId,
             input: data.input,
         })
@@ -136,4 +137,28 @@ export const addGoodToMaterialOutputRatio = async (
 
 export const deleteGood = async (goodId: string) => {
     await db.delete(good).where(eq(good.id, goodId));
+};
+
+export const getProductsListForSales = async (userId: string) => {
+    return await db.query.good.findMany({
+        columns: {
+            id: true,
+            name: true,
+            retailPrice: true,
+            inventoryQuantity: true,
+        },
+        where: eq(good.userId, userId),
+    });
+};
+
+export const getGoodInfoByIds = async (userId: string, goodIds: string[]) => {
+    return await db
+        .select({
+            id: good.id,
+            name: good.name,
+            retailPrice: good.retailPrice,
+            inventoryQuantity: good.inventoryQuantity,
+        })
+        .from(good)
+        .where(and(eq(good.userId, userId), inArray(good.id, goodIds)));
 };

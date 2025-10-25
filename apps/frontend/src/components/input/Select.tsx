@@ -1,11 +1,13 @@
+import type { BaseInputProps } from "./BaseInputProps";
+import FormLabel from "./FormLabel";
+
 type Option = {
     value: string;
     label: string;
 };
 
-type SelectProps = {
+type SelectProps = BaseInputProps & {
     name?: string;
-    label?: string;
     value: string;
     options?: Option[];
     optgroup?: {
@@ -27,7 +29,7 @@ const Select = ({
 }: SelectProps) => {
     return (
         <div className="flex flex-col">
-            <label className="font-semibold">{label}</label>
+            <FormLabel label={label} />
             <select
                 className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
                 name={name}
@@ -38,6 +40,7 @@ const Select = ({
                     ? options.map((option, index) => (
                           <>
                               <option
+                                  key={option.value}
                                   value={option.value}
                                   disabled={index === 0 && option.value === ""}
                               >
