@@ -1,8 +1,8 @@
 import { and, eq, type InferInsertModel } from "drizzle-orm";
-import { db } from "../db/client.js";
-import { materialAndSupply, unit } from "../db/schema.js";
-import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
 import { v7 as uuidv7 } from "uuid";
+import { db } from "../db/client.js";
+import { materialAndSupply, materialType, unit } from "../db/schema.js";
+import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
 
 /**
  * Get list of materials for a specific user
@@ -14,7 +14,8 @@ export const getMaterialsList = async (userId: string) => {
         .select({
             id: materialAndSupply.id,
             name: materialAndSupply.name,
-            type: materialAndSupply.materialType,
+            materialTypeId: materialAndSupply.materialTypeId,
+            materialType: materialType.name,
             unitName: unit.name,
             unitAbbreviation: unit.abbreviation,
             quantity: materialAndSupply.quantity,
@@ -27,6 +28,10 @@ export const getMaterialsList = async (userId: string) => {
         })
         .from(materialAndSupply)
         .where(eq(materialAndSupply.userId, userId))
+        .innerJoin(
+            materialType,
+            eq(materialAndSupply.materialTypeId, materialType.id),
+        )
         .innerJoin(unit, eq(materialAndSupply.unitId, unit.id));
 
     return materials.map((material) => ({
@@ -60,21 +65,6 @@ export const getMaterialById = async (materialId: string, userId: string) => {
 };
 
 /**
- * // TODO: to update logic after schema update
- * Get distinct material types for a specific user
- * @param userId user ID
- * @returns List of distinct material types
- */
-export const getMaterialTypes = async (userId: string) => {
-    return await db
-        .selectDistinct({
-            type: materialAndSupply.materialType,
-        })
-        .from(materialAndSupply)
-        .where(eq(materialAndSupply.userId, userId));
-};
-
-/**
  * Detele a material by ID
  * For Materials page
  * @param materialId material ID
@@ -93,22 +83,27 @@ export type MaterialInsert = InferInsertModel<typeof materialAndSupply>;
  * @returns Inserted material ID
  */
 export const addMaterial = async (data: MaterialInsert) => {
-    return await db
-        .insert(materialAndSupply)
-        .values({
-            id: uuidv7(),
-            userId: data.userId,
-            name: data.name,
-            materialType: data.materialType,
-            unitId: data.unitId,
-            quantity: data.quantity,
-            costPerUnit: data.costPerUnit,
-            lastPurchaseDate: data.lastPurchaseDate,
-            supplier: data.supplier,
-            notes: data.notes,
-            threshold: data.threshold,
-        })
-        .returning({ id: materialAndSupply.id });
+    try {
+        return await db
+            .insert(materialAndSupply)
+            .values({
+                id: uuidv7(),
+                userId: data.userId,
+                name: data.name,
+                materialTypeId: data.materialTypeId,
+                unitId: data.unitId,
+                quantity: data.quantity,
+                costPerUnit: data.costPerUnit,
+                lastPurchaseDate: data.lastPurchaseDate,
+                supplier: data.supplier,
+                notes: data.notes,
+                threshold: data.threshold,
+            })
+            .returning({ id: materialAndSupply.id });
+    } catch (error) {
+        console.error("Error adding material:", error);
+        throw error;
+    }
 };
 
 export type MaterialUpdate = Partial<

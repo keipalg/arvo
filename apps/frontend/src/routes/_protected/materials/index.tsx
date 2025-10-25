@@ -32,7 +32,7 @@ function MaterialsList() {
     const tooltip =
         "Materials are raw items that go into direct creation of your product.";
     const [itemName, setItemName] = useState("");
-    const [type, setType] = useState("");
+    const [typeId, setTypeId] = useState("");
     const [quantity, setQuantity] = useState(0);
     const [minStockLevel, setMinStockLevel] = useState(0);
     const [costPerUnit, setCostPerUnit] = useState(0);
@@ -47,6 +47,9 @@ function MaterialsList() {
     );
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
+    const { data: materialTypesList } = useQuery(
+        trpc.materialTypes.list.queryOptions(),
+    );
     const { data, isLoading, error } = useQuery(
         trpc.materials.list.queryOptions(),
     );
@@ -58,7 +61,7 @@ function MaterialsList() {
             row: Materials,
         ) => React.ReactNode;
     }> = [
-        { key: "type", header: "Type" },
+        { key: "materialType", header: "Type" },
         { key: "name", header: "Item" },
         { key: "formattedQuantity", header: "Quantity" },
         {
@@ -94,7 +97,7 @@ function MaterialsList() {
 
     const resetForm = () => {
         setItemName("");
-        setType("");
+        setTypeId("");
         setQuantity(0);
         setMinStockLevel(0);
         setCostPerUnit(0);
@@ -114,7 +117,7 @@ function MaterialsList() {
     const handleEdit = (material: Materials) => {
         setEditingMaterialId(material.id);
         setItemName(material.name);
-        setType(material.type);
+        setTypeId(material.materialTypeId);
         setQuantity(material.quantity);
         setMinStockLevel(material.threshold || 0);
         setCostPerUnit(Number(material.costPerUnit) || 0);
@@ -174,7 +177,7 @@ function MaterialsList() {
             const result = updateMaterialsValidation.safeParse({
                 id: editingMaterialId,
                 name: itemName,
-                type,
+                typeId,
                 unit,
                 quantity,
                 costPerUnit,
@@ -203,7 +206,7 @@ function MaterialsList() {
             // Add new material
             const result = addMaterialsValidation.safeParse({
                 name: itemName,
-                type,
+                typeId,
                 unit,
                 quantity,
                 costPerUnit,
@@ -284,13 +287,26 @@ function MaterialsList() {
                         error={formErrors.name}
                     ></TextInput>
                     {/* TODO be update to dynamic text input type where user can select existing types */}
-                    <TextInput
+                    <Select
                         label="Material Type"
-                        name="type"
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                        error={formErrors.type}
-                    ></TextInput>
+                        name="typeId"
+                        value={typeId}
+                        options={
+                            materialTypesList
+                                ? [
+                                      { value: "", label: "Select a type..." },
+                                      ...materialTypesList.map(
+                                          (typeOption) => ({
+                                              value: typeOption.id,
+                                              label: typeOption.name,
+                                          }),
+                                      ),
+                                  ]
+                                : [{ value: "", label: "Select a type..." }]
+                        }
+                        onChange={(e) => setTypeId(e.target.value)}
+                        error={formErrors.typeId}
+                    ></Select>
                     <NumberInput
                         label="Quantity"
                         name="quantity"
@@ -312,10 +328,10 @@ function MaterialsList() {
                     ></NumberInput>
                     <NumberInput
                         label="Unit Price"
-                        name="type"
+                        name="costPerUnit"
                         value={costPerUnit}
                         onChange={(e) => setCostPerUnit(Number(e.target.value))}
-                        error={formErrors.cost}
+                        error={formErrors.costPerUnit}
                         min="0"
                         step="0.01"
                     ></NumberInput>
@@ -325,6 +341,7 @@ function MaterialsList() {
                         name="lastPurchaseDate"
                         value={lastPurchaseDate}
                         onChange={(e) => setLastPurchaseDate(e.target.value)}
+                        error={formErrors.lastPurchaseDate}
                     ></TextInput>
                     <TextInput
                         label="Supplier"
