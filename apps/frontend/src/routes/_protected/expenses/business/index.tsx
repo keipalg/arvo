@@ -156,6 +156,28 @@ function BusinessExpense() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
+                closeDrawer();
+            },
+        }),
+    );
+
+    const updateStudioOverheadExpenseMutation = useMutation(
+        trpc.studioOverheadExpense.update.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.studioOverheadExpense.list.queryKey(),
+                });
+                closeDrawer();
+            },
+        }),
+    );
+
+    const deleteStudioOverheadExpenseMutation = useMutation(
+        trpc.studioOverheadExpense.delete.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.studioOverheadExpense.list.queryKey(),
+                });
             },
         }),
     );
@@ -266,15 +288,25 @@ function BusinessExpense() {
 
             setValidationError({});
             if (businessExpenseFormData.id) {
-                // work on later
+                updateStudioOverheadExpenseMutation.mutate({
+                    id: businessExpenseFormData.id,
+                    ...result.data,
+                });
             } else {
                 addStudioOverheadExpenseMutation.mutate(result.data);
             }
         }
     };
 
-    const handleDelete = (id: string) => {
-        deleteOperationalExpenseMutation.mutate({ id });
+    const handleDelete = (expense_category: string, id: string) => {
+        if (
+            expense_category ===
+            ("Operational Expenses" as BusinessExpense["expense_category"])
+        ) {
+            deleteOperationalExpenseMutation.mutate({ id });
+        } else {
+            deleteStudioOverheadExpenseMutation.mutate({ id });
+        }
     };
 
     const columns: Array<{
@@ -287,7 +319,7 @@ function BusinessExpense() {
     }> = [
         {
             key: "name",
-            header: "Expnse",
+            header: "Expense",
         },
         {
             key: "cost",
@@ -349,7 +381,12 @@ function BusinessExpense() {
                         </button>
                         <button
                             className="text-blue-400 hover:underline"
-                            onClick={() => handleDelete(String(row.id))}
+                            onClick={() =>
+                                handleDelete(
+                                    row.expense_category,
+                                    String(row.id),
+                                )
+                            }
                         >
                             Delete
                         </button>
@@ -529,8 +566,6 @@ function BusinessExpense() {
                                         ...structuredClone(prev),
                                         materialAndSupply_id: e.target.value,
                                         good_id: "",
-                                        // Use prev.quantity (latest state inside updater) so we
-                                        // don't read a stale value from the outer scope.
                                         cost: selectedMaterial?.costPerUnit
                                             ? selectedMaterial.costPerUnit *
                                               prev.quantity
@@ -563,21 +598,25 @@ function BusinessExpense() {
                                         e.target.value,
                                     );
                                     setBusinessExpenseFormData((prev) => {
-                                        // If a material is selected, recalc cost using its costPerUnit
-                                        const selectedMaterial =
-                                            materialsList?.find(
-                                                (m) =>
-                                                    m.id ===
-                                                    prev.materialAndSupply_id,
-                                            );
-                                        return {
-                                            ...structuredClone(prev),
-                                            quantity: newQuantity,
-                                            cost: selectedMaterial?.costPerUnit
-                                                ? selectedMaterial.costPerUnit *
-                                                  newQuantity
-                                                : prev.cost,
-                                        };
+                                        if (prev.materialAndSupply_id) {
+                                            const selectedMaterial =
+                                                materialsList?.find(
+                                                    (m) =>
+                                                        m.id ===
+                                                        prev.materialAndSupply_id,
+                                                );
+                                            return {
+                                                ...structuredClone(prev),
+                                                quantity: newQuantity,
+                                                cost: selectedMaterial?.costPerUnit
+                                                    ? selectedMaterial.costPerUnit *
+                                                      newQuantity
+                                                    : prev.cost,
+                                            };
+                                        } else {
+                                            /* Total cost of used materials in goods should be set to Cost. Work later */
+                                            return prev;
+                                        }
                                     });
                                 }}
                                 error={validationError.quantity}
@@ -653,7 +692,9 @@ function BusinessExpense() {
                             }));
                         }}
                     />
-                    {/* <FileInput
+                    {/* File upload to be implemented later*/}
+                    {/*	
+					<FileInput
 						label="Attach Receipt"
 						file={operationalExpenseFormData.attach_recipt}
 						onChange={(e) => {
