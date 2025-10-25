@@ -8,7 +8,7 @@ const Navigation = () => {
     const tabs: Tab[] = [
         { name: "Business Dashboard", path: "/dashboard" },
         { name: "My Products", path: "/goods" },
-        { name: "Materials", path: "/materials" },
+        { name: "My Materials", path: "/materials" },
         { name: "Sales", path: "/sales" },
         {
             name: "Expenses",
