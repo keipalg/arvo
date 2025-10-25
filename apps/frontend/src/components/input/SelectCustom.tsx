@@ -52,7 +52,7 @@ const SelectCustom = <T extends string | number>({
                     aria-expanded={open}
                     aria-controls="select-list"
                     onClick={() => setOpen(!open)}
-                    className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5
+                    className="border rounded-xl focus:outline-2 outline-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5
                         w-full flex"
                 >
                     {selectedOption?.render ?? (
@@ -60,7 +60,7 @@ const SelectCustom = <T extends string | number>({
                     )}
                 </button>
                 {open && (
-                    <div className="absolute mt-1 z-10 bg-arvo-white-0 w-full border rounded-xl border-arvo-blue-100 overflow-clip">
+                    <div className="absolute mt-1.5 z-10 bg-arvo-white-0 w-full rounded-xl outline-arvo-blue-100 outline-2 overflow-clip">
                         {options.map((option) => (
                             <div
                                 key={String(option.value)}
