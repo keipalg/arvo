@@ -13,6 +13,7 @@ export const getStudioOverheadExpenseList = async (user_id: string) => {
 export type StudioOverheadInsert = InferInsertModel<
     typeof studio_overhead_expense
 >;
+
 export const addStudioOverheadExpense = async (data: StudioOverheadInsert) => {
     return await db.insert(studio_overhead_expense).values({
         id: uuidv7(),
@@ -26,4 +27,20 @@ export const addStudioOverheadExpense = async (data: StudioOverheadInsert) => {
         notes: data.notes,
         attach_recipt: data.attach_recipt,
     });
+};
+
+export const deleteStudioOverheadExpense = async (id: string) => {
+    return await db
+        .delete(studio_overhead_expense)
+        .where(eq(studio_overhead_expense.id, id));
+};
+
+export const updateStudioOverheadExpense = async (
+    id: string,
+    data: Partial<StudioOverheadInsert>,
+) => {
+    return await db
+        .update(studio_overhead_expense)
+        .set(data)
+        .where(eq(studio_overhead_expense.id, id));
 };
