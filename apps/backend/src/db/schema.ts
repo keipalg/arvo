@@ -389,6 +389,19 @@ export const unit = pgTable("unit", {
         .notNull(),
 });
 
+export const materialType = pgTable("material_type", {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});
+
 export const materialAndSupply = pgTable(
     "material_and_supply",
     {
@@ -397,7 +410,9 @@ export const materialAndSupply = pgTable(
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
         name: text("name").notNull(),
-        materialType: text("material_type").notNull(),
+        materialTypeId: uuid("material_type_id")
+            .notNull()
+            .references(() => materialType.id),
         unitId: uuid("unit_id")
             .references(() => unit.id)
             .notNull(),

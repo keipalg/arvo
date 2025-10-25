@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const addMaterialsValidation = z.object({
     name: z.string().nonempty("Item name is required"),
-    type: z.string().nonempty("Type is required"),
+    typeId: z.uuidv7("Type is required"),
     unit: z.string().nonempty("Unit is required"),
     quantity: z
         .number()
@@ -23,7 +23,7 @@ export const addMaterialsValidation = z.object({
 export const updateMaterialsValidation = z.object({
     id: z.uuid("Invalid material ID"),
     name: z.string().nonempty("Item name is required"),
-    type: z.string().nonempty("Type is required"),
+    typeId: z.uuidv7("Type is required"),
     unit: z.string().nonempty("Unit is required"),
     costPerUnit: z
         .number()

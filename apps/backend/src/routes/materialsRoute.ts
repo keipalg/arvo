@@ -3,7 +3,6 @@ import {
     addMaterial,
     deleteMaterial,
     getMaterialsList,
-    getMaterialTypes,
     updateMaterial,
     type MaterialInsert,
     type MaterialUpdate,
@@ -19,9 +18,6 @@ export const materialsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
         return await getMaterialsList(ctx.user.id);
     }),
-    types: protectedProcedure.query(async ({ ctx }) => {
-        return await getMaterialTypes(ctx.user.id);
-    }),
     add: protectedProcedure
         .input(addMaterialsValidation)
         .mutation(async ({ ctx, input }) => {
@@ -33,7 +29,7 @@ export const materialsRouter = router({
                 userId: ctx.user.id,
                 unitId: unit.id,
                 name: input.name,
-                materialType: input.type,
+                materialTypeId: input.typeId,
                 quantity: input.quantity,
                 lastPurchaseDate: input.lastPurchaseDate,
                 supplier: input.supplierName,
@@ -55,7 +51,7 @@ export const materialsRouter = router({
 
             const updateData: MaterialUpdate = {
                 name: input.name,
-                materialType: input.type,
+                materialTypeId: input.typeId,
                 quantity: input.quantity,
                 costPerUnit: input.costPerUnit,
                 threshold: input.minStockLevel,

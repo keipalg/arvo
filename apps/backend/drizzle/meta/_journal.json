@@ -85,6 +85,13 @@
             "when": 1761288743836,
             "tag": "0011_stiff_vengeance",
             "breakpoints": true
+        },
+        {
+            "idx": 12,
+            "version": "7",
+            "when": 1761363632697,
+            "tag": "0012_vengeful_beyonder",
+            "breakpoints": true
         }
     ]
 }

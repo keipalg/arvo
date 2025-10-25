@@ -11,6 +11,7 @@ import { goodsRouter } from "./routes/goodsRoute.js";
 import { statusRouter } from "./routes/statusRoute.js";
 import { unitsRouter } from "./routes/units.js";
 import { studioOverheadExpenseRouter } from "./routes/studioOverheadExpenseRoutes.js";
+import { materialTypesRouter } from "./routes/materialTypesRoute.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -22,6 +23,7 @@ export const appRouter = router({
     }),
     sales: salesRouter,
     materials: materialsRouter,
+    materialTypes: materialTypesRouter,
     units: unitsRouter,
     operationalExpense: operationalExpenseRouter,
     studioOverheadExpense: studioOverheadExpenseRouter,
