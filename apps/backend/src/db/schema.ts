@@ -29,6 +29,16 @@ export const userPreference = pgTable("user_preference", {
         scale: 2,
         mode: "number",
     }),
+    estimatedMonthlyOperatingExpenses: numeric(
+        "est_monthly_operating_expenses",
+        {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        },
+    ),
+    estimatedMonthlyProducedUnits: integer("est_monthly_produced_units"),
+    // Note: operatingCostPercentage is calculated as $ - to update name during refactoring activities
     operatingCostPercentage: numeric("operating_cost_percentage", {
         precision: 12,
         scale: 2,
