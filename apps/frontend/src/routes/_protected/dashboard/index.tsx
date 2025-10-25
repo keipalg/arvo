@@ -12,8 +12,8 @@ import { faker } from "@faker-js/faker";
 import { Bar } from "react-chartjs-2";
 import BaseLayout from "../../../components/BaseLayout";
 import PageTitle from "../../../components/layout/PageTitle";
-import { authClient } from "../../../auth/auth-client";
 import Metric from "../../../components/metric/Metric";
+import { useAuthSession } from "../../../auth/authSession";
 
 export const Route = createFileRoute("/_protected/dashboard/")({
     component: RouteComponent,
@@ -60,11 +60,11 @@ const data = {
 };
 
 function RouteComponent() {
-    const { data: session } = authClient.useSession();
+    const { data: session } = useAuthSession();
 
     return (
         <BaseLayout title="Dashboard">
-            <PageTitle title={`Hello ${session?.user.name}`} />
+            <PageTitle title={`Hello ${session ? session.user.name : ""}`} />
             <p>Let’s take a look at how your business is growing.</p>
             <div className="flex gap-6 py-2">
                 <Metric

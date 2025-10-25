@@ -9,6 +9,12 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
     },
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60,
+        },
+    },
     trustedOrigins: ["http://localhost:5173", "http://localhost:4173"],
     advanced: {
         database: {

@@ -1,7 +1,7 @@
-import { authClient } from "../../auth/auth-client";
+import { useAuthSession } from "../../auth/authSession";
 
 const Profile = () => {
-    const { data: session } = authClient.useSession();
+    const { data: session } = useAuthSession();
 
     return (
         <div className="p-4 border-gray-200">
