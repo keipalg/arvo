@@ -442,6 +442,7 @@ function SalesList() {
                                 min="0"
                                 required={true}
                                 disabled={true}
+                                unit="$"
                                 onChange={(e) =>
                                     updateProductRow(
                                         index,
@@ -526,6 +527,7 @@ function SalesList() {
                         value={discount}
                         step="0.01"
                         min="0"
+                        unit="$"
                         onChange={(e) => setDiscount(Number(e.target.value))}
                         error={formErrors.discount}
                     ></NumberInput>
@@ -535,6 +537,7 @@ function SalesList() {
                         value={shippingFee}
                         step="0.01"
                         min="0"
+                        unit="$"
                         onChange={(e) => setShippingFee(Number(e.target.value))}
                         error={formErrors.shippingFee}
                     ></NumberInput>
@@ -545,6 +548,7 @@ function SalesList() {
                         step="0.1"
                         min="0"
                         max="100"
+                        unit="%"
                         onChange={(e) => setTax(Number(e.target.value))}
                         error={formErrors.tax}
                     ></NumberInput>
