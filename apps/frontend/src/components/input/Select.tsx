@@ -38,32 +38,29 @@ const Select = ({
             >
                 {options
                     ? options.map((option, index) => (
-                          <>
-                              <option
-                                  key={option.value}
-                                  value={option.value}
-                                  disabled={index === 0 && option.value === ""}
-                              >
-                                  {option.label}
-                              </option>
-                          </>
+                          <option
+                              key={option.value}
+                              value={option.value}
+                              disabled={index === 0 && option.value === ""}
+                          >
+                              {option.label}
+                          </option>
                       ))
                     : optgroup?.map((group) => (
-                          <>
-                              <optgroup label={group.optGroupLabel}>
-                                  {group.optGroupValues.map((option) => (
-                                      <option
-                                          key={option.value}
-                                          value={option.value}
-                                          data-expensecategory={
-                                              group.optGroupLabel
-                                          }
-                                      >
-                                          {option.label}
-                                      </option>
-                                  ))}
-                              </optgroup>
-                          </>
+                          <optgroup
+                              label={group.optGroupLabel}
+                              key={group.optGroupLabel}
+                          >
+                              {group.optGroupValues.map((option) => (
+                                  <option
+                                      key={option.value}
+                                      value={option.value}
+                                      data-expensecategory={group.optGroupLabel}
+                                  >
+                                      {option.label}
+                                  </option>
+                              ))}
+                          </optgroup>
                       ))}
             </select>
             {error && <div className="text-red-500 text-sm">{error}</div>}

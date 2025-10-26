@@ -19,7 +19,8 @@ import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
 import SelectCustom from "../../../components/input/SelectCustom";
 import NumberInput from "../../../components/input/NumberInput";
-import FormLabel from "../../../components/input/FormLabel";
+import DisplayValue from "../../../components/input/DisplayValue";
+import HorizontalRule from "../../../components/hr/HorizontalRule";
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
 });
@@ -346,7 +347,8 @@ function SalesList() {
             <div className="flex justify-between">
                 <PageTitle title="Sales" />
                 <Button
-                    value="Add"
+                    value="Add New Sales"
+                    icon="/icon/plus.svg"
                     onClick={() => setDrawerOpen(true)}
                 ></Button>
             </div>
@@ -377,43 +379,49 @@ function SalesList() {
                     onSubmit={(e) => {
                         void handleSubmit(e);
                     }}
+                    className="flex flex-col gap-2"
                 >
-                    <TextInput
-                        label="Customer"
-                        name="customer"
-                        value={customer}
-                        required={true}
-                        onChange={(e) => setCustomer(e.target.value)}
-                        error={formErrors.customer}
-                    ></TextInput>
-                    <Select
-                        label="Channel"
-                        name="channel"
-                        value={channel}
-                        options={
-                            channels
-                                ? channels.map((ch) => ({
-                                      value: ch.id,
-                                      label: ch.name,
-                                  }))
-                                : []
-                        }
-                        onChange={(e) => setChannel(e.target.value)}
-                    ></Select>
-                    <TextInput
-                        label="Sale Date & Time"
-                        type="datetime-local"
-                        name="customer"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                    ></TextInput>
+                    <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2 justify-between">
+                        <TextInput
+                            label="Customer"
+                            name="customer"
+                            value={customer}
+                            required={true}
+                            onChange={(e) => setCustomer(e.target.value)}
+                            error={formErrors.customer}
+                        ></TextInput>
+                        <Select
+                            label="Channel"
+                            name="channel"
+                            value={channel}
+                            options={
+                                channels
+                                    ? channels.map((ch) => ({
+                                          value: ch.id,
+                                          label: ch.name,
+                                      }))
+                                    : []
+                            }
+                            onChange={(e) => setChannel(e.target.value)}
+                        ></Select>
+                        <TextInput
+                            label="Sale Date & Time"
+                            type="datetime-local"
+                            name="customer"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                        ></TextInput>
+                    </div>
                     <Button
                         type="button"
                         value="Add Product"
                         onClick={addProductRow}
                     ></Button>
                     {products.map((row, index) => (
-                        <div key={index}>
+                        <div
+                            key={index}
+                            className="sm:flex gap-y-2 justify-between items-center"
+                        >
                             <Select
                                 label="Product"
                                 value={row.productId}
@@ -434,7 +442,6 @@ function SalesList() {
                                     )
                                 }
                             ></Select>
-
                             <NumberInput
                                 label="Price per item"
                                 value={row.retailPrice}
@@ -476,17 +483,19 @@ function SalesList() {
                                     }
                                 }}
                             ></NumberInput>
-
-                            <FormLabel label="Price" />
-                            <div>
-                                ${(row.retailPrice * row.quantity).toFixed(2)}
-                            </div>
-
-                            <Button
+                            <DisplayValue label="Price" unit="$">
+                                {(row.retailPrice * row.quantity).toFixed(2)}
+                            </DisplayValue>
+                            <button
                                 type="button"
-                                value="Remove Product"
                                 onClick={() => removeProductRow(index)}
-                            ></Button>
+                            >
+                                <img
+                                    src="/icon/close.svg"
+                                    alt="Close"
+                                    className="w-4 cursor-pointer"
+                                />
+                            </button>
                         </div>
                     ))}
                     {formErrors.products && (
@@ -494,81 +503,96 @@ function SalesList() {
                             {formErrors.products}
                         </div>
                     )}
-                    <SelectCustom
-                        label="Status"
-                        name="status"
-                        value={status}
-                        options={
-                            statusList
-                                ? statusList.map((statusOption) => ({
-                                      value: statusOption.key,
-                                      label: statusOption.name,
-                                      render: (
-                                          <SalesStatus
-                                              statusKey={String(
-                                                  statusOption.key,
-                                              )}
-                                          ></SalesStatus>
-                                      ),
-                                  }))
-                                : []
-                        }
-                        onChange={setStatus}
-                    ></SelectCustom>
-                    <TextArea
-                        label="Additional Notes"
-                        name="notes"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                    ></TextArea>
-                    <NumberInput
-                        label="Discount"
-                        name="discount"
-                        value={discount}
-                        step="0.01"
-                        min="0"
-                        unit="$"
-                        onChange={(e) => setDiscount(Number(e.target.value))}
-                        error={formErrors.discount}
-                    ></NumberInput>
-                    <NumberInput
-                        label="Shipping Fee"
-                        name="shippingFee"
-                        value={shippingFee}
-                        step="0.01"
-                        min="0"
-                        unit="$"
-                        onChange={(e) => setShippingFee(Number(e.target.value))}
-                        error={formErrors.shippingFee}
-                    ></NumberInput>
-                    <NumberInput
-                        label="Tax"
-                        name="tax"
-                        value={tax}
-                        step="0.1"
-                        min="0"
-                        max="100"
-                        unit="%"
-                        onChange={(e) => setTax(Number(e.target.value))}
-                        error={formErrors.tax}
-                    ></NumberInput>
-                    <div>
-                        <FormLabel label="Total Price" />
-                        <div>${totalPrice.toFixed(2)}</div>
-                        <input
-                            type="hidden"
-                            name="totalPrice"
-                            value={Number(totalPrice)}
-                        />
+                    <HorizontalRule />
+                    <div className="sm:grid sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <SelectCustom
+                                label="Status"
+                                name="status"
+                                value={status}
+                                options={
+                                    statusList
+                                        ? statusList.map((statusOption) => ({
+                                              value: statusOption.key,
+                                              label: statusOption.name,
+                                              render: (
+                                                  <SalesStatus
+                                                      statusKey={String(
+                                                          statusOption.key,
+                                                      )}
+                                                  ></SalesStatus>
+                                              ),
+                                          }))
+                                        : []
+                                }
+                                onChange={setStatus}
+                            ></SelectCustom>
+                            <TextArea
+                                label="Additional Notes"
+                                placeholder="Notes"
+                                name="notes"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                            ></TextArea>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <NumberInput
+                                label="Discount"
+                                name="discount"
+                                value={discount}
+                                step="0.01"
+                                min="0"
+                                unit="$"
+                                onChange={(e) =>
+                                    setDiscount(Number(e.target.value))
+                                }
+                                error={formErrors.discount}
+                            ></NumberInput>
+                            <NumberInput
+                                label="Shipping Fee"
+                                name="shippingFee"
+                                value={shippingFee}
+                                step="0.01"
+                                min="0"
+                                unit="$"
+                                onChange={(e) =>
+                                    setShippingFee(Number(e.target.value))
+                                }
+                                error={formErrors.shippingFee}
+                            ></NumberInput>
+                            <NumberInput
+                                label="Tax"
+                                name="tax"
+                                value={tax}
+                                step="0.1"
+                                min="0"
+                                max="100"
+                                unit="%"
+                                onChange={(e) => setTax(Number(e.target.value))}
+                                error={formErrors.tax}
+                            ></NumberInput>
+                            <DisplayValue label="Total Price" unit="$">
+                                {totalPrice.toFixed(2)}
+                                <input
+                                    type="hidden"
+                                    name="totalPrice"
+                                    value={Number(totalPrice)}
+                                />
+                            </DisplayValue>
+                        </div>
                     </div>
-                    <Button type="submit" value="Save"></Button>
-                    {editingSaleId && (
-                        <Button
-                            type="button"
-                            value="Delete"
-                            onClick={() => handleDelete(editingSaleId)}
-                        />
-                    )}
+                    <div
+                        className={`grid ${editingSaleId && "grid-cols-2 gap-2"}`}
+                    >
+                        {editingSaleId && (
+                            <Button
+                                type="button"
+                                value="Delete"
+                                onClick={() => handleDelete(editingSaleId)}
+                            />
+                        )}
+                        <Button type="submit" value="Save"></Button>
+                    </div>
                 </form>
             </RightDrawer>
         </BaseLayout>
