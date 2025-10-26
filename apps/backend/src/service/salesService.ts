@@ -1,4 +1,6 @@
 import {
+    and,
+    between,
     eq,
     max,
     sql,
@@ -8,6 +10,7 @@ import {
 import { channel, good, sale, saleDetail, status } from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
+import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
 
 export type SaleSelect = InferSelectModel<typeof sale>;
 export const getSalesList = async (userId: string) => {
@@ -153,4 +156,45 @@ export const getMaxSalesNumber = async (userId: string) => {
         .limit(1);
 
     return result[0].maxSalesNumber ?? 0;
+};
+
+export const getMonthlySalesRevenue = async (
+    userId: string,
+    timezone: string,
+    offset: number = 0,
+) => {
+    const targetMonth = getMonthRangeInTimezone(timezone, offset);
+    const result = await db
+        .select({
+            totalRevenue: sql<number>`cast(sum(${sale.totalPrice}) as int)`,
+            totalProfit: sql<number>`cast(sum(${sale.profit}) as int)`,
+        })
+        .from(sale)
+        .where(
+            and(
+                eq(sale.userId, userId),
+                between(sale.date, targetMonth.start, targetMonth.end),
+            ),
+        );
+    return result[0] ?? { totalRevenue: 0, totalProfit: 0 };
+};
+
+export const getMonthlySalesCount = async (
+    userId: string,
+    timezone: string,
+    offset: number = 0,
+) => {
+    const targetMonth = getMonthRangeInTimezone(timezone, offset);
+    const summary = await db
+        .select({
+            count: sql<number>`cast(count(${sale.id}) as int)`,
+        })
+        .from(sale)
+        .where(
+            and(
+                eq(sale.userId, userId),
+                between(sale.date, targetMonth.start, targetMonth.end),
+            ),
+        );
+    return summary[0].count ?? 0;
 };
