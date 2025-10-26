@@ -11,17 +11,18 @@ import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextArea from "../../../components/input/TextArea";
+import TextInput from "../../../components/input/TextInput";
 
 import {
     getOverheadCostPerUnit,
     getCOGS,
-    getOperatingCost,
     getNetProfitMargine,
     getSalePrice,
+    calculateMaterialCost,
+    calculateTotalMaterialCost,
 } from "../../../utils/pricing.ts";
 
 import { goodsInputValidation } from "shared/validation/goodsValidation";
-import TextInput from "../../../components/input/TextInput";
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
 });
@@ -65,18 +66,17 @@ function GoodsList() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [name, setName] = useState("");
     const [productType, setProductType] = useState("");
-    const [retailPrice, setRetailPrice] = useState(NaN);
+    const [retailPrice, setRetailPrice] = useState(0);
     const [note, setNote] = useState("");
-    const [inventoryQuantity, setInventoryQuantity] = useState(NaN);
-    const [minimumStockLevel, setMinimumStockLevel] = useState(NaN);
+    const [inventoryQuantity, setInventoryQuantity] = useState(0);
+    const [minimumStockLevel, setMinimumStockLevel] = useState(0);
     const [mcpu, setMcpu] = useState(0);
-    const [overheadCost, setOverheadCost] = useState(NaN);
-    const [operatingCost, setOperatingCost] = useState(NaN);
+    const [overheadCost, setOverheadCost] = useState(0);
     const [cogs, setCogs] = useState(0);
-    const [netProfitMargine, setNetProfitMargine] = useState(NaN);
+    const [netProfitMargine, setNetProfitMargine] = useState(0);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
-    const [suggestedPrice, setSuggestedPrice] = useState(NaN);
+    const [suggestedPrice, setSuggestedPrice] = useState(0);
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
         trpc.goods.materials.queryOptions(),
@@ -94,22 +94,6 @@ function GoodsList() {
     console.log("Raw userPreference data", userPreference);
     console.log("Raw productTypes data:", productTypesList);
     console.log("Raw materialList", materialList);
-
-    const calculateMaterialCost = (
-        amount: number,
-        costPerUnit: number,
-    ): number => {
-        return isNaN(amount) || isNaN(costPerUnit) ? 0 : amount * costPerUnit;
-    };
-
-    const calculateTotalMaterialCost = (materials: Materials[]): number => {
-        return materials.reduce(
-            (total, material) =>
-                total +
-                calculateMaterialCost(material.amount, material.costPerUnit),
-            0,
-        );
-    };
 
     const columns: Array<{
         key: keyof Goods;
@@ -161,18 +145,16 @@ function GoodsList() {
     const resetForm = () => {
         setName("");
         setProductType(productTypesList?.[0]?.id || "");
-        setRetailPrice(0.0);
-        setInventoryQuantity(NaN);
+        setRetailPrice(0);
+        setInventoryQuantity(0);
         setMaterials([]);
         setNote("");
-        setMinimumStockLevel(NaN);
+        setMinimumStockLevel(0);
         setMaterials([]);
         setFormErrors({});
-        setMcpu(NaN);
-        setNetProfitMargine(NaN);
-        setSuggestedPrice(NaN);
-        setCogs(NaN);
-        setOperatingCost(NaN);
+        setMcpu(0);
+        setNetProfitMargine(0);
+        setSuggestedPrice(0);
     };
 
     const closeDrawer = () => {
@@ -190,9 +172,9 @@ function GoodsList() {
             {
                 materialId: "",
                 name: "",
-                amount: NaN,
+                amount: 0,
                 unitAbbreviation: "",
-                costPerUnit: NaN,
+                costPerUnit: 0,
                 materialCost: 0,
             },
         ]);
@@ -276,7 +258,7 @@ function GoodsList() {
             materialCost: mcpu,
             laborCost: userPreference[0]?.laborCost || 0,
             overheadCost,
-            operatingCost: operatingCost,
+            operatingCost: userPreference[0]?.operatingCostPercentage || 0,
             netProfit: netProfitMargine,
         });
 
@@ -320,20 +302,15 @@ function GoodsList() {
 
     useEffect(() => {
         setCogs(getCOGS(mcpu, userPreference?.[0]?.laborCost, overheadCost));
-    }, [mcpu]);
-
-    useEffect(() => {
-        setOperatingCost(
-            getOperatingCost(
-                userPreference?.[0]?.operatingCostPercentage,
-                cogs,
-            ),
-        );
-    }, [cogs]);
+    }, [mcpu, overheadCost]);
 
     useEffect(() => {
         setNetProfitMargine(
-            getNetProfitMargine(retailPrice, cogs, operatingCost),
+            getNetProfitMargine(
+                retailPrice,
+                cogs,
+                userPreference?.[0]?.operatingCostPercentage,
+            ),
         );
     }, [retailPrice, cogs]);
 
@@ -341,15 +318,15 @@ function GoodsList() {
         setSuggestedPrice(
             getSalePrice(
                 cogs,
-                operatingCost,
+                userPreference?.[0]?.operatingCostPercentage,
                 userPreference?.[0]?.profitPercentage,
             ),
         );
-    }, [cogs, operatingCost]);
+    }, [cogs]);
 
     return (
         <BaseLayout title="Product List">
-            <h3 className="">Your Products</h3>
+            <h3 className="">My Products</h3>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
@@ -462,7 +439,7 @@ function GoodsList() {
                     ></TextInput>
                     <p className="font-semibold">
                         Suggested Price:$
-                        {isNaN(suggestedPrice)
+                        {!suggestedPrice
                             ? "0.00"
                             : suggestedPrice.toFixed(2)}{" "}
                     </p>
@@ -471,14 +448,14 @@ function GoodsList() {
                         * Based on profit percentage in user setting:
                         {userPreference?.[0].profitPercentage
                             ? userPreference[0].profitPercentage * 100
-                            : "0.00"}{" "}
-                        %{" "}
+                            : "0.00"}
+                        %
                     </p>
                     <h4 className="font-semibold">Cost Breakdown per Item</h4>
                     <ul>
                         <li>
                             1️⃣Total Material Cost: $
-                            {isNaN(mcpu) ? "0.00" : mcpu.toFixed(2)}
+                            {!mcpu ? "0.00" : mcpu.toFixed(2)}
                         </li>
                         <li>
                             2️⃣Labor Cost : $
@@ -488,27 +465,27 @@ function GoodsList() {
                         </li>
                         <li>
                             3️⃣Overhead Cost : $
-                            {isNaN(overheadCost)
-                                ? "0.00"
-                                : overheadCost.toFixed(2)}
+                            {!overheadCost ? "0.00" : overheadCost.toFixed(2)}
                         </li>
                         ----
                         <li>
                             COGS（1️⃣+2️⃣+3️⃣） : $
-                            {isNaN(cogs) ? "0.00" : cogs.toFixed(2)}
+                            {!cogs ? "0.00" : cogs.toFixed(2)}
                         </li>
                         <li>
                             Operational Cost : $
-                            {isNaN(operatingCost)
-                                ? "0.00"
-                                : operatingCost.toFixed(2)}
+                            {userPreference?.[0].operatingCostPercentage
+                                ? userPreference[0].operatingCostPercentage.toFixed(
+                                      2,
+                                  )
+                                : "0.00"}
                         </li>
                         ----
                         <li>
-                            Net Profit Margine :{" "}
-                            {isNaN(netProfitMargine)
+                            Net Profit Margine :
+                            {!netProfitMargine
                                 ? "0.00"
-                                : netProfitMargine.toFixed(2)}{" "}
+                                : netProfitMargine.toFixed(2)}
                             %
                         </li>
                     </ul>

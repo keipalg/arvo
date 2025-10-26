@@ -1,26 +1,26 @@
+import { goodsInputValidation } from "shared/validation/goodsValidation.js";
 import { z } from "zod";
-import { router, protectedProcedure } from "./trpcBase.js";
 import {
-    getGoodsList,
     addGood,
+    addGoodToMaterialOutputRatio,
+    addMaterialOutputRatio,
     deleteGood,
+    getGoodsList,
     getMaterialsList,
     getProductTypesList,
     getUserPreference,
-    type MaterialOutputRatioInsert,
     type GoodInsert,
-    addMaterialOutputRatio,
-    type goodToMaterialOutputRatioInsert,
-    addGoodToMaterialOutputRatio,
+    type GoodToMaterialOutputRatioInsert,
+    type MaterialOutputRatioInsert,
 } from "../service/goodsService.js";
-import { goodsInputValidation } from "shared/validation/goodsValidation.js";
-import { userPreference } from "../db/schema.js";
+import { protectedProcedure, router } from "./trpcBase.js";
 
 export const goodsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
         return await getGoodsList(ctx.user.id);
     }),
 
+    // TODO: This is used by product page. I will replace it to use getMaterialListForRecipe
     materials: protectedProcedure.query(async ({ ctx }) => {
         return await getMaterialsList(ctx.user.id);
     }),
@@ -64,7 +64,7 @@ export const goodsRouter = router({
                     inputMaterialOutputRatio,
                 );
 
-                const goodToMaterialOutputRatioInput: goodToMaterialOutputRatioInsert =
+                const goodToMaterialOutputRatioInput: GoodToMaterialOutputRatioInsert =
                     {
                         goodId: goodData[0].id,
                         materialOutputRatioId: materialOutputRatioData[0].id,

@@ -148,3 +148,6 @@ vite.config.ts.timestamp-*
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary file from tanstack
+apps/frontend/.tanstack

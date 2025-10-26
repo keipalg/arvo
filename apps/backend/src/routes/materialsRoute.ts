@@ -4,6 +4,7 @@ import {
     deleteMaterial,
     getMaterialsList,
     updateMaterial,
+    getMaterialListForRecipe,
     type MaterialInsert,
     type MaterialUpdate,
 } from "../service/materialsService.js";
@@ -76,4 +77,8 @@ export const materialsRouter = router({
             await deleteMaterial(input.id);
             return { success: true };
         }),
+
+    materialList: protectedProcedure.query(async ({ ctx }) => {
+        return await getMaterialListForRecipe(ctx.user.id);
+    }),
 });

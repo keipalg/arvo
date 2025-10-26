@@ -2,19 +2,37 @@
 // COGS
 // ===========================================================================
 
+type Materials = {
+    materialId: string;
+    name: string;
+    amount: number;
+    costPerUnit: number;
+    materialCost: number;
+    unitAbbreviation: string;
+};
+
 import {
     DEFAULT_OPERATING_COST_PCT,
     DEFAULT_OVERHEAD_COST_PCT,
     DEFAULT_PROFIT_MARGIN_PCT,
 } from "../../../backend/src/utils/constants/accounting.js";
 
-/**
- * Calculate Total Material Cost per product (COGS)
- * @param input list of material costs
- * @returns total material cost
- */
-export const getTotalMaterialCost = (...input: number[]): number => {
-    return input.reduce((acc, curr) => acc + curr, 0);
+// Calculate materlacost for each materials
+export const calculateMaterialCost = (
+    amount: number,
+    costPerUnit: number,
+): number => {
+    return !amount || !costPerUnit ? 0 : amount * costPerUnit;
+};
+
+// Calculate total material cost
+export const calculateTotalMaterialCost = (materials: Materials[]): number => {
+    return materials.reduce(
+        (total, material) =>
+            total +
+            calculateMaterialCost(material.amount, material.costPerUnit),
+        0,
+    );
 };
 
 /**
@@ -96,5 +114,6 @@ export const getNetProfitMargine = (
     cogs: number,
     operatingCost: number,
 ) => {
+    if (!salesPrice || salesPrice <= 0) return 0;
     return ((salesPrice - (cogs + operatingCost)) / salesPrice) * 100;
 };
