@@ -1,18 +1,16 @@
-import { sql, eq, type InferInsertModel, inArray, and } from "drizzle-orm";
+import { and, eq, inArray, sql, type InferInsertModel } from "drizzle-orm";
+import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
 import {
-    good,
-    productType,
     collectionTag,
+    good,
     goodToCollectionTag,
-    unit,
+    goodToMaterialOutputRatio,
     materialAndSupply,
     materialOutputRatio,
-    goodToMaterialOutputRatio,
+    productType,
     userPreference,
-    userToUserPreference,
 } from "../db/schema.js";
-import { v7 as uuidv7 } from "uuid";
 
 export const getGoodsList = async (userId: string) => {
     const goods = await db
@@ -123,11 +121,11 @@ export const addMaterialOutputRatio = async (
         .returning({ id: materialOutputRatio.id });
 };
 
-export type goodToMaterialOutputRatioInsert = InferInsertModel<
+export type GoodToMaterialOutputRatioInsert = InferInsertModel<
     typeof goodToMaterialOutputRatio
 >;
 export const addGoodToMaterialOutputRatio = async (
-    data: goodToMaterialOutputRatioInsert,
+    data: GoodToMaterialOutputRatioInsert,
 ) => {
     return await db.insert(goodToMaterialOutputRatio).values({
         goodId: data.goodId,

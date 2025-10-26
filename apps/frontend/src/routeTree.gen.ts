@@ -21,6 +21,7 @@ import { Route as ProtectedGoodsIndexRouteImport } from './routes/_protected/goo
 import { Route as ProtectedExpensesIndexRouteImport } from './routes/_protected/expenses/index'
 import { Route as ProtectedDashboardIndexRouteImport } from './routes/_protected/dashboard/index'
 import { Route as ProtectedSettingsProfileRouteImport } from './routes/_protected/settings/profile'
+import { Route as ProtectedGoodsProductionBatchIndexRouteImport } from './routes/_protected/goods/productionBatch/index'
 import { Route as ProtectedExpensesBusinessIndexRouteImport } from './routes/_protected/expenses/business/index'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -83,6 +84,12 @@ const ProtectedSettingsProfileRoute =
     path: '/settings/profile',
     getParentRoute: () => ProtectedRoute,
   } as any)
+const ProtectedGoodsProductionBatchIndexRoute =
+  ProtectedGoodsProductionBatchIndexRouteImport.update({
+    id: '/goods/productionBatch/',
+    path: '/goods/productionBatch/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const ProtectedExpensesBusinessIndexRoute =
   ProtectedExpensesBusinessIndexRouteImport.update({
     id: '/expenses/business/',
@@ -103,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/sales': typeof ProtectedSalesIndexRoute
   '/setup': typeof ProtectedSetupIndexRoute
   '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
+  '/goods/productionBatch': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
@@ -117,6 +125,7 @@ export interface FileRoutesByTo {
   '/sales': typeof ProtectedSalesIndexRoute
   '/setup': typeof ProtectedSetupIndexRoute
   '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
+  '/goods/productionBatch': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -133,6 +142,7 @@ export interface FileRoutesById {
   '/_protected/sales/': typeof ProtectedSalesIndexRoute
   '/_protected/setup/': typeof ProtectedSetupIndexRoute
   '/_protected/expenses/business/': typeof ProtectedExpensesBusinessIndexRoute
+  '/_protected/goods/productionBatch/': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/setup'
     | '/expenses/business'
+    | '/goods/productionBatch'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/setup'
     | '/expenses/business'
+    | '/goods/productionBatch'
   id:
     | '__root__'
     | '/_protected'
@@ -178,6 +190,7 @@ export interface FileRouteTypes {
     | '/_protected/sales/'
     | '/_protected/setup/'
     | '/_protected/expenses/business/'
+    | '/_protected/goods/productionBatch/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsProfileRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/goods/productionBatch/': {
+      id: '/_protected/goods/productionBatch/'
+      path: '/goods/productionBatch'
+      fullPath: '/goods/productionBatch'
+      preLoaderRoute: typeof ProtectedGoodsProductionBatchIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/expenses/business/': {
       id: '/_protected/expenses/business/'
       path: '/expenses/business'
@@ -293,6 +313,7 @@ interface ProtectedRouteChildren {
   ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute
   ProtectedSetupIndexRoute: typeof ProtectedSetupIndexRoute
   ProtectedExpensesBusinessIndexRoute: typeof ProtectedExpensesBusinessIndexRoute
+  ProtectedGoodsProductionBatchIndexRoute: typeof ProtectedGoodsProductionBatchIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
@@ -304,6 +325,8 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
   ProtectedSetupIndexRoute: ProtectedSetupIndexRoute,
   ProtectedExpensesBusinessIndexRoute: ProtectedExpensesBusinessIndexRoute,
+  ProtectedGoodsProductionBatchIndexRoute:
+    ProtectedGoodsProductionBatchIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

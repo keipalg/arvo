@@ -13,6 +13,7 @@ import { unitsRouter } from "./routes/units.js";
 import { studioOverheadExpenseRouter } from "./routes/studioOverheadExpenseRoutes.js";
 import { materialTypesRouter } from "./routes/materialTypesRoute.js";
 import { userPreferencesRouter } from "./routes/userPreferencesRoute.js";
+import { productionBatchRouter } from "./routes/productionBatchRoute.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -32,6 +33,7 @@ export const appRouter = router({
     channel: channelRouter,
     status: statusRouter,
     userPreferences: userPreferencesRouter,
+    productionBatch: productionBatchRouter,
 });
 
 export type AppRouter = typeof appRouter;
