@@ -14,6 +14,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicSignupRouteImport } from './routes/_public/signup'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as ProtectedSetupIndexRouteImport } from './routes/_protected/setup/index'
 import { Route as ProtectedSalesIndexRouteImport } from './routes/_protected/sales/index'
 import { Route as ProtectedMaterialsIndexRouteImport } from './routes/_protected/materials/index'
 import { Route as ProtectedGoodsIndexRouteImport } from './routes/_protected/goods/index'
@@ -45,6 +46,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
   id: '/_public/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedSetupIndexRoute = ProtectedSetupIndexRouteImport.update({
+  id: '/setup/',
+  path: '/setup/',
+  getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedSalesIndexRoute = ProtectedSalesIndexRouteImport.update({
   id: '/sales/',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/goods': typeof ProtectedGoodsIndexRoute
   '/materials': typeof ProtectedMaterialsIndexRoute
   '/sales': typeof ProtectedSalesIndexRoute
+  '/setup': typeof ProtectedSetupIndexRoute
   '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
 }
 export interface FileRoutesByTo {
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/goods': typeof ProtectedGoodsIndexRoute
   '/materials': typeof ProtectedMaterialsIndexRoute
   '/sales': typeof ProtectedSalesIndexRoute
+  '/setup': typeof ProtectedSetupIndexRoute
   '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
 }
 export interface FileRoutesById {
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_protected/goods/': typeof ProtectedGoodsIndexRoute
   '/_protected/materials/': typeof ProtectedMaterialsIndexRoute
   '/_protected/sales/': typeof ProtectedSalesIndexRoute
+  '/_protected/setup/': typeof ProtectedSetupIndexRoute
   '/_protected/expenses/business/': typeof ProtectedExpensesBusinessIndexRoute
 }
 export interface FileRouteTypes {
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/goods'
     | '/materials'
     | '/sales'
+    | '/setup'
     | '/expenses/business'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/goods'
     | '/materials'
     | '/sales'
+    | '/setup'
     | '/expenses/business'
   id:
     | '__root__'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_protected/goods/'
     | '/_protected/materials/'
     | '/_protected/sales/'
+    | '/_protected/setup/'
     | '/_protected/expenses/business/'
   fileRoutesById: FileRoutesById
 }
@@ -212,6 +224,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/about'
       preLoaderRoute: typeof PublicAboutRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_protected/setup/': {
+      id: '/_protected/setup/'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof ProtectedSetupIndexRouteImport
+      parentRoute: typeof ProtectedRoute
     }
     '/_protected/sales/': {
       id: '/_protected/sales/'
@@ -272,6 +291,7 @@ interface ProtectedRouteChildren {
   ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute
   ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute
   ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute
+  ProtectedSetupIndexRoute: typeof ProtectedSetupIndexRoute
   ProtectedExpensesBusinessIndexRoute: typeof ProtectedExpensesBusinessIndexRoute
 }
 
@@ -282,6 +302,7 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,
   ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
   ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
+  ProtectedSetupIndexRoute: ProtectedSetupIndexRoute,
   ProtectedExpensesBusinessIndexRoute: ProtectedExpensesBusinessIndexRoute,
 }
 

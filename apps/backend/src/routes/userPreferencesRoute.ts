@@ -1,36 +1,38 @@
-import { z } from "zod";
-import { protectedProcedure, router } from "./trpcBase.js";
+import {
+    userPreferenceLaborValidation,
+    userPreferenceOperatingCostValidation,
+    userPreferenceOverheadCostValidation,
+    userPreferenceProfitValidation,
+} from "shared/validation/userPreferencesValidation.js";
 import {
     getUserPreferences,
     updateUserPreferences,
 } from "../service/userPreferencesService.js";
+import { DEFAULT_PROFIT_MARGIN_PCT } from "../utils/constants/accounting.js";
+import { protectedProcedure, router } from "./trpcBase.js";
 
 export const userPreferencesRouter = router({
     get: protectedProcedure.query(async ({ ctx }) => {
         return await getUserPreferences(ctx.user.id);
     }),
     updateProfit: protectedProcedure
-        .input(z.object({ profitPercentage: z.number() })) // TODO: To update on frontend task
+        .input(userPreferenceProfitValidation)
         .mutation(async ({ ctx, input }) => {
             await updateUserPreferences(ctx.user.id, {
-                profitPercentage: input.profitPercentage,
+                profitPercentage: input.profitPercentage
+                    ? input.profitPercentage / 100
+                    : DEFAULT_PROFIT_MARGIN_PCT,
             });
         }),
     updateLabor: protectedProcedure
-        .input(z.object({ laborCost: z.number() })) // TODO: To update on frontend task
+        .input(userPreferenceLaborValidation)
         .mutation(async ({ ctx, input }) => {
             await updateUserPreferences(ctx.user.id, {
                 laborCost: input.laborCost,
             });
         }),
     updateOperatingCost: protectedProcedure
-        .input(
-            z.object({
-                estimatedMonthlyOperatingExpenses: z.number(),
-                estimatedMonthlyProducedUnits: z.number(),
-                operatingCostPercentage: z.number(),
-            }), // TODO: To update on frontend task
-        )
+        .input(userPreferenceOperatingCostValidation)
         .mutation(async ({ ctx, input }) => {
             await updateUserPreferences(ctx.user.id, {
                 estimatedMonthlyOperatingExpenses:
@@ -41,10 +43,10 @@ export const userPreferencesRouter = router({
             });
         }),
     updateOverheadCost: protectedProcedure
-        .input(z.object({ overheadCostPercentage: z.number() })) // TODO: To update on frontend task
+        .input(userPreferenceOverheadCostValidation)
         .mutation(async ({ ctx, input }) => {
             await updateUserPreferences(ctx.user.id, {
-                overheadCostPercentage: input.overheadCostPercentage,
+                overheadCostPercentage: input.overheadCostPercentage / 100,
             });
         }),
 });

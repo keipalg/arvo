@@ -10,4 +10,4 @@ export const DEFAULT_OVERHEAD_COST_PCT: number = 0.2;
 // For Pricing - Operating Cost
 export const DEFAULT_OPERATING_COST_PCT: number = 0.5;
 // For Pricing - Sale Price
-export const DEFAULT_PROFIT_MARGIN_PCT: number = 0.25;
+export const DEFAULT_PROFIT_MARGIN_PCT: number = 0.5;
