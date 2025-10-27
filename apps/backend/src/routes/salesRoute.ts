@@ -24,6 +24,7 @@ import {
 import { isProductsError, isTotalPriceError } from "../utils/salesUtil.js";
 import { TRPCError } from "@trpc/server";
 import { db } from "../db/client.js";
+import { getUsedMaterialPerSales } from "../service/getUsedMaterialPerSales.js";
 
 export const salesRouter = router({
     /**
@@ -221,5 +222,12 @@ export const salesRouter = router({
     nextSalesNumber: protectedProcedure.query(async ({ ctx }) => {
         const maxNumber = await getMaxSalesNumber(ctx.user.id);
         return maxNumber + 1;
+    }),
+    /**
+     * Get the used materials per sales.
+     */
+    usedMaterialPerSales: protectedProcedure.query(async ({ ctx }) => {
+        const usedMaterials = await getUsedMaterialPerSales(ctx.user.id);
+        return usedMaterials;
     }),
 });

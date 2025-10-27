@@ -20,6 +20,10 @@ const Navigation = () => {
             name: "Expenses",
             path: "/expenses",
             children: [
+                {
+                    name: "Used Material Expenses",
+                    path: "/expenses/usedMaterials",
+                },
                 { name: "Business Expenses", path: "/expenses/business" },
             ],
         },
