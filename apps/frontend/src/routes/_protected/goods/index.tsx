@@ -113,10 +113,6 @@ function GoodsList() {
             header: "Inventory Quantity",
         },
         {
-            key: "producedQuantity",
-            header: "Produced Quantity",
-        },
-        {
             key: "retailPrice",
             header: "Unit Price",
             render: (value) => <>${Number(value).toFixed(2)}</>,
@@ -277,6 +273,7 @@ function GoodsList() {
         setFormErrors({});
         addGoodMutation.mutate(result.data);
         setDrawerOpen(false);
+        resetForm();
     };
 
     const handleDelete = (id: string) => {
@@ -496,7 +493,7 @@ function GoodsList() {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     ></TextArea>
-                    <Button value="Cancel"></Button>
+                    <Button value="Cancel" onClick={() => resetForm()}></Button>
                     <Button type="submit" value="Add Product"></Button>
                 </form>
             </RightDrawer>

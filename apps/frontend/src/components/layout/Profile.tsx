@@ -5,7 +5,7 @@ const Profile = () => {
 
     return (
         <div className="p-4 border-gray-200">
-            <div>{session?.user.name}</div>
+            <div>{session?.user?.name}</div>
         </div>
     );
 };

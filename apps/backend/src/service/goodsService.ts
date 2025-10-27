@@ -10,6 +10,7 @@ import {
     materialOutputRatio,
     productType,
     userPreference,
+    unit,
 } from "../db/schema.js";
 
 export const getGoodsList = async (userId: string) => {
@@ -24,6 +25,7 @@ export const getGoodsList = async (userId: string) => {
             inventoryQuantity: good.inventoryQuantity,
             producedQuantity: good.producedQuantity,
             collectionTag: collectionTag.name,
+            materialCost: good.materialCost,
         })
         .from(good)
         .where(eq(good.userId, userId))
@@ -35,6 +37,69 @@ export const getGoodsList = async (userId: string) => {
         );
 
     return goods;
+};
+
+export const getMaterialOutputRatio = async (userId: string) => {
+    const materialOutputRatioData = await db
+        .select({
+            id: good.id,
+            name: good.name,
+            materialId: materialOutputRatio.materialId,
+            materialName: materialAndSupply.name,
+            input: materialOutputRatio.input,
+            abbreviation: unit.abbreviation,
+            costPerUnit: materialAndSupply.costPerUnit,
+        })
+        .from(materialOutputRatio)
+        .leftJoin(
+            goodToMaterialOutputRatio,
+            eq(
+                goodToMaterialOutputRatio.materialOutputRatioId,
+                materialOutputRatio.id,
+            ),
+        )
+        .leftJoin(good, eq(goodToMaterialOutputRatio.goodId, good.id))
+        .leftJoin(
+            materialAndSupply,
+            eq(materialOutputRatio.materialId, materialAndSupply.id),
+        )
+        .leftJoin(unit, eq(unit.id, materialAndSupply.unitId))
+        .where(eq(good.userId, userId));
+
+    return materialOutputRatioData;
+};
+
+export const getMaterialOutputRatioByGoodId = async (
+    userId: string,
+    goodId: string,
+) => {
+    const materialOutputRatioData = await db
+        .select({
+            id: good.id,
+            name: good.name,
+            materialId: materialOutputRatio.materialId,
+            materialName: materialAndSupply.name,
+            input: materialOutputRatio.input,
+            abbreviation: unit.abbreviation,
+            costPerUnit: materialAndSupply.costPerUnit,
+        })
+        .from(materialOutputRatio)
+        .leftJoin(
+            goodToMaterialOutputRatio,
+            eq(
+                goodToMaterialOutputRatio.materialOutputRatioId,
+                materialOutputRatio.id,
+            ),
+        )
+        .leftJoin(good, eq(goodToMaterialOutputRatio.goodId, good.id))
+        .leftJoin(
+            materialAndSupply,
+            eq(materialOutputRatio.materialId, materialAndSupply.id),
+        )
+        .leftJoin(unit, eq(unit.id, materialAndSupply.unitId))
+        .where(and(eq(good.userId, userId), eq(good.id, goodId)));
+
+    return materialOutputRatioData;
 };
 
 export const getMaterialsList = async (userId: string) => {
@@ -159,4 +224,65 @@ export const getGoodInfoByIds = async (userId: string, goodIds: string[]) => {
         })
         .from(good)
         .where(and(eq(good.userId, userId), inArray(good.id, goodIds)));
+};
+
+export const addGoodQuantity = async (
+    goodId: string,
+    userId: string,
+    quantityToAdd: number,
+) => {
+    // Get first match
+    const [goodRecord] = await db
+        .select()
+        .from(good)
+        .where(and(eq(good.id, goodId), eq(good.userId, userId)))
+        .limit(1);
+
+    if (!good) {
+        throw new Error("Good not found");
+    }
+
+    const newQuantity = goodRecord.inventoryQuantity + quantityToAdd;
+
+    return await db
+        .update(good)
+        .set({ inventoryQuantity: newQuantity })
+        .where(and(eq(good.id, goodId), eq(good.userId, userId)))
+        .returning({
+            id: good.id,
+            inventoryQuantity: goodRecord.inventoryQuantity,
+        });
+};
+
+export const reduceGoodQuantity = async (
+    goodId: string,
+    userId: string,
+    quantityToDeduct: number,
+) => {
+    // Get first match
+    const [goodRecord] = await db
+        .select()
+        .from(good)
+        .where(and(eq(good.id, goodId), eq(good.userId, userId)))
+        .limit(1);
+
+    if (!good) {
+        throw new Error("Good not found");
+    }
+    if (goodRecord.inventoryQuantity < quantityToDeduct) {
+        throw new Error(
+            `Insufficient quantity. Available: ${goodRecord.inventoryQuantity}, Requested: ${quantityToDeduct}`,
+        );
+    }
+
+    const newQuantity = goodRecord.inventoryQuantity - quantityToDeduct;
+
+    return await db
+        .update(good)
+        .set({ inventoryQuantity: newQuantity })
+        .where(and(eq(good.id, goodId), eq(good.userId, userId)))
+        .returning({
+            id: good.id,
+            inventoryQuantity: goodRecord.inventoryQuantity,
+        });
 };
