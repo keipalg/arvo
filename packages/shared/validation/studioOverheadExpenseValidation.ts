@@ -5,6 +5,7 @@ export const studioOverheadExpenseValidation = z.object({
         "miscellaneous",
         "tools_equipment",
         "packaging_supplies",
+        "space_rent",
     ]),
     name: z.string(),
     cost: z.number().default(0),
