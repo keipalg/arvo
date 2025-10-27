@@ -1,0 +1,1 @@
+ALTER TYPE "public"."studio_overhead_expense_type_enum" ADD VALUE 'space_rent' BEFORE 'miscellaneous';

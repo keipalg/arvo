@@ -116,7 +116,7 @@ export const operational_expense = pgTable("operational_expense", {
 /* Studio Overhead Expense */
 export const studio_overhead_expense_type_enum = pgEnum(
     "studio_overhead_expense_type_enum",
-    ["tools_equipment", "packaging_supplies", "miscellaneous"],
+    ["tools_equipment", "packaging_supplies", "space_rent", "miscellaneous"],
 );
 
 export const studio_overhead_expense = pgTable("studio_overhead_expense", {

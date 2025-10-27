@@ -28,6 +28,7 @@ type BusinessExpense = {
         | "utilities"
         | "office_supplies"
         | "studio_rent"
+        | "space_rent"
         | "labor"
         | "storage_fee"
         | "inventory_loss"
@@ -497,6 +498,10 @@ function BusinessExpense() {
                             {
                                 optGroupLabel: "Overhead Expenses",
                                 optGroupValues: [
+                                    {
+                                        label: "Space Rent",
+                                        value: "space_rent",
+                                    },
                                     {
                                         label: "Tools & Equipment",
                                         value: "tools_equipment",
