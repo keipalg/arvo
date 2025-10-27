@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
     good,
@@ -23,6 +23,7 @@ export const getUsedMaterialPerSales = async (userId: string) => {
             materialID: materialOutputRatio.materialId,
             materialName: materialAndSupply.name,
             costPerUnit: materialAndSupply.costPerUnit,
+            usedMaterialCost: sql<number>`(${materialAndSupply.costPerUnit} * ${materialOutputRatio.input})`,
         })
         .from(sale)
         .innerJoin(saleDetail, eq(saleDetail.saleId, sale.id))
