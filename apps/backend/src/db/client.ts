@@ -5,9 +5,13 @@ import * as schema from "./schema.js";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 
+const isDev = process.env.NODE_ENV === "development";
+const loggerEnabled = process.env.LOGGER === "true" && isDev;
+
 export const db = drizzle({
     connection: process.env.DATABASE_URL!,
     ws,
+    logger: loggerEnabled,
     schema,
 });
 

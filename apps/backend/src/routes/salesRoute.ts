@@ -11,6 +11,7 @@ import {
     type SaleInsert,
     getSaleDetailsBySaleId,
     deleteSaleDetailsBySaleId,
+    updateSale,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
 import {
@@ -62,7 +63,17 @@ export const salesRouter = router({
                 productList,
             );
 
-            if (isProductsError(input, dbProductList)) {
+            const dbProducts: {
+                id: string;
+                retailPrice: number;
+                quantity: number;
+            }[] = dbProductList.map((product) => ({
+                id: product.id,
+                retailPrice: product.retailPrice,
+                quantity: product.inventoryQuantity ?? 0,
+            }));
+
+            if (isProductsError(input, dbProducts)) {
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "One or more products are invalid",
@@ -97,13 +108,25 @@ export const salesRouter = router({
                 };
                 const saledata = await addSale(inputData, tx);
 
-                input.products.forEach(async (product) => {
+                let totalCogs = 0;
+                for (const product of input.products) {
+                    const dbProduct = dbProductList.find(
+                        (p) => p.id === product.productId,
+                    );
+                    const cogs =
+                        (Number(dbProduct?.laborCost ?? 0) +
+                            Number(dbProduct?.materialCost ?? 0) +
+                            Number(dbProduct?.overheadCost ?? 0)) *
+                        product.quantity;
+                    totalCogs += cogs;
+
                     const inputSaleDetail: SaleDetailInsert = {
                         id: "",
                         saleId: saledata[0].id,
                         goodId: product.productId,
                         quantity: product.quantity,
                         pricePerItem: product.retailPrice,
+                        cogs: cogs,
                     };
                     await addSaleDetail(inputSaleDetail, tx);
                     await increaseDecreaseInventoryQuantity(
@@ -111,9 +134,17 @@ export const salesRouter = router({
                         -product.quantity,
                         tx,
                     );
-                });
+                }
 
-                // TODO: Add Material Used record
+                await updateSale(
+                    {
+                        ...inputData,
+                        id: saledata[0].id,
+                        cogs: totalCogs,
+                        profit: input.totalPrice - totalCogs,
+                    },
+                    tx,
+                );
             });
 
             return { success: true };
@@ -129,8 +160,28 @@ export const salesRouter = router({
                 ctx.user.id,
                 productList,
             );
+            const existingSaleDetails = await getSaleDetailsBySaleId(input.id);
+
+            const dbProducts: {
+                id: string;
+                retailPrice: number;
+                quantity: number;
+            }[] = dbProductList.map((product) => {
+                const existingDetail = existingSaleDetails.find(
+                    (detail) => detail.goodId === product.id,
+                );
+                return {
+                    id: product.id,
+                    retailPrice: product.retailPrice,
+                    quantity: existingDetail
+                        ? (product.inventoryQuantity ?? 0) +
+                          existingDetail.quantity
+                        : (product.inventoryQuantity ?? 0),
+                };
+            });
+
             await db.transaction(async (tx) => {
-                if (isProductsError(input, dbProductList)) {
+                if (isProductsError(input, dbProducts)) {
                     throw new TRPCError({
                         code: "BAD_REQUEST",
                         message: "One or more products are invalid",
@@ -156,6 +207,20 @@ export const salesRouter = router({
                 }
 
                 const statusInfo = await getStatusByKey(input.statusKey);
+
+                let totalCogs = 0;
+                for (const product of input.products) {
+                    const dbProduct = dbProductList.find(
+                        (p) => p.id === product.productId,
+                    );
+                    const cogs =
+                        (Number(dbProduct?.laborCost ?? 0) +
+                            Number(dbProduct?.materialCost ?? 0) +
+                            Number(dbProduct?.overheadCost ?? 0)) *
+                        product.quantity;
+                    totalCogs += cogs;
+                }
+
                 const updateData: SaleInsert = {
                     id: input.id,
                     userId: ctx.user.id,
@@ -165,22 +230,34 @@ export const salesRouter = router({
                     date: input.date ? new Date(input.date) : new Date(),
                     statusId: statusInfo!.id,
                     totalPrice: input.totalPrice,
+                    cogs: totalCogs,
+                    profit: input.totalPrice - totalCogs,
                     note: input.note,
                     discount: input.discount,
                     shippingFee: input.shippingFee,
                     taxPercentage: input.taxPercentage,
                 };
-                await addSale(updateData, tx);
+                await updateSale(updateData, tx);
 
                 await deleteSaleDetailsBySaleId(input.id, tx);
 
                 for (const product of input.products) {
+                    const dbProduct = dbProductList.find(
+                        (p) => p.id === product.productId,
+                    );
+                    const cogs =
+                        (Number(dbProduct?.laborCost ?? 0) +
+                            Number(dbProduct?.materialCost ?? 0) +
+                            Number(dbProduct?.overheadCost ?? 0)) *
+                        product.quantity;
+
                     const inputSaleDetail: SaleDetailInsert = {
                         id: "",
                         saleId: input.id,
                         goodId: product.productId,
                         quantity: product.quantity,
                         pricePerItem: product.retailPrice,
+                        cogs: cogs,
                     };
                     await addSaleDetail(inputSaleDetail, tx);
                     await increaseDecreaseInventoryQuantity(
@@ -189,8 +266,6 @@ export const salesRouter = router({
                         tx,
                     );
                 }
-
-                // TODO: Update Material Used record
             });
 
             return { success: true };
@@ -211,8 +286,6 @@ export const salesRouter = router({
                     );
                 }
                 await deleteSale(input.id, tx);
-
-                // TODO: Delete Material Used record
             });
             return { success: true };
         }),

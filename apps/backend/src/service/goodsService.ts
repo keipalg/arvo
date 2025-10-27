@@ -220,6 +220,10 @@ export const getGoodInfoByIds = async (userId: string, goodIds: string[]) => {
             id: good.id,
             name: good.name,
             retailPrice: good.retailPrice,
+            materialCost: good.materialCost,
+            laborCost: good.laborCost,
+            overheadCost: good.overheadCost,
+            netProfit: good.netProfit,
             inventoryQuantity: good.inventoryQuantity,
         })
         .from(good)
