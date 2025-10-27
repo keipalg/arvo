@@ -5,7 +5,7 @@ import DataTable from "../../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "shared/trpc";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
@@ -13,11 +13,6 @@ import RightDrawer from "../../../../components/drawer/RightDrawer";
 import ProductionStatus from "../../../../components/badge/ProductionStatus.tsx";
 import TextInput from "../../../../components/input/TextInput";
 import SelectCustom from "../../../../components/input/SelectCustom";
-
-import {
-    calculateMaterialCost,
-    calculateTotalMaterialCost,
-} from "../../../../utils/pricing.ts";
 
 import { productionBatchInputValidation } from "shared/validation/productionBatchInputValidation";
 
@@ -34,9 +29,20 @@ type Materials = {
     materialId: string;
     name: string;
     amount: number;
+    quantity: number;
     costPerUnit: number;
     materialCost: number;
     unitAbbreviation: string;
+};
+
+type MaterialOutputRatio = {
+    id: string;
+    name: string;
+    materialId: string;
+    materialName: string;
+    input: number;
+    abbreviation: string;
+    costPerUnit: number;
 };
 
 function ProductionBatchList() {
@@ -48,6 +54,10 @@ function ProductionBatchList() {
     const [statusKey, setStatusKey] = useState("");
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
+    const [materialOutputRatios, setMaterialOutputRatios] = useState<
+        MaterialOutputRatio[]
+    >([]);
+    const [editingBatchId, setEditingBatchId] = useState<string | null>(null);
     const { data, isLoading, error } = useQuery(
         trpc.productionBatch.list.queryOptions(),
     );
@@ -58,10 +68,23 @@ function ProductionBatchList() {
     const { data: productionStatusList } = useQuery(
         trpc.productionBatch.productionStatus.queryOptions(),
     );
+    const { data: materialOutputRatioData } = useQuery(
+        trpc.goods.materialOutputRatio.queryOptions(),
+    );
 
     console.log("Raw batch data :", data);
     console.log("Raw materialList data:", materialList);
     console.log("Raw productionStatus data:", productionStatusList);
+    console.log("Raw mateiralOutputRatio data:", materialOutputRatioData);
+
+    const calculateProductionCost = (
+        ratios: MaterialOutputRatio[],
+        quantity: number,
+    ) => {
+        return ratios.reduce((total, ratio) => {
+            return total + ratio.input * ratio.costPerUnit * quantity;
+        }, 0);
+    };
 
     const columns: Array<{
         key: keyof ProductionBatch;
@@ -87,6 +110,10 @@ function ProductionBatchList() {
             },
         },
         {
+            key: "goodName",
+            header: "Product Name",
+        },
+        {
             key: "quantity",
             header: "Quantity",
         },
@@ -106,26 +133,33 @@ function ProductionBatchList() {
                 );
             },
         },
-        // TODO: need to implement edit
-        // {
-        //     key: "actions",
-        //     header: "Actions",
-        //     render: (_value, row) => (
-        //         <>
-        //             <div className="flex gap-2">
-        //                 <button
-        //                     className="cursor-pointer"
-        //                     onClick={() => handleEdit(row)}
-        //                 >
-        //                     <img src="/icon/edit.svg"></img>
-        //                 </button>
-        //             </div>
-        //         </>
-        //     ),
-        // },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (_value, row) => (
+                <>
+                    <div className="flex gap-2">
+                        <button
+                            className="cursor-pointer"
+                            onClick={() => handleEdit(row)}
+                        >
+                            <img src="/icon/edit.svg"></img>
+                        </button>
+                    </div>
+                </>
+            ),
+        },
     ];
 
-    const resetForm = () => {};
+    const resetForm = () => {
+        setGoodId("");
+        setProductionDate("");
+        setQuantity(0);
+        setProductionCost(0);
+        setStatusKey("");
+        setMaterials([]);
+        setMaterialOutputRatios([]);
+    };
 
     const closeDrawer = () => {
         setDrawerOpen(false);
@@ -136,63 +170,6 @@ function ProductionBatchList() {
         actions: "",
     }));
 
-    const addMaterialRow = () => {
-        setMaterials([
-            ...materials,
-            {
-                materialId: "",
-                name: "",
-                amount: 0,
-                unitAbbreviation: "",
-                costPerUnit: 0,
-                materialCost: 0,
-            },
-        ]);
-    };
-
-    const updateMaterialRow = (
-        index: number,
-        field: keyof Materials,
-        value: string | number,
-    ) => {
-        setMaterials((prevMaterials) => {
-            const updatedMaterials = [...prevMaterials];
-            updatedMaterials[index] = {
-                ...updatedMaterials[index],
-                [field]: value,
-            };
-
-            if (field === "materialId") {
-                const chosenMaterial = materialList?.find(
-                    (material) => material.id === value,
-                );
-                if (chosenMaterial) {
-                    updatedMaterials[index].unitAbbreviation =
-                        chosenMaterial.unitAbbreviation;
-                    updatedMaterials[index].costPerUnit =
-                        chosenMaterial.costPerUnit;
-                    updatedMaterials[index].materialCost =
-                        calculateMaterialCost(
-                            updatedMaterials[index].amount,
-                            chosenMaterial.costPerUnit,
-                        );
-                }
-            }
-
-            if (field === "amount" || field === "costPerUnit") {
-                updatedMaterials[index].materialCost = calculateMaterialCost(
-                    updatedMaterials[index].amount,
-                    updatedMaterials[index].costPerUnit,
-                );
-            }
-
-            const totalCost = calculateTotalMaterialCost(updatedMaterials);
-            setProductionCost(totalCost);
-
-            return updatedMaterials;
-        });
-    };
-
     const addProductionBatchMutation = useMutation(
         trpc.productionBatch.add.mutationOptions({
             onSuccess: async () => {
@@ -202,16 +179,16 @@ function ProductionBatchList() {
             },
         }),
     );
-    // TODO: need to implement delete
-    // const deleteGoodMutation = useMutation(
-    //     trpc.goods.delete.mutationOptions({
-    //         onSuccess: async () => {
-    //             await queryClient.invalidateQueries({
-    //                 queryKey: trpc.goods.list.queryKey(),
-    //             });
-    //         },
-    //     }),
-    // );
+
+    const deleteProductionBatchMutation = useMutation(
+        trpc.productionBatch.delete.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.productionBatch.list.queryKey(),
+                });
+            },
+        }),
+    );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -239,13 +216,29 @@ function ProductionBatchList() {
         setFormErrors({});
         addProductionBatchMutation.mutate(result.data);
         setDrawerOpen(false);
+        resetForm();
     };
-    // need to implement delete
-    // const handleDelete = (id: string) => {
-    //     if (window.confirm("Are you sure you want to delete this good?")) {
-    //         deleteGoodMutation.mutate({ id });
-    //     }
-    // };
+
+    const handleEdit = (productionBatch: ProductionBatch) => {
+        setEditingBatchId(productionBatch.id);
+        setDrawerOpen(true);
+        setGoodId(productionBatch.goodId);
+        const date = new Date(productionBatch.productionDate);
+        const formattedDate = date.toISOString().slice(0, 16);
+        setProductionDate(formattedDate);
+
+        setQuantity(productionBatch.quantity || 0);
+        // TODO: need to fix status
+        // setStatusKey(productionBatch.statusKey);
+    };
+
+    const handleDelete = (id: string) => {
+        if (window.confirm("Are you sure you want to delete this good?")) {
+            deleteProductionBatchMutation.mutate({ id });
+            closeDrawer();
+        }
+    };
+
     console.log("Submitting data:", {
         goodId,
         productionDate,
@@ -254,6 +247,30 @@ function ProductionBatchList() {
         materials,
         statusKey,
     });
+
+    useEffect(() => {
+        setMaterialOutputRatios(
+            materialOutputRatioData?.filter((ratio) => ratio.id === goodId),
+        );
+    }, [goodId]);
+
+    useEffect(() => {
+        if (materialOutputRatios && quantity > 0) {
+            const cost = calculateProductionCost(
+                materialOutputRatios,
+                quantity,
+            );
+            setProductionCost(cost);
+        }
+    }, [materialOutputRatios, quantity]);
+
+    useEffect(() => {
+        const materialsArray = materialOutputRatios?.map((ratio) => ({
+            materialId: ratio.materialId,
+            amount: ratio.input * quantity,
+        }));
+        setMaterials(materialsArray);
+    }, [materialOutputRatios, quantity]);
 
     return (
         <BaseLayout title="Product List">
@@ -323,56 +340,24 @@ function ProductionBatchList() {
                         }
                         onChange={setStatusKey}
                     ></SelectCustom>
-
-                    <Button
-                        type="button"
-                        value="Add Material"
-                        onClick={addMaterialRow}
-                    ></Button>
-                    {materials.map((row, index) => (
-                        <div key={index}>
-                            <Select
-                                label="Material"
-                                value={row.materialId}
-                                options={[
-                                    { value: "", label: "" },
-                                    ...(materialList?.map((material) => ({
-                                        value: material.id,
-                                        label: material.name,
-                                    })) || []),
-                                ]}
-                                onChange={(e) =>
-                                    updateMaterialRow(
-                                        index,
-                                        "materialId",
-                                        e.target.value,
-                                    )
-                                }
-                            />
-
-                            <TextInput
-                                label="Amount"
-                                type="number"
-                                value={row.amount}
-                                step="0.01"
-                                placeholder="0.00"
-                                onChange={(e) =>
-                                    updateMaterialRow(
-                                        index,
-                                        "amount",
-                                        Number(e.target.value),
-                                    )
-                                }
-                            ></TextInput>
-                            {row.unitAbbreviation && (
-                                <span>Unit: {row.unitAbbreviation}</span>
-                            )}
-                        </div>
-                    ))}
-
+                    <ul>
+                        {" "}
+                        Recipe:
+                        {materialOutputRatios?.map((ratio) => (
+                            <li key={ratio.id}>
+                                {ratio.materialName} : {ratio.input}{" "}
+                                {ratio.abbreviation}
+                            </li>
+                        ))}
+                    </ul>
                     <p>Total Material Cost: {productionCost}</p>
 
-                    <Button value="Cancel"></Button>
+                    <Button value="Cancel" onClick={() => resetForm()}></Button>
+                    <Button
+                        type="button"
+                        value="Delete"
+                        onClick={() => handleDelete(editingBatchId)}
+                    />
                     <Button type="submit" value="Add Product"></Button>
                 </form>
             </RightDrawer>

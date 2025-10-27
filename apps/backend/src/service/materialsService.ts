@@ -224,3 +224,43 @@ export const reduceMaterialQuantity = async (
             quantity: materialAndSupply.quantity,
         });
 };
+
+// add material quantity when batch record is deleted
+
+export const addMaterialQuantity = async (
+    materialId: string,
+    userId: string,
+    quantityToAdd: number,
+) => {
+    // Get first match
+    const [material] = await db
+        .select()
+        .from(materialAndSupply)
+        .where(
+            and(
+                eq(materialAndSupply.id, materialId),
+                eq(materialAndSupply.userId, userId),
+            ),
+        )
+        .limit(1);
+
+    if (!material) {
+        throw new Error("Material not found");
+    }
+
+    const newQuantity = material.quantity + quantityToAdd;
+
+    return await db
+        .update(materialAndSupply)
+        .set({ quantity: newQuantity })
+        .where(
+            and(
+                eq(materialAndSupply.id, materialId),
+                eq(materialAndSupply.userId, userId),
+            ),
+        )
+        .returning({
+            id: materialAndSupply.id,
+            quantity: materialAndSupply.quantity,
+        });
+};

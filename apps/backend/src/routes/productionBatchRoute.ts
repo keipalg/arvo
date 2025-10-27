@@ -1,17 +1,12 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "./trpcBase.js";
-import {
-    addProductionBatch,
-    getProductionBatch,
-    type BatchRecipeInsert,
-    type ProductionBatchInsert,
-    type ProductionBatchToBatchRecipeInsert,
-    addProductionBatchToBatchRecipe,
-    addBatchRecipe,
-    getProductionStatusList,
-    getProductionStatusByKey,
-} from "../service/productionBatchService.js";
 import { productionBatchInputValidation } from "shared/validation/productionBatchInputValidation.js";
+import {
+    deleteProductionBatch,
+    getProductionBatch,
+    getProductionStatusList,
+    processProductionBatch,
+} from "../service/productionBatchService.js";
+import { protectedProcedure, router } from "./trpcBase.js";
 
 export const productionBatchRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -25,41 +20,22 @@ export const productionBatchRouter = router({
     add: protectedProcedure
         .input(productionBatchInputValidation)
         .mutation(async ({ ctx, input }) => {
-            const statusInfo = await getProductionStatusByKey(input.statusKey);
-
-            const inputData: ProductionBatchInsert = {
-                id: "",
-                goodId: input.goodId,
-                productionDate: input.productionDate
-                    ? new Date(input.productionDate)
-                    : new Date(),
-                quantity: input.quantity,
-                productionCost: input.productionCost,
-                statusId: statusInfo?.id,
-            };
-
-            const productionBatchData = await addProductionBatch(inputData);
-
-            for (const material of input.materials) {
-                const batchRecipeInput: BatchRecipeInsert = {
-                    id: "",
-                    materialId: material.materialId,
-                    usageAmount: material.amount,
-                };
-
-                const batchRecipeData = await addBatchRecipe(batchRecipeInput);
-
-                const productionBatchToRecipeInput: ProductionBatchToBatchRecipeInsert =
-                    {
-                        productionBatchId: productionBatchData[0].id,
-                        batchRecipeId: batchRecipeData[0].id,
-                    };
-
-                await addProductionBatchToBatchRecipe(
-                    productionBatchToRecipeInput,
-                );
+            try {
+                return await processProductionBatch(input, ctx.user.id);
+            } catch (error) {
+                if (error instanceof Error) {
+                    throw new Error(
+                        `Production batch creation failed: ${error.message}`,
+                    );
+                }
+                throw new Error("Production batch creation failed");
             }
+        }),
 
+    delete: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            await deleteProductionBatch(input.id, ctx.user.id);
             return { success: true };
         }),
 });

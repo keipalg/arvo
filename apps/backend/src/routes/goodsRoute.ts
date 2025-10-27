@@ -9,11 +9,13 @@ import {
     getMaterialsList,
     getProductTypesList,
     getUserPreference,
+    getMaterialOutputRatio,
     type GoodInsert,
     type GoodToMaterialOutputRatioInsert,
     type MaterialOutputRatioInsert,
 } from "../service/goodsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
+import type { materialOutputRatio } from "../db/schema.js";
 
 export const goodsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -31,6 +33,10 @@ export const goodsRouter = router({
 
     userPreference: protectedProcedure.query(async ({ ctx }) => {
         return await getUserPreference(ctx.user.id);
+    }),
+
+    materialOutputRatio: protectedProcedure.query(async ({ ctx }) => {
+        return await getMaterialOutputRatio(ctx.user.id);
     }),
 
     add: protectedProcedure
