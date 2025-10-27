@@ -14,6 +14,7 @@ import {
     type MaterialOutputRatioInsert,
 } from "../service/goodsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
+import { getGoodsRecipe } from "../service/getGoodsRecipe.js";
 
 export const goodsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -83,5 +84,11 @@ export const goodsRouter = router({
         .mutation(async ({ input }) => {
             await deleteGood(input.id);
             return { success: true };
+        }),
+
+    recipe: protectedProcedure
+        .input(z.object({ goodIDs: z.array(z.string()) }))
+        .query(async ({ ctx, input }) => {
+            return await getGoodsRecipe(ctx.user.id, input.goodIDs);
         }),
 });
