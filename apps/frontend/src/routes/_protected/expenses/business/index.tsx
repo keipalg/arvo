@@ -618,9 +618,20 @@ function BusinessExpense() {
                                                       newQuantity
                                                     : prev.cost,
                                             };
-                                        } else {
-                                            /* Total cost of used materials in goods should be set to Cost. Work later */
-                                            return prev;
+                                        } else if (prev.good_id) {
+                                            const selectedGoods =
+                                                goodsList?.find(
+                                                    (g) =>
+                                                        g.id === prev.good_id,
+                                                );
+                                            return {
+                                                ...structuredClone(prev),
+                                                quantity: newQuantity,
+                                                cost: selectedGoods?.materialCost
+                                                    ? selectedGoods.materialCost *
+                                                      newQuantity
+                                                    : prev.cost,
+                                            };
                                         }
                                     });
                                 }}

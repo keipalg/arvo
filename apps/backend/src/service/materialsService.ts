@@ -1,6 +1,6 @@
 import { and, eq, type InferInsertModel } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
-import { db } from "../db/client.js";
+import { db, type NeonDbTx } from "../db/client.js";
 import { materialAndSupply, materialType, unit } from "../db/schema.js";
 import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
 
@@ -185,9 +185,10 @@ export const reduceMaterialQuantity = async (
     materialId: string,
     userId: string,
     quantityToDeduct: number,
+    tx: NeonDbTx = db,
 ) => {
     // Get first match
-    const [material] = await db
+    const [material] = await tx
         .select()
         .from(materialAndSupply)
         .where(
@@ -231,9 +232,10 @@ export const addMaterialQuantity = async (
     materialId: string,
     userId: string,
     quantityToAdd: number,
+    tx: NeonDbTx = db,
 ) => {
     // Get first match
-    const [material] = await db
+    const [material] = await tx
         .select()
         .from(materialAndSupply)
         .where(
