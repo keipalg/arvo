@@ -14,6 +14,11 @@ export const studioOverheadExpenseValidation = z.object({
     notes: z.string(),
     attach_recipt: z.string(),
     createdAt: z.date().default(() => new Date()),
+    repeat_every: z
+        .enum(["weekly", "bi-weekly", "monthly", "quarterly", "yearly"])
+        .default("weekly"),
+    start_date: z.date().optional(),
+    due_date: z.date().optional(),
 });
 
 export type studioOverheadExpenseValidationForm = z.infer<

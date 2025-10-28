@@ -77,6 +77,14 @@ export const userToUserPreference = relations(user, ({ one }) => ({
 }));
 
 /* Operational Expense */
+export const repeat_every_enum = pgEnum("repeat_every", [
+    "daily",
+    "weekly",
+    "bi-weekly",
+    "monthly",
+    "quarterly",
+    "yearly",
+]);
 export const payment_method_enum = pgEnum("payment_method", ["credit", "cash"]);
 export const operational_expense_type_enum = pgEnum(
     "operational_expense_type",
@@ -116,6 +124,7 @@ export const operational_expense = pgTable("operational_expense", {
     notes: text("notes").notNull(),
     attach_recipt: text("attach_recipt").notNull(),
     createdAt: timestamp("created_at").notNull(),
+    repeat_every: repeat_every_enum("repeat_every"),
     start_date: timestamp("start_date"),
     due_date: timestamp("due_date"),
 });
@@ -139,6 +148,9 @@ export const studio_overhead_expense = pgTable("studio_overhead_expense", {
     notes: text("notes"),
     attach_recipt: text("attach_recipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    repeat_every: repeat_every_enum("repeat_every"),
+    start_date: timestamp("start_date"),
+    due_date: timestamp("due_date"),
 });
 
 // Define relation of auth user to Expense (one-to-many)
