@@ -1,11 +1,12 @@
 import type { UserPreferencesValidationForm } from "@arvo/shared";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SetupStepLaborCost } from "../../../components/setup/SetupStepLaborCost";
 import { SetupStepOperatingCost } from "../../../components/setup/SetupStepOperatingCost";
 import { SetupStepoverheadCostPercentage } from "../../../components/setup/SetupStepOverheadPercentage";
 import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfitMargin";
 import { trpcClient } from "../../../utils/trpcClient";
+import { SetupStepMaterialTypes } from "../../../components/setup/SetupStepMaterialType";
 
 export const Route = createFileRoute("/_protected/setup/")({
     beforeLoad: async () => {
@@ -30,6 +31,10 @@ function SetupScreens() {
         overheadCostPercentage: undefined,
     });
 
+    useEffect(() => {
+        document.title = "Arvo | Welcome";
+    }, []);
+
     const handleSaveAndContinue = () => setCurrentStep((prev) => prev + 1);
     const handleBack = () => setCurrentStep((prev) => prev - 1);
 
@@ -38,11 +43,18 @@ function SetupScreens() {
         // TODO Screen for Nature of Business
         // TODO Screen Product Types
         // TODO Screen Material Types
+        <SetupStepMaterialTypes
+            key="material-types"
+            data={formData}
+            onUpdate={setFormData}
+            onNext={handleSaveAndContinue}
+        />,
         <SetupStepProfitMargin
             key="profit-margin"
             data={formData}
             onUpdate={setFormData}
             onNext={handleSaveAndContinue}
+            onBack={handleBack}
         />,
         <SetupStepLaborCost
             key="labor-cost"

@@ -24,7 +24,7 @@ const SetupLayout = ({
                 <Logo />
             </header>
 
-            <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-2xl mx-auto w-full gap-6">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-2xl lg:max-w-5xl mx-auto w-full gap-6">
                 <h1 className="text-center font-bold text-4xl">{title}</h1>
 
                 <p className="text-center text-xl">{subtitle}</p>

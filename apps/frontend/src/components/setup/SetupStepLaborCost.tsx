@@ -110,7 +110,6 @@ export function SetupStepLaborCost({
                 options={options}
                 selectedValue={selectedOption}
                 onChange={handleOptionChange}
-                columns={2}
                 customInput={
                     <label className="flex items-center gap-2 cursor-pointer w-full h-full">
                         <input

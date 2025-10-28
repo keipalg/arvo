@@ -12,12 +12,14 @@ type SetupStepProfitMarginProps = {
     data: UserPreferencesValidationForm;
     onUpdate: (data: UserPreferencesValidationForm) => void;
     onNext: () => void;
+    onBack?: () => void;
 };
 
 export function SetupStepProfitMargin({
     data,
     onUpdate,
     onNext,
+    onBack,
 }: SetupStepProfitMarginProps) {
     const options = [
         { value: "50", label: "50%" },
@@ -103,13 +105,13 @@ export function SetupStepProfitMargin({
             subtitle="No worries if you don't have a number, we'll set a default of 50%."
             onContinue={handleContinue}
             caption="You can always change this later in Settings."
+            onBack={onBack}
         >
             <RadioCustom
                 name="profit"
                 options={options}
                 selectedValue={selectedOption}
                 onChange={handleOptionChange}
-                columns={2}
                 customInput={
                     <label className="flex items-center gap-2 cursor-pointer w-full h-full">
                         <input
