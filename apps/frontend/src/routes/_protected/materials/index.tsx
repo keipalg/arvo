@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import { queryClient, trpc } from "../../../utils/trpcClient";
+import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "shared/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Button from "../../../components/button/Button";
 import { useEffect, useState } from "react";
@@ -16,7 +15,7 @@ import Select from "../../../components/input/Select";
 import {
     addMaterialsValidation,
     updateMaterialsValidation,
-} from "shared/validation/materialsValidation";
+} from "@arvo/shared";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
 

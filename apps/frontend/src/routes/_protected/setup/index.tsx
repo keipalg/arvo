@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import type { UserPreferencesValidationForm } from "shared/validation/userPreferencesValidation";
+import type { UserPreferencesValidationForm } from "@arvo/shared";
 import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfitMargin";
 import { SetupStepLaborCost } from "../../../components/setup/SetupStepLaborCost";
 import { SetupStepOperatingCost } from "../../../components/setup/SetupStepOperatingCost";

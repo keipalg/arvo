@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
     userPreferenceOverheadCostValidation,
     type UserPreferencesValidationForm,
-} from "shared/validation/userPreferencesValidation";
+} from "@arvo/shared";
 import { trpc } from "../../utils/trpcClient";
 import RadioCustom from "../input/RadioCustom";
 import SetupLayout from "./SetupLayout";

@@ -1,4 +1,4 @@
-import { goodsInputValidation } from "shared/validation/goodsValidation.js";
+import { goodsInputValidation } from "@arvo/shared";
 import { z } from "zod";
 import {
     addGood,
@@ -15,7 +15,6 @@ import {
     type MaterialOutputRatioInsert,
 } from "../service/goodsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
-import type { materialOutputRatio } from "../db/schema.js";
 
 export const goodsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {

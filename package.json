@@ -4,8 +4,13 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=apps/frontend\" \"npm run dev --workspace=apps/backend\"",
+        "dev": "concurrently \"npm run dev --workspace packages/shared\" \"npm run dev --workspace apps/backend\" \"npm run dev --workspace apps/frontend\"",
+        "dev:backend": "concurrently \"npm run dev --workspace packages/shared\" \"npm run dev --workspace apps/backend\"",
         "test": "echo \"Error: no test specified\" && exit 1",
+        "build:shared": "npm --workspace packages/shared run build",
+        "build:backend": "npm --workspace apps/backend run build",
+        "build:frontend": "npm --workspace apps/frontend run build",
+        "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
         "prepare": "husky",
         "lint-staged": "lint-staged"
     },

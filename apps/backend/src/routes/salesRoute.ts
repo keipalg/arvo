@@ -14,10 +14,7 @@ import {
     updateSale,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
-import {
-    salesInputValidation,
-    salesUpdateValidation,
-} from "shared/validation/salesValidation.js";
+import { salesInputValidation, salesUpdateValidation } from "@arvo/shared";
 import {
     getGoodInfoByIds,
     getProductsListForSales,

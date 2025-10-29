@@ -4,7 +4,7 @@ import { trpc, queryClient } from "../../../../utils/trpcClient";
 import DataTable from "../../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "shared/trpc";
+import type { AppRouter } from "../../../../utils/trpcClient";
 import React, { useEffect, useState } from "react";
 
 import Select from "../../../../components/input/Select";
@@ -14,7 +14,7 @@ import ProductionStatus from "../../../../components/badge/ProductionStatus.tsx"
 import TextInput from "../../../../components/input/TextInput";
 import SelectCustom from "../../../../components/input/SelectCustom";
 
-import { productionBatchInputValidation } from "shared/validation/productionBatchInputValidation";
+import { productionBatchInputValidation } from "@arvo/shared";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -57,7 +57,7 @@ function ProductionBatchList() {
     const [materialOutputRatios, setMaterialOutputRatios] = useState<
         MaterialOutputRatio[]
     >([]);
-    const [editingBatchId, setEditingBatchId] = useState<string | null>(null);
+    const [editingBatchId, setEditingBatchId] = useState<string>("");
     const { data, isLoading, error } = useQuery(
         trpc.productionBatch.list.queryOptions(),
     );
@@ -250,9 +250,19 @@ function ProductionBatchList() {
 
     useEffect(() => {
         setMaterialOutputRatios(
-            materialOutputRatioData?.filter((ratio) => ratio.id === goodId),
+            materialOutputRatioData
+                ?.filter((ratio) => ratio.id === goodId)
+                .map((ratio) => ({
+                    id: ratio.id ?? "",
+                    name: ratio.name ?? "",
+                    materialId: ratio.materialId ?? "",
+                    materialName: ratio.materialName ?? "",
+                    input: ratio.input ?? 0,
+                    abbreviation: ratio.abbreviation ?? "",
+                    costPerUnit: ratio.costPerUnit ?? 0,
+                })) ?? [],
         );
-    }, [goodId]);
+    }, [goodId, materialOutputRatioData]);
 
     useEffect(() => {
         if (materialOutputRatios && quantity > 0) {
@@ -267,7 +277,12 @@ function ProductionBatchList() {
     useEffect(() => {
         const materialsArray = materialOutputRatios?.map((ratio) => ({
             materialId: ratio.materialId,
+            name: ratio.materialName ?? "",
             amount: ratio.input * quantity,
+            quantity: 0,
+            costPerUnit: ratio.costPerUnit ?? 0,
+            materialCost: 0,
+            unitAbbreviation: ratio.abbreviation ?? "",
         }));
         setMaterials(materialsArray);
     }, [materialOutputRatios, quantity]);

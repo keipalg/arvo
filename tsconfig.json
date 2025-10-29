@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "shared/*": ["packages/shared/src/*"],
+            "@arvo/backend": ["../../apps/backend/src"],
+            "@arvo/backend/*": ["../../apps/backend/src/*"]
+        }
+    }
+}

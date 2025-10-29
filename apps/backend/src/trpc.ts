@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db } from "./db/client.js";
 import { sampleTable } from "./db/schema.js";
-import type { About } from "shared/types/sample.ts";
+import type { About } from "@arvo/shared";
 import { salesRouter } from "./routes/salesRoute.js";
 import { channelRouter } from "./routes/channelRoute.js";
 import { publicProcedure, router } from "./routes/trpcBase.js";

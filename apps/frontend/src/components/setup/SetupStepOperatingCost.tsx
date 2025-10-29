@@ -3,7 +3,7 @@ import { useState } from "react";
 import {
     userPreferenceOperatingCostValidation,
     type UserPreferencesValidationForm,
-} from "shared/validation/userPreferencesValidation";
+} from "@arvo/shared";
 import { trpc } from "../../utils/trpcClient";
 import NumberInput from "../input/NumberInput";
 import SetupLayout from "./SetupLayout";

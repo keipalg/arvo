@@ -13,7 +13,7 @@ import { protectedProcedure, router } from "./trpcBase.js";
 import {
     addMaterialsValidation,
     updateMaterialsValidation,
-} from "shared/validation/materialsValidation.js";
+} from "@arvo/shared";
 
 export const materialsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {

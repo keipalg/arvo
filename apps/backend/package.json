@@ -1,5 +1,5 @@
 {
-    "name": "backend",
+    "name": "@arvo/backend",
     "type": "module",
     "scripts": {
         "dev": "tsx watch src/index.ts",
@@ -17,7 +17,7 @@
         "dotenv": "^17.2.2",
         "drizzle-orm": "^0.44.5",
         "hono": "^4.9.6",
-        "shared": "*",
+        "@arvo/shared": "file:*",
         "superjson": "^2.2.2",
         "uuid": "^13.0.0",
         "ws": "^8.18.3"
@@ -28,5 +28,11 @@
         "drizzle-kit": "^0.31.4",
         "tsx": "^4.20.5",
         "typescript": "^5.8.3"
+    },
+    "exports": {
+        "./trpc": {
+            "import": "./dist/trpc/index.js",
+            "types": "./dist/trpc/index.d.ts"
+        }
     }
 }

@@ -1,4 +1,4 @@
-import type { SalesInput } from "shared/validation/salesValidation.js";
+import type { SalesInput } from "@arvo/shared";
 
 export const isProductsError = (
     input: SalesInput,

@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import { trpc, queryClient } from "../../../utils/trpcClient";
+import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "shared/trpc";
 import React, { useState, useEffect } from "react";
 
 import Select from "../../../components/input/Select";
@@ -22,7 +21,7 @@ import {
     calculateTotalMaterialCost,
 } from "../../../utils/pricing.ts";
 
-import { goodsInputValidation } from "shared/validation/goodsValidation";
+import { goodsInputValidation } from "@arvo/shared";
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
 });

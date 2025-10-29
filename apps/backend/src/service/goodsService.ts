@@ -242,11 +242,11 @@ export const addGoodQuantity = async (
         .where(and(eq(good.id, goodId), eq(good.userId, userId)))
         .limit(1);
 
-    if (!good) {
+    if (!goodRecord) {
         throw new Error("Good not found");
     }
 
-    const newQuantity = goodRecord.inventoryQuantity + quantityToAdd;
+    const newQuantity = goodRecord.inventoryQuantity ?? 0 + quantityToAdd;
 
     return await db
         .update(good)
@@ -254,7 +254,7 @@ export const addGoodQuantity = async (
         .where(and(eq(good.id, goodId), eq(good.userId, userId)))
         .returning({
             id: good.id,
-            inventoryQuantity: goodRecord.inventoryQuantity,
+            inventoryQuantity: good.inventoryQuantity,
         });
 };
 
@@ -270,16 +270,16 @@ export const reduceGoodQuantity = async (
         .where(and(eq(good.id, goodId), eq(good.userId, userId)))
         .limit(1);
 
-    if (!good) {
+    if (!goodRecord) {
         throw new Error("Good not found");
     }
-    if (goodRecord.inventoryQuantity < quantityToDeduct) {
+    if (goodRecord.inventoryQuantity ?? 0 < quantityToDeduct) {
         throw new Error(
             `Insufficient quantity. Available: ${goodRecord.inventoryQuantity}, Requested: ${quantityToDeduct}`,
         );
     }
 
-    const newQuantity = goodRecord.inventoryQuantity - quantityToDeduct;
+    const newQuantity = goodRecord.inventoryQuantity ?? 0 - quantityToDeduct;
 
     return await db
         .update(good)
@@ -287,6 +287,6 @@ export const reduceGoodQuantity = async (
         .where(and(eq(good.id, goodId), eq(good.userId, userId)))
         .returning({
             id: good.id,
-            inventoryQuantity: goodRecord.inventoryQuantity,
+            inventoryQuantity: good.inventoryQuantity,
         });
 };

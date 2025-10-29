@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../../components/BaseLayout";
 import { queryClient, trpc } from "../../../../utils/trpcClient";
 import DataTable from "../../../../components/table/DataTable";
-import { operationalExpenseValidation } from "shared/validation/operationalExpenseValidation";
-import { studioOverheadExpenseValidation } from "shared/validation/studioOverheadExpenseValidation";
+import {
+    operationalExpenseValidation,
+    studioOverheadExpenseValidation,
+} from "@arvo/shared";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Button from "../../../../components/button/Button";
@@ -603,36 +605,42 @@ function BusinessExpense() {
                                         e.target.value,
                                     );
                                     setBusinessExpenseFormData((prev) => {
-                                        if (prev.materialAndSupply_id) {
+                                        const prevClone = structuredClone(prev);
+                                        if (prevClone.materialAndSupply_id) {
                                             const selectedMaterial =
                                                 materialsList?.find(
                                                     (m) =>
                                                         m.id ===
-                                                        prev.materialAndSupply_id,
+                                                        prevClone.materialAndSupply_id,
                                                 );
                                             return {
-                                                ...structuredClone(prev),
+                                                ...prevClone,
                                                 quantity: newQuantity,
                                                 cost: selectedMaterial?.costPerUnit
                                                     ? selectedMaterial.costPerUnit *
                                                       newQuantity
-                                                    : prev.cost,
+                                                    : prevClone.cost,
                                             };
-                                        } else if (prev.good_id) {
+                                        } else if (prevClone.good_id) {
                                             const selectedGoods =
                                                 goodsList?.find(
                                                     (g) =>
-                                                        g.id === prev.good_id,
+                                                        g.id ===
+                                                        prevClone.good_id,
                                                 );
                                             return {
-                                                ...structuredClone(prev),
+                                                ...prevClone,
                                                 quantity: newQuantity,
                                                 cost: selectedGoods?.materialCost
                                                     ? selectedGoods.materialCost *
                                                       newQuantity
-                                                    : prev.cost,
+                                                    : prevClone.cost,
                                             };
                                         }
+                                        return {
+                                            ...prevClone,
+                                            quantity: newQuantity,
+                                        };
                                     });
                                 }}
                                 error={validationError.quantity}
