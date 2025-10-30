@@ -120,6 +120,13 @@
             "when": 1761606566456,
             "tag": "0016_rare_aaron_stack",
             "breakpoints": true
+        },
+        {
+            "idx": 17,
+            "version": "7",
+            "when": 1761786717148,
+            "tag": "0017_groovy_warhawk",
+            "breakpoints": true
         }
     ]
 }
