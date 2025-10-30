@@ -20,7 +20,6 @@ export const getGoodsList = async (userId: string) => {
             name: good.name,
             type: productType.name,
             typeId: good.productTypeId,
-            typeId: good.productTypeId,
             image: good.image,
             retailPrice: good.retailPrice,
             note: good.note,
@@ -28,7 +27,6 @@ export const getGoodsList = async (userId: string) => {
             producedQuantity: good.producedQuantity,
             collectionTag: collectionTag.name,
             materialCost: good.materialCost,
-            minimumStockLevel: good.minimumStockLevel,
             minimumStockLevel: good.minimumStockLevel,
         })
         .from(good)
