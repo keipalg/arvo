@@ -1,4 +1,4 @@
-import { goodsInputValidation } from "@arvo/shared";
+import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
 import { z } from "zod";
 import {
     addGood,
@@ -13,6 +13,12 @@ import {
     type GoodInsert,
     type GoodToMaterialOutputRatioInsert,
     type MaterialOutputRatioInsert,
+    type MaterialOutputRatioUpdate,
+    type GoodUpdate,
+    updateGood,
+    updateMaterialOutputRatio,
+    getGoodToMaterialOutputRatio,
+    getMaterialOutputRatioByGoodId,
 } from "../service/goodsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
 
@@ -80,6 +86,79 @@ export const goodsRouter = router({
                 );
             }
 
+            return { success: true };
+        }),
+
+    update: protectedProcedure
+        .input(goodsUpdateValidation)
+        .mutation(async ({ ctx, input }) => {
+            const inputData: GoodUpdate = {
+                id: input.id,
+                userId: ctx.user.id,
+                name: input.name,
+                productTypeId: input.productTypeId,
+                retailPrice: input.retailPrice,
+                note: input.note,
+                inventoryQuantity: input.inventoryQuantity,
+                minimumStockLevel: input.minimumStockLevel,
+                materialCost: input.materialCost,
+                laborCost: input.laborCost,
+                overheadCost: input.overheadCost,
+                operatingCost: input.operatingCost,
+                netProfit: input.netProfit,
+            };
+
+            const updatedData = await updateGood(
+                input.id,
+                ctx.user.id,
+                inputData,
+            );
+
+            const materialOutputRatioData =
+                await getMaterialOutputRatioByGoodId(ctx.user.id, input.id);
+
+            // Create a map for efficient lookup
+            const existingMaterials = new Map(
+                materialOutputRatioData.map((mor) => [mor.materialId, mor]),
+            );
+
+            for (const material of input.materials) {
+                const existingMaterial = existingMaterials.get(
+                    material.materialId,
+                );
+
+                if (existingMaterial) {
+                    // Update existing material
+                    await updateMaterialOutputRatio(
+                        existingMaterial.materialOutputRatioId,
+                        {
+                            input: material.amount,
+                        },
+                    );
+                } else {
+                    // Add new material
+                    const inputMaterialOutputRatio: MaterialOutputRatioInsert =
+                        {
+                            id: "",
+                            materialId: material.materialId,
+                            input: material.amount,
+                        };
+
+                    const materialOutputRatioData =
+                        await addMaterialOutputRatio(inputMaterialOutputRatio);
+
+                    const goodToMaterialOutputRatioInput: GoodToMaterialOutputRatioInsert =
+                        {
+                            goodId: input.id,
+                            materialOutputRatioId:
+                                materialOutputRatioData[0].id,
+                        };
+
+                    await addGoodToMaterialOutputRatio(
+                        goodToMaterialOutputRatioInput,
+                    );
+                }
+            }
             return { success: true };
         }),
 

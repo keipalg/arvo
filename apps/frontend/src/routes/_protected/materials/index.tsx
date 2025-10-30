@@ -186,18 +186,6 @@ function MaterialsList() {
                 notes,
             });
 
-            if (!result.success) {
-                const errors: Record<string, string> = {};
-                result.error.issues.forEach((issue) => {
-                    if (issue.path.length > 0) {
-                        errors[issue.path[0] as string] = issue.message;
-                    }
-                });
-                console.log(errors);
-                setFormErrors(errors);
-                return;
-            }
-
             setFormErrors({});
             updateMaterialMutation.mutate(result.data);
             closeDrawer();

@@ -11,6 +11,7 @@ import Button from "../../../components/button/Button";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
+import PageTitle from "../../../components/layout/PageTitle.tsx";
 
 import {
     getOverheadCostPerUnit,
@@ -21,7 +22,8 @@ import {
     calculateTotalMaterialCost,
 } from "../../../utils/pricing.ts";
 
-import { goodsInputValidation } from "@arvo/shared";
+import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
+
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
 });
@@ -76,6 +78,7 @@ function GoodsList() {
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
     const [suggestedPrice, setSuggestedPrice] = useState(0);
+    const [editingGoodId, setEditingGoodId] = useState<string | null>(null);
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
         trpc.goods.materials.queryOptions(),
@@ -88,11 +91,15 @@ function GoodsList() {
     const { data: userPreference } = useQuery(
         trpc.goods.userPreference.queryOptions(),
     ) as { data: UserPreference[] };
+    const { data: materialOutputRatioData } = useQuery(
+        trpc.goods.materialOutputRatio.queryOptions(),
+    );
 
-    console.log("Raw product data:", data);
-    console.log("Raw userPreference data", userPreference);
-    console.log("Raw productTypes data:", productTypesList);
-    console.log("Raw materialList", materialList);
+    // console.log("Raw product data:", data);
+    // console.log("Raw userPreference data", userPreference);
+    // console.log("Raw productTypes data:", productTypesList);
+    // console.log("Raw materialList", materialList);
+    // console.log("materialoutputRatioData", materialOutputRatioData)
 
     const columns: Array<{
         key: keyof Goods;
@@ -118,18 +125,15 @@ function GoodsList() {
         },
         {
             key: "actions",
-            header: "Actions",
+            header: "Edit",
             render: (_value, row) => (
                 <>
                     <div className="flex gap-2">
-                        <button className="text-blue-400 hover:underline">
-                            Edit
-                        </button>
                         <button
-                            className="text-blue-400 hover:underline"
-                            onClick={() => handleDelete(row.id)}
+                            className="cursor-pointer"
+                            onClick={() => handleEdit(row)}
                         >
-                            Delete
+                            <img src="/icon/edit.svg"></img>
                         </button>
                     </div>
                 </>
@@ -145,7 +149,6 @@ function GoodsList() {
         setMaterials([]);
         setNote("");
         setMinimumStockLevel(0);
-        setMaterials([]);
         setFormErrors({});
         setMcpu(0);
         setNetProfitMargine(0);
@@ -230,6 +233,27 @@ function GoodsList() {
         }),
     );
 
+    const updateGoodMutation = useMutation(
+        trpc.goods.update.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.goods.list.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.goods.materialOutputRatio.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const removeMaterialRow = (index: number) => {
+        setMaterials((prevMaterials) => {
+            const updatedMaterials = [...prevMaterials];
+            updatedMaterials.splice(index, 1);
+            return updatedMaterials;
+        });
+    };
+
     const deleteGoodMutation = useMutation(
         trpc.goods.delete.mutationOptions({
             onSuccess: async () => {
@@ -242,42 +266,113 @@ function GoodsList() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const result = goodsInputValidation.safeParse({
-            name,
-            productTypeId: productType,
-            retailPrice,
-            note,
-            inventoryQuantity,
-            minimumStockLevel,
-            materials,
-            materialCost: mcpu,
-            laborCost: userPreference[0]?.laborCost || 0,
-            overheadCost,
-            operatingCost: userPreference[0]?.operatingCostPercentage || 0,
-            netProfit: netProfitMargine,
-        });
-
-        if (!result.success) {
-            const errors: Record<string, string> = {};
-            result.error.issues.forEach((issue) => {
-                if (issue.path.length > 0) {
-                    errors[issue.path[0] as string] = issue.message;
-                }
+        // Update existing good
+        if (editingGoodId) {
+            const result = goodsUpdateValidation.safeParse({
+                id: editingGoodId,
+                name,
+                productTypeId: productType,
+                retailPrice,
+                note,
+                inventoryQuantity,
+                minimumStockLevel,
+                materials,
+                materialCost: mcpu,
+                laborCost: userPreference[0]?.laborCost || 0,
+                overheadCost,
+                operatingCost: userPreference[0]?.operatingCostPercentage || 0,
+                netProfit: netProfitMargine,
             });
-            console.log(errors);
-            setFormErrors(errors);
-            return;
-        }
 
-        setFormErrors({});
-        addGoodMutation.mutate(result.data);
-        setDrawerOpen(false);
-        resetForm();
+            console.log(result);
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            updateGoodMutation.mutate(result.data);
+            closeDrawer();
+        } else {
+            // Add new good
+            const result = goodsInputValidation.safeParse({
+                name,
+                productTypeId: productType,
+                retailPrice,
+                note,
+                inventoryQuantity,
+                minimumStockLevel,
+                materials,
+                materialCost: mcpu,
+                laborCost: userPreference[0]?.laborCost || 0,
+                overheadCost,
+                operatingCost: userPreference[0]?.operatingCostPercentage || 0,
+                netProfit: netProfitMargine,
+            });
+            console.log(result);
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            addGoodMutation.mutate(result.data);
+            setDrawerOpen(false);
+            resetForm();
+        }
     };
 
     const handleDelete = (id: string) => {
         if (window.confirm("Are you sure you want to delete this good?")) {
             deleteGoodMutation.mutate({ id });
+        }
+    };
+
+    const handleEdit = (good: Goods) => {
+        setEditingGoodId(good.id);
+        console.log("editingGoodId", editingGoodId);
+        setDrawerOpen(true);
+        setName(good.name);
+        setProductType(good.typeId || "");
+        setRetailPrice(good.retailPrice || 0.0);
+        setInventoryQuantity(good.inventoryQuantity || 0);
+        setNote(good.note || "");
+        setMinimumStockLevel(good.minimumStockLevel || 0);
+        setEditingGoodId(good.id);
+        setMcpu(good.materialCost || 0);
+
+        if (materialOutputRatioData) {
+            const filteredMaterials = materialOutputRatioData
+                .filter((mor) => mor.id === good.id)
+                .map((mor) => ({
+                    materialId: mor?.materialId || "",
+                    name: mor?.materialName || "",
+                    amount: mor?.input || 0,
+                    unitAbbreviation: mor?.abbreviation || "",
+                    costPerUnit: mor?.costPerUnit || 0,
+                    materialCost: calculateMaterialCost(
+                        mor?.input || 0,
+                        mor?.costPerUnit || 0,
+                    ),
+                }));
+            setMaterials(filteredMaterials);
+        } else {
+            setMaterials([]);
         }
     };
 
@@ -322,10 +417,16 @@ function GoodsList() {
 
     return (
         <BaseLayout title="Product List">
-            <h3 className="">My Products</h3>
+            <div className="flex justify-between">
+                <PageTitle title="Product Inventory" />
+                <Button
+                    value="Add Product"
+                    icon="/icon/plus.svg"
+                    onClick={() => setDrawerOpen(true)}
+                ></Button>
+            </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
-            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
@@ -349,16 +450,18 @@ function GoodsList() {
                         value={productType}
                         options={[
                             { value: "", label: "" },
-                            ...(productTypesList?.map((productType) => ({
-                                value: productType.id,
-                                label: productType.name,
-                            })) || []),
+                            ...(productTypesList
+                                ? productTypesList.map((productType) => ({
+                                      value: productType.id,
+                                      label: productType.name,
+                                  }))
+                                : []),
                         ]}
                         onChange={(e) => setProductType(e.target.value)}
                     ></Select>
 
                     <TextInput
-                        label="Quantity"
+                        label="Stock Level"
                         type="number"
                         value={inventoryQuantity}
                         placeholder="0"
@@ -385,7 +488,10 @@ function GoodsList() {
                         onClick={addMaterialRow}
                     ></Button>
                     {materials.map((row, index) => (
-                        <div key={index}>
+                        <div
+                            key={index}
+                            className="sm:flex gap-y-2 justify-between items-center"
+                        >
                             <Select
                                 label="Material"
                                 value={row.materialId}
@@ -422,6 +528,17 @@ function GoodsList() {
                             {row.unitAbbreviation && (
                                 <span>Unit: {row.unitAbbreviation}</span>
                             )}
+
+                            <button
+                                type="button"
+                                onClick={() => removeMaterialRow(index)}
+                            >
+                                <img
+                                    src="/icon/close.svg"
+                                    alt="Close"
+                                    className="w-4 cursor-pointer"
+                                />
+                            </button>
                         </div>
                     ))}
                     <TextInput
@@ -492,8 +609,19 @@ function GoodsList() {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     ></TextArea>
-                    <Button value="Cancel" onClick={() => resetForm()}></Button>
-                    <Button type="submit" value="Add Product"></Button>
+
+                    <div
+                        className={`grid ${editingGoodId && "grid-cols-2 gap-2"}`}
+                    >
+                        {editingGoodId && (
+                            <Button
+                                type="button"
+                                value="Delete"
+                                onClick={() => handleDelete(editingGoodId)}
+                            />
+                        )}
+                        <Button type="submit" value="Save"></Button>
+                    </div>
                 </form>
             </RightDrawer>
         </BaseLayout>
