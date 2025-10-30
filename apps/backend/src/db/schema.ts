@@ -60,6 +60,7 @@ export const userPreference = pgTable("user_preference", {
     lowInventoryAlertForMaterials: boolean("low_inventory_alert_for_materials")
         .default(true)
         .notNull(),
+    hasCompletedSetup: boolean("has_completed_setup").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
