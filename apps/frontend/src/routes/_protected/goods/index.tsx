@@ -16,7 +16,7 @@ import PageTitle from "../../../components/layout/PageTitle.tsx";
 import {
     getOverheadCostPerUnit,
     getCOGS,
-    getNetProfitMargine,
+    getNetProfitMargin,
     getSalePrice,
     calculateMaterialCost,
     calculateTotalMaterialCost,
@@ -74,7 +74,7 @@ function GoodsList() {
     const [mcpu, setMcpu] = useState(0);
     const [overheadCost, setOverheadCost] = useState(0);
     const [cogs, setCogs] = useState(0);
-    const [netProfitMargine, setNetProfitMargine] = useState(0);
+    const [netProfitMargin, setNetProfitMargin] = useState(0);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
     const [suggestedPrice, setSuggestedPrice] = useState(0);
@@ -94,12 +94,6 @@ function GoodsList() {
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
     );
-
-    // console.log("Raw product data:", data);
-    // console.log("Raw userPreference data", userPreference);
-    // console.log("Raw productTypes data:", productTypesList);
-    // console.log("Raw materialList", materialList);
-    // console.log("materialoutputRatioData", materialOutputRatioData)
 
     const columns: Array<{
         key: keyof Goods;
@@ -151,7 +145,7 @@ function GoodsList() {
         setMinimumStockLevel(0);
         setFormErrors({});
         setMcpu(0);
-        setNetProfitMargine(0);
+        setNetProfitMargin(0);
         setSuggestedPrice(0);
     };
 
@@ -281,7 +275,7 @@ function GoodsList() {
                 laborCost: userPreference[0]?.laborCost || 0,
                 overheadCost,
                 operatingCost: userPreference[0]?.operatingCostPercentage || 0,
-                netProfit: netProfitMargine,
+                netProfit: netProfitMargin,
             });
 
             console.log(result);
@@ -314,7 +308,7 @@ function GoodsList() {
                 laborCost: userPreference[0]?.laborCost || 0,
                 overheadCost,
                 operatingCost: userPreference[0]?.operatingCostPercentage || 0,
-                netProfit: netProfitMargine,
+                netProfit: netProfitMargin,
             });
             console.log(result);
 
@@ -396,8 +390,8 @@ function GoodsList() {
     }, [mcpu, overheadCost]);
 
     useEffect(() => {
-        setNetProfitMargine(
-            getNetProfitMargine(
+        setNetProfitMargin(
+            getNetProfitMargin(
                 retailPrice,
                 cogs,
                 userPreference?.[0]?.operatingCostPercentage,
@@ -595,10 +589,10 @@ function GoodsList() {
                         </li>
                         ----
                         <li>
-                            Net Profit Margine :
-                            {!netProfitMargine
+                            Net Profit Margin :
+                            {!netProfitMargin
                                 ? "0.00"
-                                : netProfitMargine.toFixed(2)}
+                                : netProfitMargin.toFixed(2)}
                             %
                         </li>
                     </ul>
