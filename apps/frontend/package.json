@@ -1,5 +1,5 @@
 {
-    "name": "frontend",
+    "name": "@arvo/frontend",
     "private": true,
     "version": "0.0.0",
     "type": "module",
@@ -22,7 +22,8 @@
         "react": "^19.1.1",
         "react-chartjs-2": "^5.3.0",
         "react-dom": "^19.1.1",
-        "shared": "*",
+        "@arvo/shared": "file:*",
+        "@arvo/backend": "file:*",
         "superjson": "^2.2.2",
         "tailwindcss": "^4.1.13"
     },

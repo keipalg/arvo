@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
 import BaseLayout from "../../../components/BaseLayout";
-import { trpc, queryClient } from "../../../utils/trpcClient";
+import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "shared/trpc";
 
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextInput from "../../../components/input/TextInput";
@@ -15,7 +14,7 @@ import TextArea from "../../../components/input/TextArea";
 import {
     salesInputValidation,
     salesUpdateValidation,
-} from "shared/validation/salesValidation";
+} from "@arvo/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SalesStatus from "../../../components/badge/SalesStatus";
 import PageTitle from "../../../components/layout/PageTitle";

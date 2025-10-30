@@ -1,5 +1,5 @@
 import { and, eq, type InferInsertModel } from "drizzle-orm";
-import type { ProductionBatchInput } from "shared/validation/productionBatchInputValidation.js";
+import type { ProductionBatchInput } from "@arvo/shared";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
 import { good, productionBatch, productionStatus } from "../db/schema.js";
@@ -92,7 +92,7 @@ export const processProductionBatch = async (
     input: ProductionBatchInput,
     userId: string,
 ) => {
-    return await db.transaction(async (tx) => {
+    return await db.transaction(async () => {
         const statusInfo = await getProductionStatusByKey(input.statusKey);
         const productionBatchData = await addProductionBatch({
             id: "",

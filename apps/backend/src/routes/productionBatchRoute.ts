@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { productionBatchInputValidation } from "shared/validation/productionBatchInputValidation.js";
+import { productionBatchInputValidation } from "@arvo/shared";
 import {
     deleteProductionBatch,
     getProductionBatch,

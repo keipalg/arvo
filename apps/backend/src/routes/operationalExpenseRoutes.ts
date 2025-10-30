@@ -7,8 +7,8 @@ import {
     updateOperationalExpense,
     type OperationalInsert,
 } from "../service/operationalExpenseService.js";
-import { protectedProcedure, router, t } from "./trpcBase.js";
-import { operationalExpenseValidation } from "shared/validation/operationalExpenseValidation.js";
+import { protectedProcedure, router } from "./trpcBase.js";
+import { operationalExpenseValidation } from "@arvo/shared";
 import { updateInventoryQuantity } from "../service/salesService.js";
 import { db } from "../db/client.js";
 import {

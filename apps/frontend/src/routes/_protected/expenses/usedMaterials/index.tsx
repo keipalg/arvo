@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../../components/BaseLayout";
-import { trpc } from "../../../../utils/trpcClient";
+import { trpc, type AppRouter } from "../../../../utils/trpcClient";
 import { useQuery } from "@tanstack/react-query";
 import DataTable from "../../../../components/table/DataTable";
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "shared/trpc";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
@@ -62,6 +61,7 @@ function UsedMaterials() {
     ];
 
     const tabledData = (usedMaterialPerSales ?? []).map((element) => ({
+        id: element.materialID + "_" + element.salesId,
         ...element,
         actions: "",
     }));

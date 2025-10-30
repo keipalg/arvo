@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { type About } from "shared/types/sample.ts";
 import { trpc } from "../../utils/trpcClient";
 import BaseLayout from "../../components/BaseLayout";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_public/about")({
     component: About,
 });
 
 function About() {
-    const { data, isLoading, error } = trpc.about.useQuery();
+    const { data, isLoading, error } = useQuery(trpc.about.queryOptions());
 
     return (
         <BaseLayout title="About">

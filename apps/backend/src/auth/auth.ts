@@ -15,10 +15,17 @@ export const auth = betterAuth({
             maxAge: 5 * 60,
         },
     },
-    trustedOrigins: ["http://localhost:5173", "http://localhost:4173"],
+    trustedOrigins: process.env.CORS_ORIGIN
+        ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
+        : ["http://localhost:5173", "http://localhost:4173"],
     advanced: {
         database: {
             generateId: () => uuidv7(),
+        },
+        defaultCookieAttributes: {
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV === "production",
+            partitioned: process.env.NODE_ENV === "production",
         },
     },
 });

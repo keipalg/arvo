@@ -3,7 +3,7 @@ import {
     userPreferenceOperatingCostValidation,
     userPreferenceOverheadCostValidation,
     userPreferenceProfitValidation,
-} from "shared/validation/userPreferencesValidation.js";
+} from "@arvo/shared";
 import {
     getUserPreferences,
     updateUserPreferences,

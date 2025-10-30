@@ -7,7 +7,7 @@ import {
     type StudioOverheadInsert,
 } from "../service/studioOverheadExpenseService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
-import { studioOverheadExpenseValidation } from "shared/validation/studioOverheadExpenseValidation.js";
+import { studioOverheadExpenseValidation } from "@arvo/shared";
 
 const updateSchema = studioOverheadExpenseValidation.partial().extend({
     id: z.string(),

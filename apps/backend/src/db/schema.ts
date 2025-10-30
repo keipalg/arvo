@@ -11,7 +11,7 @@ import {
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "../auth/auth-schema.ts";
+import { user } from "../auth/auth-schema.js";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

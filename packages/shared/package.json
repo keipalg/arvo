@@ -1,13 +1,21 @@
 {
-    "name": "shared",
+    "name": "@arvo/shared",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc --build",
+        "dev": "tsc --build --watch"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "type": "module"
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    }
 }
