@@ -1,5 +1,5 @@
 import { eq, type InferInsertModel } from "drizzle-orm";
-import { db } from "../db/client.js";
+import { db, type NeonDbTx } from "../db/client.js";
 import { operational_expense } from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 
@@ -11,8 +11,11 @@ export const getOperationalExpenseList = async (user_id: string) => {
 };
 
 export type OperationalInsert = InferInsertModel<typeof operational_expense>;
-export const addOperationalExpense = async (data: OperationalInsert) => {
-    return await db.insert(operational_expense).values({
+export const addOperationalExpense = async (
+    data: OperationalInsert,
+    tx: NeonDbTx = db,
+) => {
+    return await tx.insert(operational_expense).values({
         id: uuidv7(),
         user_id: data.user_id,
         name: data.name,
@@ -31,8 +34,11 @@ export const addOperationalExpense = async (data: OperationalInsert) => {
     });
 };
 
-export const deleteOperationalExpense = async (id: string) => {
-    return await db
+export const deleteOperationalExpense = async (
+    id: string,
+    tx: NeonDbTx = db,
+) => {
+    return await tx
         .delete(operational_expense)
         .where(eq(operational_expense.id, id));
 };
@@ -40,9 +46,20 @@ export const deleteOperationalExpense = async (id: string) => {
 export const updateOperationalExpense = async (
     id: string,
     data: Partial<OperationalInsert>,
+    tx: NeonDbTx = db,
 ) => {
-    return await db
+    return await tx
         .update(operational_expense)
         .set(data)
+        .where(eq(operational_expense.id, id));
+};
+
+export const getOperationalExpenseById = async (
+    id: string,
+    tx: NeonDbTx = db,
+) => {
+    return await tx
+        .select()
+        .from(operational_expense)
         .where(eq(operational_expense.id, id));
 };
