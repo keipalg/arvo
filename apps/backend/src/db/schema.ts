@@ -54,6 +54,12 @@ export const userPreference = pgTable("user_preference", {
         scale: 2,
         mode: "number",
     }),
+    lowInventoryAlertForGoods: boolean("low_inventory_alert_for_goods")
+        .default(true)
+        .notNull(),
+    lowInventoryAlertForMaterials: boolean("low_inventory_alert_for_materials")
+        .default(true)
+        .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -206,6 +212,7 @@ export const productionBatch = pgTable("production_batch", {
         scale: 2,
         mode: "number",
     }),
+    notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
