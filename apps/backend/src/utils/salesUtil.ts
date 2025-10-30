@@ -3,14 +3,18 @@ import type { SalesInput } from "shared/validation/salesValidation.js";
 export const isProductsError = (
     input: SalesInput,
     dbProducts: {
-        retailPrice: number;
         id: string;
-        name: string;
-        inventoryQuantity: number | null;
+        retailPrice: number;
+        quantity: number;
     }[],
 ) => {
     // Check number of products
     if (input.products.length !== dbProducts.length) {
+        console.log(
+            "Product count mismatch:",
+            input.products.length,
+            dbProducts.length,
+        );
         return true;
     }
 
@@ -37,8 +41,8 @@ export const isProductsError = (
         }
 
         if (
-            dbProduct.inventoryQuantity != null &&
-            inputProduct.quantity > dbProduct.inventoryQuantity
+            dbProduct.quantity != null &&
+            inputProduct.quantity > dbProduct.quantity
         ) {
             console.log(
                 "Insufficient inventory for product:",
@@ -46,7 +50,7 @@ export const isProductsError = (
                 "Requested quantity:",
                 inputProduct.quantity,
                 "Available quantity:",
-                dbProduct.inventoryQuantity,
+                dbProduct.quantity,
             );
             return true;
         }

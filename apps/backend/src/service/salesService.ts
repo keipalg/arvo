@@ -18,6 +18,7 @@ export const getSalesList = async (userId: string) => {
             customer: sale.customer,
             totalPrice: sale.totalPrice,
             date: sale.date,
+            channelId: channel.id,
             channel: channel.name,
             status: status.key,
             note: sale.note,
@@ -63,6 +64,7 @@ export const addSale = async (data: SaleInsert, tx: NeonDbTx = db) => {
             discount: data.discount,
             shippingFee: data.shippingFee,
             taxPercentage: data.taxPercentage,
+            cogs: data.cogs,
             profit: data.profit,
         })
         .returning({ id: sale.id });
@@ -73,12 +75,13 @@ export const addSaleDetail = async (
     data: SaleDetailInsert,
     tx: NeonDbTx = db,
 ) => {
-    await db.insert(saleDetail).values({
+    await tx.insert(saleDetail).values({
         id: uuidv7(),
         saleId: data.saleId,
         goodId: data.goodId,
         quantity: data.quantity,
         pricePerItem: data.pricePerItem,
+        cogs: data.cogs,
     });
 };
 
@@ -96,6 +99,7 @@ export const updateSale = async (data: SaleInsert, tx: NeonDbTx = db) => {
             discount: data.discount,
             shippingFee: data.shippingFee,
             taxPercentage: data.taxPercentage,
+            cogs: data.cogs,
             profit: data.profit,
         })
         .where(eq(sale.id, data.id));

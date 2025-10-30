@@ -8,7 +8,7 @@ type BaseLayoutProps = {
 };
 
 const BaseLayout = ({ title, children }: BaseLayoutProps) => {
-    const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     useEffect(() => {
         document.title = title;

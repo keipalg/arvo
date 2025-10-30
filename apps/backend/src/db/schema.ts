@@ -356,8 +356,23 @@ export const sale = pgTable("sale", {
         precision: 12,
         scale: 2,
         mode: "number",
-    }).notNull(),
-    profit: numeric("profit"),
+    })
+        .default(0)
+        .notNull(),
+    cogs: numeric("cogs", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
+    profit: numeric("profit", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -379,6 +394,13 @@ export const saleDetail = pgTable("sale_detail", {
         scale: 2,
         mode: "number",
     }).notNull(),
+    cogs: numeric("cogs", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    })
+        .default(0)
+        .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()

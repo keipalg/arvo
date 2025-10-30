@@ -12,7 +12,10 @@ import TextInput from "../../../components/input/TextInput";
 import Button from "../../../components/button/Button";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
-import { salesInputValidation } from "shared/validation/salesValidation";
+import {
+    salesInputValidation,
+    salesUpdateValidation,
+} from "shared/validation/salesValidation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SalesStatus from "../../../components/badge/SalesStatus";
 import PageTitle from "../../../components/layout/PageTitle";
@@ -38,6 +41,7 @@ type Products = {
 function SalesList() {
     const [customer, setCustomer] = useState("");
     const [channel, setChannel] = useState("");
+    const [channelId, setChannelId] = useState("");
     const [date, setDate] = useState("");
     const [status, setStatus] = useState("");
     const [notes, setNotes] = useState("");
@@ -49,6 +53,7 @@ function SalesList() {
     const [shippingFee, setShippingFee] = useState(0.0);
     const [tax, setTax] = useState(0.0);
     const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
+    const [subTotalPrice, setSubTotalPrice] = useState(0.0);
     const [totalPrice, setTotalPrice] = useState(0.0);
 
     const { data: channels } = useQuery(trpc.channel.list.queryOptions());
@@ -207,9 +212,15 @@ function SalesList() {
     const addSaleMutation = useMutation(
         trpc.sales.add.mutationOptions({
             onSuccess: async () => {
-                await queryClient.invalidateQueries({
-                    queryKey: trpc.sales.list.queryKey(),
-                });
+                await invalidateAllQueries();
+            },
+        }),
+    );
+
+    const editSaleMutation = useMutation(
+        trpc.sales.update.mutationOptions({
+            onSuccess: async () => {
+                await invalidateAllQueries();
             },
         }),
     );
@@ -217,69 +228,122 @@ function SalesList() {
     const deleteSaleMutation = useMutation(
         trpc.sales.delete.mutationOptions({
             onSuccess: async () => {
-                await queryClient.invalidateQueries({
-                    queryKey: trpc.sales.list.queryKey(),
-                });
+                await invalidateAllQueries();
             },
         }),
     );
 
+    const invalidateAllQueries = async () => {
+        await Promise.all([
+            queryClient.invalidateQueries({
+                queryKey: trpc.sales.list.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+                queryKey: trpc.sales.products.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+                queryKey: trpc.sales.nextSalesNumber.queryKey(),
+            }),
+        ]);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        await queryClient.refetchQueries({
-            queryKey: trpc.sales.nextSalesNumber.queryKey(),
-        });
-        const latestNextSalesNumber = queryClient.getQueryData<number>(
-            trpc.sales.nextSalesNumber.queryKey(),
-        );
-        if (latestNextSalesNumber) {
-            setSalesNumber(latestNextSalesNumber);
-        }
-
-        const result = salesInputValidation.safeParse({
-            customer,
-            salesNumber: latestNextSalesNumber ?? salesNumber,
-            channelId: channel,
-            date,
-            products,
-            statusKey: status,
-            totalPrice: totalPrice,
-            note: notes,
-            discount,
-            shippingFee,
-            taxPercentage: tax,
-        });
-
-        if (!result.success) {
-            const errors: Record<string, string> = {};
-            result.error.issues.forEach((issue) => {
-                if (issue.path.length > 0) {
-                    errors[issue.path[0] as string] = issue.message;
-                }
+        if (editingSaleId) {
+            const result = salesUpdateValidation.safeParse({
+                id: editingSaleId,
+                customer,
+                salesNumber: salesNumber,
+                channelId,
+                date,
+                products,
+                statusKey: status,
+                totalPrice: totalPrice,
+                note: notes,
+                discount,
+                shippingFee,
+                taxPercentage: tax,
             });
-            console.log(errors);
-            console.log(result.error.format().products);
-            setFormErrors(errors);
-            return;
-        }
 
-        setFormErrors({});
-        addSaleMutation.mutate(result.data, {
-            onSuccess: () => {
-                closeDrawer();
-                setProducts([]);
-            },
-            onError: (error) => {
-                console.error("Error adding sale:", error);
-            },
-        });
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                console.log(result.error.format().products);
+                setFormErrors(errors);
+                return;
+            }
+            setFormErrors({});
+            editSaleMutation.mutate(result.data, {
+                onSuccess: () => {
+                    closeDrawer();
+                    setProducts([]);
+                },
+                onError: (error) => {
+                    console.error("Error adding sale:", error);
+                },
+            });
+        } else {
+            // Add new sale
+            await queryClient.refetchQueries({
+                queryKey: trpc.sales.nextSalesNumber.queryKey(),
+            });
+            const latestNextSalesNumber = queryClient.getQueryData<number>(
+                trpc.sales.nextSalesNumber.queryKey(),
+            );
+            if (latestNextSalesNumber) {
+                setSalesNumber(latestNextSalesNumber);
+            }
+
+            const result = salesInputValidation.safeParse({
+                customer,
+                salesNumber: latestNextSalesNumber,
+                channelId,
+                date,
+                products,
+                statusKey: status,
+                totalPrice: totalPrice,
+                note: notes,
+                discount,
+                shippingFee,
+                taxPercentage: tax,
+            });
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                console.log(result.error.format().products);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            addSaleMutation.mutate(result.data, {
+                onSuccess: () => {
+                    closeDrawer();
+                    setProducts([]);
+                },
+                onError: (error) => {
+                    console.error("Error adding sale:", error);
+                },
+            });
+        }
     };
 
     const handleEdit = (sale: Sales) => {
         setDrawerOpen(true);
         setCustomer(sale.customer);
-        setChannel(sale.channel);
+        setChannelId(sale.channelId);
         setDate(
             sale.date ? new Date(sale.date).toISOString().slice(0, 16) : "",
         );
@@ -295,12 +359,14 @@ function SalesList() {
         setProducts(
             (sale.products || []).map((product) => {
                 const targetProduct = productList?.find(
-                    (p) => p.id === product.id,
+                    (p) => p.id === product.goodId,
                 );
+                const availableInventory =
+                    targetProduct?.inventoryQuantity ?? 0;
                 return {
-                    productId: product.id,
+                    productId: product.goodId,
                     quantity: product.quantity,
-                    maxQuantity: targetProduct?.inventoryQuantity ?? 0,
+                    maxQuantity: availableInventory + product.quantity,
                     retailPrice: product.pricePerItem,
                 };
             }),
@@ -316,9 +382,9 @@ function SalesList() {
 
     useEffect(() => {
         if (channels && channels.length > 0 && !channel) {
-            setChannel(channels[0].id);
+            setChannelId(channels[0].id);
         }
-    }, [channels, channel]);
+    }, [channels, channelId]);
 
     useEffect(() => {
         if (statusList && statusList.length > 0 && !status) {
@@ -337,6 +403,7 @@ function SalesList() {
             (sum, product) => sum + product.retailPrice * product.quantity,
             0,
         );
+        setSubTotalPrice(Number(subtotal.toFixed(2)));
         const calculatedTotalPrice =
             (subtotal - discount + shippingFee) * (1 + tax / 100);
         setTotalPrice(Number(calculatedTotalPrice.toFixed(2)));
@@ -385,6 +452,7 @@ function SalesList() {
                         <TextInput
                             label="Customer"
                             name="customer"
+                            placeholder="John Doe"
                             value={customer}
                             required={true}
                             onChange={(e) => setCustomer(e.target.value)}
@@ -392,8 +460,8 @@ function SalesList() {
                         ></TextInput>
                         <Select
                             label="Channel"
-                            name="channel"
-                            value={channel}
+                            name="channelId"
+                            value={channelId}
                             options={
                                 channels
                                     ? channels.map((ch) => ({
@@ -402,7 +470,8 @@ function SalesList() {
                                       }))
                                     : []
                             }
-                            onChange={(e) => setChannel(e.target.value)}
+                            onChange={(e) => setChannelId(e.target.value)}
+                            error={formErrors.channelId}
                         ></Select>
                         <TextInput
                             label="Sale Date & Time"
@@ -410,6 +479,7 @@ function SalesList() {
                             name="customer"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
+                            error={formErrors.date}
                         ></TextInput>
                     </div>
                     <Button
@@ -536,6 +606,9 @@ function SalesList() {
                             ></TextArea>
                         </div>
                         <div className="flex flex-col gap-2">
+                            <DisplayValue label="Subtotal" unit="$">
+                                {subTotalPrice.toFixed(2)}
+                            </DisplayValue>
                             <NumberInput
                                 label="Discount"
                                 name="discount"
