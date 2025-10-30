@@ -134,6 +134,13 @@
             "when": 1761852714515,
             "tag": "0018_yielding_sir_ram",
             "breakpoints": true
+        },
+        {
+            "idx": 19,
+            "version": "7",
+            "when": 1761853344913,
+            "tag": "0019_even_squirrel_girl",
+            "breakpoints": true
         }
     ]
 }
