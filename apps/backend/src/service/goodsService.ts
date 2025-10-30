@@ -19,6 +19,7 @@ export const getGoodsList = async (userId: string) => {
             id: good.id,
             name: good.name,
             type: productType.name,
+            typeId: good.productTypeId,
             image: good.image,
             retailPrice: good.retailPrice,
             note: good.note,
@@ -26,6 +27,7 @@ export const getGoodsList = async (userId: string) => {
             producedQuantity: good.producedQuantity,
             collectionTag: collectionTag.name,
             materialCost: good.materialCost,
+            minimumStockLevel: good.minimumStockLevel,
         })
         .from(good)
         .where(eq(good.userId, userId))
@@ -76,6 +78,7 @@ export const getMaterialOutputRatioByGoodId = async (
     const materialOutputRatioData = await db
         .select({
             id: good.id,
+            materialOutputRatioId: materialOutputRatio.id,
             name: good.name,
             materialId: materialOutputRatio.materialId,
             materialName: materialAndSupply.name,
@@ -147,6 +150,16 @@ export const getUserPreference = async (userId: string) => {
     });
 };
 
+export const getGoodToMaterialOutputRatio = async (goodId: string) => {
+    return await db.query.goodToMaterialOutputRatio.findMany({
+        columns: {
+            goodId: true,
+            materialOutputRatioId: true,
+        },
+        where: eq(goodToMaterialOutputRatio.goodId, goodId),
+    });
+};
+
 export type GoodInsert = InferInsertModel<typeof good>;
 export const addGood = async (data: GoodInsert) => {
     return await db
@@ -196,6 +209,35 @@ export const addGoodToMaterialOutputRatio = async (
         goodId: data.goodId,
         materialOutputRatioId: data.materialOutputRatioId,
     });
+};
+
+export type GoodUpdate = Partial<Omit<GoodInsert, "createdAt" | "updatedAt">>;
+
+export const updateGood = async (
+    goodId: string,
+    userId: string,
+    data: GoodUpdate,
+) => {
+    return await db
+        .update(good)
+        .set(data)
+        .where(and(eq(good.id, goodId), eq(good.userId, userId)))
+        .returning({ id: good.id });
+};
+
+export type MaterialOutputRatioUpdate = Partial<
+    Omit<MaterialOutputRatioInsert, "id" | "createdAt" | "updatedAt">
+>;
+
+export const updateMaterialOutputRatio = async (
+    id: string,
+    data: MaterialOutputRatioUpdate,
+) => {
+    return await db
+        .update(materialOutputRatio)
+        .set(data)
+        .where(and(eq(materialOutputRatio.id, id)))
+        .returning({ id: materialOutputRatio.id });
 };
 
 export const deleteGood = async (goodId: string) => {

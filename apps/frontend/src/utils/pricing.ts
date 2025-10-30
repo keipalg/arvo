@@ -98,7 +98,7 @@ export const getSalePrice = (
 };
 
 //===========================================================================
-// Net profit margine
+// Net profit margin
 // ===========================================================================
 
 /**
@@ -109,7 +109,7 @@ export const getSalePrice = (
  * @param profitMarginPct profit margin percentage
  * @returns sale price of the product
  */
-export const getNetProfitMargine = (
+export const getNetProfitMargin = (
     salesPrice: number,
     cogs: number,
     operatingCost: number,
