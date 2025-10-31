@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-    userPreferenceMaterialTypesValidation,
+    userPreferenceProductTypesValidation,
     type UserPreferencesValidationForm,
 } from "@arvo/shared";
 import CheckboxCustom from "../input/CheckboxCustom";
@@ -8,63 +8,63 @@ import SetupLayout from "./SetupLayout";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "../../utils/trpcClient";
 
-type SetupStepMaterialTypesProps = {
+type SetupStepProductTypesProps = {
     data: UserPreferencesValidationForm;
     onUpdate: (data: UserPreferencesValidationForm) => void;
     onNext: () => void;
     onBack?: () => void;
 };
 
-export function SetupStepMaterialTypes({
+export function SetupStepProductTypes({
     data,
     onUpdate,
     onNext,
     onBack,
-}: SetupStepMaterialTypesProps) {
+}: SetupStepProductTypesProps) {
     const defaultOptions = [
-        { value: "Buff Clay", label: "Buff Clay" },
-        { value: "Stoneware Clay", label: "Stoneware Clay" },
-        { value: "Porcelain Clay", label: "Porcelain Clay" },
-        { value: "Earthenware Clay", label: "Earthenware Clay" },
-        { value: "Glossy Glaze", label: "Glossy Glaze" },
-        { value: "Satin Glaze", label: "Satin Glaze" },
-        { value: "Matte Glaze", label: "Matte Glaze" },
-        { value: "Clear Glaze", label: "Clear Glaze" },
-        { value: "Underglaze", label: "Underglaze" },
-        { value: "Stain", label: "Stain" },
+        { value: "Bowls", label: "Bowls" },
+        { value: "Cups", label: "Cups" },
+        { value: "Coaster", label: "Coaster" },
+        { value: "Dinner Plates", label: "Dinner Plates" },
+        { value: "Plates", label: "Plates" },
+        { value: "Planter", label: "Planter" },
+        { value: "Vases", label: "Vases" },
+        { value: "Soap Dishes", label: "Soap Dishes" },
+        { value: "Tea Pots", label: "Tea Pots" },
+        { value: "Sculptural", label: "Sculptural" },
     ];
 
     const [options, setOptions] = useState(() => {
-        const savedMaterials = data.materialTypes || [];
+        const savedProducts = data.productTypes || [];
 
-        // Find custom materials (ones not in default options)
+        // Find custom products (ones not in default options)
         const defaultValues = defaultOptions.map((opt) => opt.value);
-        const customMaterials = savedMaterials
-            .filter((material) => !defaultValues.includes(material))
-            .map((material) => ({ value: material, label: material }));
+        const customProducts = savedProducts
+            .filter((product) => !defaultValues.includes(product))
+            .map((product) => ({ value: product, label: product }));
 
-        // Combine default options with custom materials
-        return [...defaultOptions, ...customMaterials];
+        // Combine default options with custom products
+        return [...defaultOptions, ...customProducts];
     });
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [selectedOptions, setSelectedOptions] = useState<string[]>(
-        data.materialTypes || [],
+        data.productTypes || [],
     );
 
-    const handleAddCustomMaterial = (value: string) => {
-        // Add the new material to the options list
+    const handleAddCustomProduct = (value: string) => {
+        // Add the new product to the options list
         setOptions((prev) => [...prev, { value, label: value }]);
 
         // Add the new custom value to selectedOptions and select it
         setSelectedOptions((prev) => {
             const updatedOptions = [...prev, value];
-            onUpdate({ ...data, materialTypes: updatedOptions });
+            onUpdate({ ...data, productTypes: updatedOptions });
             return updatedOptions;
         });
     };
 
-    const updateMaterialTypesMutation = useMutation(
-        trpc.materialTypes.addBulk.mutationOptions({
+    const updateProductTypesMutation = useMutation(
+        trpc.productTypes.addBulk.mutationOptions({
             onSuccess: () => {
                 onNext();
             },
@@ -77,15 +77,15 @@ export function SetupStepMaterialTypes({
                 ? prev.filter((item) => item !== value)
                 : [...prev, value];
 
-            onUpdate({ ...data, materialTypes: updatedOptions });
+            onUpdate({ ...data, productTypes: updatedOptions });
             return updatedOptions;
         });
         setFormErrors({});
     };
 
     const handleSaveAndContinue = () => {
-        const result = userPreferenceMaterialTypesValidation.safeParse({
-            materialTypes: selectedOptions,
+        const result = userPreferenceProductTypesValidation.safeParse({
+            productTypes: selectedOptions,
         });
 
         if (!result.success) {
@@ -99,25 +99,25 @@ export function SetupStepMaterialTypes({
             return;
         }
 
-        updateMaterialTypesMutation.mutate({ materialTypes: selectedOptions });
+        updateProductTypesMutation.mutate({ productTypes: selectedOptions });
     };
 
     return (
         <SetupLayout
-            title="What materials do you work the most with?"
-            subtitle="This helps you stay organized later when tracking inventory"
+            title="To help us set up your workspace, what type of pottery / ceramic products do you make?"
+            subtitle="We’ll set up your products page based on your choices. Select as many as you want."
             onContinue={handleSaveAndContinue}
             caption="You can always change this later in Settings."
             onBack={onBack}
         >
             <CheckboxCustom
-                name="materialTypes"
+                name="productTypes"
                 options={options}
                 selectedValues={selectedOptions}
                 onChange={handleSelectedOptionsChange}
-                error={formErrors.materialTypes}
-                onAddCustom={handleAddCustomMaterial}
-                placeholder="Type custom material..."
+                error={formErrors.productTypes}
+                onAddCustom={handleAddCustomProduct}
+                placeholder="Type custom product..."
             />
         </SetupLayout>
     );
