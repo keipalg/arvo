@@ -5,6 +5,7 @@ import {
     userPreferenceProfitValidation,
 } from "@arvo/shared";
 import {
+    createUserPreferences,
     getUserPreferences,
     updateUserPreferences,
 } from "../service/userPreferencesService.js";
@@ -12,6 +13,9 @@ import { DEFAULT_PROFIT_MARGIN_PCT } from "../utils/constants/accounting.js";
 import { protectedProcedure, router } from "./trpcBase.js";
 
 export const userPreferencesRouter = router({
+    create: protectedProcedure.mutation(async ({ ctx }) => {
+        await createUserPreferences(ctx.user.id);
+    }),
     get: protectedProcedure.query(async ({ ctx }) => {
         return await getUserPreferences(ctx.user.id);
     }),
@@ -49,4 +53,9 @@ export const userPreferencesRouter = router({
                 overheadCostPercentage: input.overheadCostPercentage / 100,
             });
         }),
+    completeSetup: protectedProcedure.mutation(async ({ ctx }) => {
+        await updateUserPreferences(ctx.user.id, {
+            hasCompletedSetup: true,
+        });
+    }),
 });

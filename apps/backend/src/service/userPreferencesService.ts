@@ -2,6 +2,26 @@ import { eq } from "drizzle-orm";
 import type { InferInsertModel } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { userPreference } from "../db/schema.js";
+import { v7 as uuidv7 } from "uuid";
+
+/**
+ * Create user preferences for new user
+ * @param userId
+ * @return created user preference
+ */
+
+export const createUserPreferences = async (userId: string) => {
+    const [result] = await db
+        .insert(userPreference)
+        .values({
+            id: uuidv7(),
+            userId,
+            productTypeIds: [],
+            hasCompletedSetup: false,
+        })
+        .returning();
+    return result;
+};
 
 /**
  * Get user preferences for user

@@ -1,12 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import type { UserPreferencesValidationForm } from "@arvo/shared";
-import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfitMargin";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useState } from "react";
 import { SetupStepLaborCost } from "../../../components/setup/SetupStepLaborCost";
 import { SetupStepOperatingCost } from "../../../components/setup/SetupStepOperatingCost";
 import { SetupStepoverheadCostPercentage } from "../../../components/setup/SetupStepOverheadPercentage";
+import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfitMargin";
+import { trpcClient } from "../../../utils/trpcClient";
 
 export const Route = createFileRoute("/_protected/setup/")({
+    beforeLoad: async () => {
+        const userPreferences = await trpcClient.userPreferences.get.query();
+
+        if (userPreferences?.hasCompletedSetup) {
+            throw redirect({ to: "/settings" });
+        }
+    },
     component: SetupScreens,
 });
 
