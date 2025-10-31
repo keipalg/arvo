@@ -223,6 +223,9 @@ function GoodsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.list.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.goods.materialOutputRatio.queryKey(),
+                });
             },
         }),
     );
@@ -334,6 +337,7 @@ function GoodsList() {
     const handleDelete = (id: string) => {
         if (window.confirm("Are you sure you want to delete this good?")) {
             deleteGoodMutation.mutate({ id });
+            closeDrawer();
         }
     };
 
