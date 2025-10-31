@@ -113,7 +113,7 @@ export function SetupStepoverheadCostPercentage({
     return (
         <SetupLayout
             title="About how much extra do small supplies add to each product's material cost?"
-            subtitle="Think: brushes, sponges, boxes, packing tape and other tools. Example: If clay costs $10, 20% overhead = $2 extra per plate"
+            subtitle="Think: brushes, sponges, boxes, packing tape and other tools. Example: If main material such as clay costs $10, 20% overhead = $2 extra per plate"
             onContinue={handleContinue}
             caption="We’ll use this to calculate your product prices. You can always change this later in Settings."
             onBack={onBack}
@@ -123,7 +123,6 @@ export function SetupStepoverheadCostPercentage({
                 options={options}
                 selectedValue={selectedOption}
                 onChange={handleOptionChange}
-                columns={2}
                 customInput={
                     <label className="flex items-center gap-2 cursor-pointer w-full h-full">
                         <input

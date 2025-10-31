@@ -35,6 +35,52 @@ export const addMaterialType = async (userId: string, name: string) => {
 };
 
 /**
+ * Add multiple material types
+ * Note: This is adding distinct names only, duplicates are ignored
+ * @param userId user ID
+ * @param names list of material type names
+ * @returns Inserted material type records
+ */
+export const addMaterialTypes = async (userId: string, names: string[]) => {
+    const newMaterialTypes = names.map((name) => ({
+        id: uuidv7(),
+        userId: userId,
+        name: name,
+    }));
+
+    // Get existing material type names for user
+    const existingNames = (
+        await db
+            .select({ name: materialType.name })
+            .from(materialType)
+            .where(eq(materialType.userId, userId))
+    ).map((mt) => mt.name);
+
+    // Logic to filter out and not add duplicate types
+    const newUniqueMaterialTypes = newMaterialTypes.filter((mt) => {
+        const isUnique = !existingNames.includes(mt.name);
+        if (!isUnique) {
+            console.log(
+                `Skipping duplicate material type: "${mt.name}" for user ${userId}`,
+            );
+        }
+        return isUnique;
+    });
+
+    if (newUniqueMaterialTypes.length === 0) {
+        console.log("No new unique material types to add.");
+        return [];
+    }
+
+    const insertedMaterialTypes = await db
+        .insert(materialType)
+        .values(newUniqueMaterialTypes)
+        .returning();
+
+    return insertedMaterialTypes;
+};
+
+/**
  * Delete a material type by ID
  * @param materialTypeId material type ID
  */
