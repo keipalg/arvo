@@ -10,11 +10,13 @@ import React, { useEffect, useState } from "react";
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
-import ProductionStatus from "../../../../components/badge/ProductionStatus.tsx";
 import TextInput from "../../../../components/input/TextInput";
-import SelectCustom from "../../../../components/input/SelectCustom";
+import PageTitle from "../../../../components/layout/PageTitle";
 
-import { productionBatchInputValidation } from "@arvo/shared";
+import {
+    productionBatchInputValidation,
+    productionBatchUpdateValidation,
+} from "@arvo/shared";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -51,7 +53,6 @@ function ProductionBatchList() {
     const [goodId, setGoodId] = useState("");
     const [quantity, setQuantity] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
-    const [statusKey, setStatusKey] = useState("");
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
     const [materialOutputRatios, setMaterialOutputRatios] = useState<
@@ -62,20 +63,9 @@ function ProductionBatchList() {
         trpc.productionBatch.list.queryOptions(),
     );
     const { data: goods } = useQuery(trpc.goods.list.queryOptions());
-    const { data: materialList } = useQuery(
-        trpc.materials.materialList.queryOptions(),
-    );
-    const { data: productionStatusList } = useQuery(
-        trpc.productionBatch.productionStatus.queryOptions(),
-    );
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
     );
-
-    console.log("Raw batch data :", data);
-    console.log("Raw materialList data:", materialList);
-    console.log("Raw productionStatus data:", productionStatusList);
-    console.log("Raw mateiralOutputRatio data:", materialOutputRatioData);
 
     const calculateProductionCost = (
         ratios: MaterialOutputRatio[],
@@ -123,17 +113,6 @@ function ProductionBatchList() {
             render: (value) => <>${Number(value).toFixed(2)}</>,
         },
         {
-            key: "status",
-            header: "Status",
-            render: (value) => {
-                return typeof value === "string" ? (
-                    <ProductionStatus statusKey={String(value)} />
-                ) : (
-                    <></>
-                );
-            },
-        },
-        {
             key: "actions",
             header: "Actions",
             render: (_value, row) => (
@@ -156,7 +135,6 @@ function ProductionBatchList() {
         setProductionDate("");
         setQuantity(0);
         setProductionCost(0);
-        setStatusKey("");
         setMaterials([]);
         setMaterialOutputRatios([]);
     };
@@ -180,6 +158,16 @@ function ProductionBatchList() {
         }),
     );
 
+    const updateProductionBatchMutation = useMutation(
+        trpc.productionBatch.update.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.productionBatch.list.queryKey(),
+                });
+            },
+        }),
+    );
+
     const deleteProductionBatchMutation = useMutation(
         trpc.productionBatch.delete.mutationOptions({
             onSuccess: async () => {
@@ -192,44 +180,75 @@ function ProductionBatchList() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const result = productionBatchInputValidation.safeParse({
-            goodId,
-            productionDate,
-            quantity,
-            productionCost,
-            materials,
-            statusKey,
-        });
 
-        if (!result.success) {
-            const errors: Record<string, string> = {};
-            result.error.issues.forEach((issue) => {
-                if (issue.path.length > 0) {
-                    errors[issue.path[0] as string] = issue.message;
-                }
+        if (editingBatchId) {
+            const result = productionBatchUpdateValidation.safeParse({
+                id: editingBatchId,
+                goodId,
+                productionDate,
+                quantity,
+                productionCost,
+                materials,
             });
-            console.log(errors);
-            setFormErrors(errors);
-            return;
-        }
 
-        setFormErrors({});
-        addProductionBatchMutation.mutate(result.data);
-        setDrawerOpen(false);
-        resetForm();
+            console.log(result.data);
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            updateProductionBatchMutation.mutate(result.data);
+            setDrawerOpen(false);
+            resetForm();
+        } else {
+            const result = productionBatchInputValidation.safeParse({
+                goodId,
+                productionDate,
+                quantity,
+                productionCost,
+                materials,
+            });
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+
+            setFormErrors({});
+            addProductionBatchMutation.mutate(result.data);
+            setDrawerOpen(false);
+            resetForm();
+        }
     };
 
     const handleEdit = (productionBatch: ProductionBatch) => {
         setEditingBatchId(productionBatch.id);
         setDrawerOpen(true);
         setGoodId(productionBatch.goodId);
-        const date = new Date(productionBatch.productionDate);
-        const formattedDate = date.toISOString().slice(0, 16);
-        setProductionDate(formattedDate);
-
+        setProductionDate(
+            productionBatch.productionDate
+                ? new Date(productionBatch.productionDate)
+                      .toISOString()
+                      .slice(0, 16)
+                : "",
+        );
         setQuantity(productionBatch.quantity || 0);
-        // TODO: need to fix status
-        // setStatusKey(productionBatch.statusKey);
     };
 
     const handleDelete = (id: string) => {
@@ -245,7 +264,6 @@ function ProductionBatchList() {
         quantity,
         productionCost,
         materials,
-        statusKey,
     });
 
     useEffect(() => {
@@ -288,16 +306,21 @@ function ProductionBatchList() {
     }, [materialOutputRatios, quantity]);
 
     return (
-        <BaseLayout title="Product List">
-            <h3 className=""></h3>
+        <BaseLayout title="Batch Production">
+            <div className="flex justify-between">
+                <PageTitle title="Batch Production" />
+                <Button
+                    value="Add Batch Production"
+                    icon="/icon/plus.svg"
+                    onClick={() => setDrawerOpen(true)}
+                ></Button>
+            </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
-            <Button value="Add" onClick={() => setDrawerOpen(true)}></Button>
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
-                <h3 className="text-2xl">Product Information</h3>
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -315,6 +338,7 @@ function ProductionBatchList() {
                         label="Product"
                         name="product"
                         value={goodId}
+                        disabled={!!editingBatchId}
                         options={[
                             { value: "", label: "" },
                             ...(goods?.map((good) => ({
@@ -333,47 +357,32 @@ function ProductionBatchList() {
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
                     ></TextInput>
-
-                    <SelectCustom
-                        label="Status"
-                        name="status"
-                        value={statusKey}
-                        options={
-                            productionStatusList
-                                ? productionStatusList.map((statusOption) => ({
-                                      value: statusOption.key,
-                                      label: statusOption.name,
-                                      render: (
-                                          <ProductionStatus
-                                              statusKey={String(
-                                                  statusOption.key,
-                                              )}
-                                          ></ProductionStatus>
-                                      ),
-                                  }))
-                                : []
-                        }
-                        onChange={setStatusKey}
-                    ></SelectCustom>
                     <ul>
                         {" "}
                         Recipe:
                         {materialOutputRatios?.map((ratio) => (
                             <li key={ratio.id}>
                                 {ratio.materialName} : {ratio.input}{" "}
+                                {ratio.abbreviation} | Uased Amount{" "}
+                                {Number(ratio.input * quantity).toFixed(2)}{" "}
                                 {ratio.abbreviation}
                             </li>
                         ))}
                     </ul>
-                    <p>Total Material Cost: {productionCost}</p>
+                    <p>
+                        Total Material Cost: {Number(productionCost).toFixed(2)}
+                    </p>
 
-                    <Button value="Cancel" onClick={() => resetForm()}></Button>
-                    <Button
-                        type="button"
-                        value="Delete"
-                        onClick={() => handleDelete(editingBatchId)}
-                    />
-                    <Button type="submit" value="Add Product"></Button>
+                    <div className="flex gap-2">
+                        {editingBatchId && (
+                            <Button
+                                type="button"
+                                value="Delete"
+                                onClick={() => handleDelete(editingBatchId)}
+                            ></Button>
+                        )}
+                        <Button type="submit" value="Save"></Button>
+                    </div>
                 </form>
             </RightDrawer>
         </BaseLayout>

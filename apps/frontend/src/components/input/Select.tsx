@@ -14,6 +14,7 @@ type SelectProps = BaseInputProps & {
         optGroupLabel: string;
         optGroupValues: Option[];
     }[];
+    disabled?: boolean;
     error?: string;
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
@@ -24,6 +25,7 @@ const Select = ({
     value,
     options,
     optgroup,
+    disabled,
     onChange,
     error,
 }: SelectProps) => {
@@ -31,10 +33,11 @@ const Select = ({
         <div className="flex flex-col">
             <FormLabel label={label} />
             <select
-                className="border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
+                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 ${disabled ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
                 name={name}
                 value={value}
                 onChange={onChange}
+                disabled={disabled}
             >
                 {options
                     ? options.map((option, index) => (

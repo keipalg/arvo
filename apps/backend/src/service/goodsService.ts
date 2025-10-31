@@ -288,7 +288,7 @@ export const addGoodQuantity = async (
         throw new Error("Good not found");
     }
 
-    const newQuantity = goodRecord.inventoryQuantity ?? 0 + quantityToAdd;
+    const newQuantity = (goodRecord.inventoryQuantity ?? 0) + quantityToAdd;
 
     return await db
         .update(good)
@@ -315,13 +315,13 @@ export const reduceGoodQuantity = async (
     if (!goodRecord) {
         throw new Error("Good not found");
     }
-    if (goodRecord.inventoryQuantity ?? 0 < quantityToDeduct) {
+    if (goodRecord.inventoryQuantity < quantityToDeduct) {
         throw new Error(
             `Insufficient quantity. Available: ${goodRecord.inventoryQuantity}, Requested: ${quantityToDeduct}`,
         );
     }
 
-    const newQuantity = goodRecord.inventoryQuantity ?? 0 - quantityToDeduct;
+    const newQuantity = (goodRecord.inventoryQuantity ?? 0) - quantityToDeduct;
 
     return await db
         .update(good)

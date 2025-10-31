@@ -1,8 +1,11 @@
 import { and, eq, type InferInsertModel } from "drizzle-orm";
-import type { ProductionBatchInput } from "@arvo/shared";
+import type {
+    ProductionBatchInput,
+    ProductionBatchUpdateInput,
+} from "@arvo/shared";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { good, productionBatch, productionStatus } from "../db/schema.js";
+import { good, productionBatch } from "../db/schema.js";
 import {
     addGoodQuantity,
     reduceGoodQuantity,
@@ -22,14 +25,9 @@ export const getProductionBatch = async (userId: string) => {
             productionDate: productionBatch.productionDate,
             quantity: productionBatch.quantity,
             productionCost: productionBatch.productionCost,
-            status: productionStatus.key,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
-        .innerJoin(
-            productionStatus,
-            eq(productionStatus.id, productionBatch.statusId),
-        )
         .where(eq(good.userId, userId));
 };
 
@@ -45,14 +43,9 @@ export const getProductionBatchById = async (
             productionDate: productionBatch.productionDate,
             quantity: productionBatch.quantity,
             productionCost: productionBatch.productionCost,
-            status: productionStatus.key,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
-        .innerJoin(
-            productionStatus,
-            eq(productionStatus.id, productionBatch.statusId),
-        )
         .where(
             and(
                 eq(good.userId, userId),
@@ -71,21 +64,8 @@ export const addProductionBatch = async (data: ProductionBatchInsert) => {
             productionDate: data.productionDate,
             quantity: data.quantity,
             productionCost: data.productionCost,
-            statusId: data.statusId,
         })
         .returning({ id: productionBatch.id });
-};
-
-export const getProductionStatusList = async () => {
-    return await db
-        .select({ key: productionStatus.key, name: productionStatus.name })
-        .from(productionStatus);
-};
-
-export const getProductionStatusByKey = async (key: string) => {
-    return await db.query.productionStatus.findFirst({
-        where: eq(productionStatus.key, key),
-    });
 };
 
 export const processProductionBatch = async (
@@ -93,7 +73,6 @@ export const processProductionBatch = async (
     userId: string,
 ) => {
     return await db.transaction(async () => {
-        const statusInfo = await getProductionStatusByKey(input.statusKey);
         const productionBatchData = await addProductionBatch({
             id: "",
             goodId: input.goodId,
@@ -102,7 +81,6 @@ export const processProductionBatch = async (
                 : new Date(),
             quantity: input.quantity,
             productionCost: input.productionCost,
-            statusId: statusInfo?.id,
         });
 
         for (const material of input.materials) {
@@ -118,6 +96,54 @@ export const processProductionBatch = async (
 
         return { success: true, batchId: productionBatchData[0].id };
     });
+};
+
+export const updateProductionBatch = async (
+    id: string,
+    data: ProductionBatchUpdateInput,
+) => {
+    return await db
+        .update(productionBatch)
+        .set({
+            ...data,
+            productionDate: new Date(data.productionDate),
+        })
+        .where(and(eq(productionBatch.id, id)))
+        .returning({ id: productionBatch.id });
+};
+
+export const processProductionBatchUpdate = async (
+    userId: string,
+    data: ProductionBatchUpdateInput,
+) => {
+    const lastProductionBatch = await getProductionBatchById(userId, data.id);
+    const updatedProductionBatch = await updateProductionBatch(data.id, data);
+
+    // Calculate difference of quantity
+    const quantityDiff = data.quantity - lastProductionBatch[0].quantity;
+
+    for (const material of data.materials) {
+        const amountDiff =
+            lastProductionBatch[0].quantity *
+                (material.amount / data.quantity) -
+            material.amount;
+
+        if (amountDiff > 0) {
+            await addMaterialQuantity(material.materialId, userId, amountDiff);
+        } else if (amountDiff < 0) {
+            await reduceMaterialQuantity(
+                material.materialId,
+                userId,
+                Math.abs(amountDiff),
+            );
+        }
+    }
+
+    if (quantityDiff > 0) {
+        await addGoodQuantity(data.goodId, userId, quantityDiff);
+    } else if (quantityDiff < 0) {
+        await reduceGoodQuantity(data.goodId, userId, Math.abs(quantityDiff));
+    }
 };
 
 export const deleteProductionBatch = async (
