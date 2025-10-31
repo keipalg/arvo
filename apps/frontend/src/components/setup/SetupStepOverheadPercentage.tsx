@@ -52,7 +52,11 @@ export function SetupStepoverheadCostPercentage({
     }, []);
 
     const updateOverheadCostMutation = useMutation(
-        trpc.userPreferences.updateOverheadCost.mutationOptions({
+        trpc.userPreferences.updateOverheadCost.mutationOptions(),
+    );
+
+    const completeSetupMutation = useMutation(
+        trpc.userPreferences.completeSetup.mutationOptions({
             onSuccess: async () => {
                 await navigate({ to: "/" });
             },
@@ -99,7 +103,11 @@ export function SetupStepoverheadCostPercentage({
             return;
         }
 
-        updateOverheadCostMutation.mutate(result.data);
+        updateOverheadCostMutation.mutate(result.data, {
+            onSuccess: () => {
+                completeSetupMutation.mutate();
+            },
+        });
     };
 
     return (
