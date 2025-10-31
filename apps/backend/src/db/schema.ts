@@ -298,6 +298,9 @@ export const goodToMaterialOutputRatio = pgTable(
 export const productType = pgTable("product_type", {
     id: uuid("id").primaryKey(),
     name: text("name").notNull(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
