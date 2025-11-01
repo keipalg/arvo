@@ -40,6 +40,10 @@ function Login() {
         },
     });
 
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -67,7 +71,7 @@ function Login() {
                     </label>
                     <PasswordInput
                         password={password}
-                        setPassword={setPassword}
+                        handlePasswordChange={handlePasswordChange}
                     />
                     <button
                         className="bg-black text-white rounded py-1 hover:bg-gray-800"

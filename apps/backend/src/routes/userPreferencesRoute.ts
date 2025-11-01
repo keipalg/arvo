@@ -3,6 +3,7 @@ import {
     userPreferenceOperatingCostValidation,
     userPreferenceOverheadCostValidation,
     userPreferenceProfitValidation,
+    userPreferencesInputValidation,
 } from "@arvo/shared";
 import {
     createUserPreferences,
@@ -11,6 +12,7 @@ import {
 } from "../service/userPreferencesService.js";
 import { DEFAULT_PROFIT_MARGIN_PCT } from "../utils/constants/accounting.js";
 import { protectedProcedure, router } from "./trpcBase.js";
+import z from "zod";
 
 export const userPreferencesRouter = router({
     create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -58,4 +60,25 @@ export const userPreferencesRouter = router({
             hasCompletedSetup: true,
         });
     }),
+    updateLowInventoryAlert: protectedProcedure
+        .input(
+            z.object({
+                lowInventoryAlertForGoods: z.boolean(),
+                lowInventoryAlertForMaterials: z.boolean(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            await updateUserPreferences(ctx.user.id, {
+                lowInventoryAlertForGoods: input.lowInventoryAlertForGoods,
+                lowInventoryAlertForMaterials:
+                    input.lowInventoryAlertForMaterials,
+            });
+        }),
+    updateUserPreferences: protectedProcedure
+        .input(userPreferencesInputValidation)
+        .mutation(async ({ ctx, input }) => {
+            await updateUserPreferences(ctx.user.id, {
+                ...input,
+            });
+        }),
 });

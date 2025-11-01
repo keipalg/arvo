@@ -1,23 +1,26 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 
 export function PasswordInput({
     password,
-    setPassword,
+    handlePasswordChange,
+    className = "",
 }: {
     password: string;
-    setPassword: Dispatch<SetStateAction<string>>;
+    handlePasswordChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    className?: string;
 }) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="flex items-center justify-between border border-gray-300 rounded px-2 has-focus:border-blue-500">
+        <div
+            className={`flex items-center justify-between border border-gray-300 rounded px-2 has-focus:border-blue-500 ${className}`}
+        >
             <input
                 type={showPassword ? "text" : "password"}
-                className="focus:outline-none"
+                className="focus:outline-none w-full px-2"
                 placeholder="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={handlePasswordChange}
             />
             {showPassword ? (
                 <svg

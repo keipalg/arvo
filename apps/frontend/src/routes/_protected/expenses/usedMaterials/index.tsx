@@ -4,6 +4,7 @@ import { trpc, type AppRouter } from "../../../../utils/trpcClient";
 import { useQuery } from "@tanstack/react-query";
 import DataTable from "../../../../components/table/DataTable";
 import type { inferRouterOutputs } from "@trpc/server";
+import PageTitle from "../../../../components/layout/PageTitle";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
@@ -68,8 +69,11 @@ function UsedMaterials() {
 
     return (
         <BaseLayout title="Used Materials List">
-            <div>
-                <h3 className="">Used Materials List</h3>
+            <div className="flex justify-between">
+                <PageTitle
+                    title="Material Expense"
+                    info="Material Expense automatically tracks how much you’ve spent on materials used in your products."
+                />
             </div>
             <DataTable columns={columns} data={tabledData} />
         </BaseLayout>

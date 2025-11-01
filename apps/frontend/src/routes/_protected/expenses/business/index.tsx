@@ -16,6 +16,7 @@ import TextInput from "../../../../components/input/TextInput";
 import Select from "../../../../components/input/Select";
 import TextArea from "../../../../components/input/TextArea";
 import { Switcher } from "../../../../components/button/Switcher";
+import PageTitle from "../../../../components/layout/PageTitle";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -77,6 +78,7 @@ function BusinessExpense() {
     console.log("businessExpenseFormData", businessExpenseFormData);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [toggleOpen, setToggleOpen] = useState(false);
     const [validationError, setValidationError] = useState<
         Record<string, string>
     >({});
@@ -408,11 +410,15 @@ function BusinessExpense() {
 
     return (
         <BaseLayout title="Business Expenses List">
-            <div>
-                <h3 className="">Business Expenses List</h3>
+            <div className="flex justify-between">
+                <PageTitle
+                    title="Business Expense"
+                    info="Business Expense is where you log costs that keep your business running."
+                />
                 <Button
                     value="Add"
                     onClick={() => setDrawerOpen(true)}
+                    icon="/icon/plus.svg"
                 ></Button>
             </div>
             {isLoadingOperational && isLoadingStudio && <div>Loading...</div>}
@@ -605,42 +611,36 @@ function BusinessExpense() {
                                         e.target.value,
                                     );
                                     setBusinessExpenseFormData((prev) => {
-                                        const prevClone = structuredClone(prev);
-                                        if (prevClone.materialAndSupply_id) {
+                                        if (prev.materialAndSupply_id) {
                                             const selectedMaterial =
                                                 materialsList?.find(
                                                     (m) =>
                                                         m.id ===
-                                                        prevClone.materialAndSupply_id,
+                                                        prev.materialAndSupply_id,
                                                 );
                                             return {
-                                                ...prevClone,
+                                                ...structuredClone(prev),
                                                 quantity: newQuantity,
                                                 cost: selectedMaterial?.costPerUnit
                                                     ? selectedMaterial.costPerUnit *
                                                       newQuantity
-                                                    : prevClone.cost,
+                                                    : prev.cost,
                                             };
-                                        } else if (prevClone.good_id) {
+                                        } else if (prev.good_id) {
                                             const selectedGoods =
                                                 goodsList?.find(
                                                     (g) =>
-                                                        g.id ===
-                                                        prevClone.good_id,
+                                                        g.id === prev.good_id,
                                                 );
                                             return {
-                                                ...prevClone,
+                                                ...structuredClone(prev),
                                                 quantity: newQuantity,
                                                 cost: selectedGoods?.materialCost
                                                     ? selectedGoods.materialCost *
                                                       newQuantity
-                                                    : prevClone.cost,
+                                                    : prev.cost,
                                             };
                                         }
-                                        return {
-                                            ...prevClone,
-                                            quantity: newQuantity,
-                                        };
                                     });
                                 }}
                                 error={validationError.quantity}
@@ -729,7 +729,11 @@ function BusinessExpense() {
 						}} /> */}
                     {businessExpenseFormData.expense_type !=
                         "inventory_loss" && (
-                        <Switcher label="Make this a recurring expense?">
+                        <Switcher
+                            label="Make this a recurring expense?"
+                            onChange={() => setToggleOpen((prev) => !prev)}
+                            defaultChecked={toggleOpen}
+                        >
                             <>
                                 <DateInput
                                     label="Start Date"

@@ -15,6 +15,7 @@ import { materialTypesRouter } from "./routes/materialTypesRoute.js";
 import { productTypesRouter } from "./routes/productTypesRoute.js";
 import { userPreferencesRouter } from "./routes/userPreferencesRoute.js";
 import { productionBatchRouter } from "./routes/productionBatchRoute.js";
+import { userRouter } from "./routes/userRouter.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -36,6 +37,7 @@ export const appRouter = router({
     status: statusRouter,
     userPreferences: userPreferencesRouter,
     productionBatch: productionBatchRouter,
+    user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;
