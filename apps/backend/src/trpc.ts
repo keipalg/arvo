@@ -12,6 +12,7 @@ import { statusRouter } from "./routes/statusRoute.js";
 import { unitsRouter } from "./routes/units.js";
 import { studioOverheadExpenseRouter } from "./routes/studioOverheadExpenseRoutes.js";
 import { materialTypesRouter } from "./routes/materialTypesRoute.js";
+import { productTypesRouter } from "./routes/productTypesRoute.js";
 import { userPreferencesRouter } from "./routes/userPreferencesRoute.js";
 import { productionBatchRouter } from "./routes/productionBatchRoute.js";
 
@@ -26,6 +27,7 @@ export const appRouter = router({
     sales: salesRouter,
     materials: materialsRouter,
     materialTypes: materialTypesRouter,
+    productTypes: productTypesRouter,
     units: unitsRouter,
     operationalExpense: operationalExpenseRouter,
     studioOverheadExpense: studioOverheadExpenseRouter,
