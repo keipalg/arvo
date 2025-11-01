@@ -155,6 +155,13 @@
             "when": 1761944188947,
             "tag": "0021_soft_killraven",
             "breakpoints": true
+        },
+        {
+            "idx": 22,
+            "version": "7",
+            "when": 1762022046484,
+            "tag": "0022_left_sally_floyd",
+            "breakpoints": true
         }
     ]
 }
