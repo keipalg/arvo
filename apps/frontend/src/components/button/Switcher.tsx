@@ -1,31 +1,41 @@
-import { useState } from "react";
-
 export const Switcher = ({
     label,
+    tagline,
     children,
+    checked = false,
+    onChange,
 }: {
     label: string;
-    children: React.ReactNode;
+    tagline?: string;
+    children?: React.ReactNode;
+    checked?: boolean;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
-    const [isChecked, setIsChecked] = useState(false);
-
     return (
         <>
-            <label htmlFor="switcher" className="flex items-center gap-2">
+            <label htmlFor={label} className="flex items-center gap-5">
                 <input
-                    id="switcher"
+                    id={label}
                     type="checkbox"
                     className="hidden"
-                    onClick={() => setIsChecked((prev) => !prev)}
+                    checked={checked}
+                    onChange={onChange}
                 />
-                <div className={`relative bg-white rounded-full h-8 w-14 p-1`}>
+                <div
+                    className={`relative rounded-full h-8 w-14 p-1 transition-all duration-300 ${checked ? "bg-arvo-blue-100" : "bg-gray-300"}`}
+                >
                     <div
-                        className={`absolute top-1 h-6 w-6 rounded-full transition-transform duration-300 ${isChecked ? "bg-black translate-x-full" : "bg-gray-200 translate-x-0"}`}
+                        className={`absolute top-1 h-6 w-6 rounded-full transition-all duration-300 bg-white ${checked ? "translate-x-4" : "translate-x-0"}`}
                     ></div>
                 </div>
-                <div>{label}</div>
+                <div>
+                    <div>{label}</div>
+                    {tagline && (
+                        <div className="text-sm text-gray-500">{tagline}</div>
+                    )}
+                </div>
             </label>
-            {isChecked && children}
+            {checked && children}
         </>
     );
 };

@@ -16,6 +16,10 @@ function SignUp() {
         "initial" | "submitting" | "success"
     >("initial");
 
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError(null);
@@ -69,7 +73,7 @@ function SignUp() {
                     />
                     <PasswordInput
                         password={password}
-                        setPassword={setPassword}
+                        handlePasswordChange={handlePasswordChange}
                     />
 
                     <button
