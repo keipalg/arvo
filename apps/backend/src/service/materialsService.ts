@@ -2,7 +2,8 @@ import { and, eq, type InferInsertModel } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import { materialAndSupply, materialType, unit } from "../db/schema.js";
-import { getQuantityWithUnit, getStatus } from "../utils/materialsUtil.js";
+import { getQuantityWithUnit } from "../utils/materialsUtil.js";
+import { getStatus } from "src/utils/inventoryUtil.js";
 
 /**
  * Get list of materials for a specific user
