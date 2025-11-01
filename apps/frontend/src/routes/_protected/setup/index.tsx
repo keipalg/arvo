@@ -8,6 +8,7 @@ import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfit
 import { trpcClient } from "../../../utils/trpcClient";
 import { SetupStepMaterialTypes } from "../../../components/setup/SetupStepMaterialType";
 import { SetupStepProductTypes } from "../../../components/setup/SetupStepProductType";
+import { SetupStepHandcraftTypes } from "../../../components/setup/SetupStepHandcraftType";
 
 export const Route = createFileRoute("/_protected/setup/")({
     beforeLoad: async () => {
@@ -43,12 +44,18 @@ function SetupScreens() {
 
     // Screen array (flexible for adding screens 1-3 later)
     const screens = [
-        // TODO Screen for Nature of Business
+        <SetupStepHandcraftTypes
+            key="product-types"
+            data={formData}
+            onUpdate={setFormData}
+            onNext={handleSaveAndContinue}
+        />,
         <SetupStepProductTypes
             key="product-types"
             data={formData}
             onUpdate={setFormData}
             onNext={handleSaveAndContinue}
+            onBack={handleBack}
         />,
         <SetupStepMaterialTypes
             key="material-types"
