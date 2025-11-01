@@ -18,6 +18,7 @@ import {
 } from "@arvo/shared";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
+import InventoryStatus from "../../../components/badge/InventoryStatus";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -75,7 +76,17 @@ function MaterialsList() {
                 <>{new Date(value as Date).toLocaleDateString()}</>
             ),
         },
-        { key: "status", header: "Status" },
+        {
+            key: "status",
+            header: "Status",
+            render: (value) => {
+                return typeof value === "string" ? (
+                    <InventoryStatus statusKey={String(value)} />
+                ) : (
+                    <></>
+                );
+            },
+        },
         {
             key: "actions",
             header: "Action",
@@ -236,7 +247,6 @@ function MaterialsList() {
 
     return (
         <BaseLayout title="Materials List">
-            {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             <div className="flex justify-between">
                 <PageTitle title="My Materials" info={tooltip} />
@@ -254,12 +264,14 @@ function MaterialsList() {
                     bottomText="compared to last month"
                 ></Metric>
             </div>
+            {isLoading && <div>Loading...</div>}
+            {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
                 <h2 className="text-xl font-bold mb-4">
-                    {editingMaterialId ? "Edit Material" : "Add Material"}
+                    {editingMaterialId ? "Edit a Material" : "Add a Material"}
                 </h2>
                 <form
                     onSubmit={(e) => {
