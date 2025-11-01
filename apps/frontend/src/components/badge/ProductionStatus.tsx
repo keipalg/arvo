@@ -35,7 +35,7 @@ const ProductionStatus = ({ statusKey }: ProductionStatusProps) => {
             <div data-status={statusKey}>
                 <Badge
                     text={style.text}
-                    className={`${style.textColor} ${style.bgColor} inline-block px-2.5 font-semibold py-0.5 rounded-lg`}
+                    className={`${style.textColor} ${style.bgColor}`}
                 />
             </div>
         </>

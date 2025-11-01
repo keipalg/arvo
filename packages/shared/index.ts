@@ -5,4 +5,5 @@ export * from "./validation/productionBatchInputValidation.js";
 export * from "./validation/salesValidation.js";
 export * from "./validation/studioOverheadExpenseValidation.js";
 export * from "./validation/userPreferencesValidation.js";
+export * from "./validation/dashboardValidation.js";
 export * from "./types/sample.js";
