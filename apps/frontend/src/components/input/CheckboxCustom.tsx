@@ -14,6 +14,7 @@ type CheckboxCustomProps = BaseInputProps & {
     onChange: (value: string) => void;
     onAddCustom: (value: string) => void;
     error?: string;
+    placeholder?: string;
 };
 
 const CheckboxCustom = ({
@@ -25,6 +26,7 @@ const CheckboxCustom = ({
     onAddCustom,
     error,
     required,
+    placeholder,
 }: CheckboxCustomProps) => {
     const [customInputValue, setCustomInputValue] = useState("");
     const handleCustomInputKeyDown = (
@@ -70,7 +72,7 @@ const CheckboxCustom = ({
                         value={customInputValue}
                         onChange={(e) => setCustomInputValue(e.target.value)}
                         onKeyDown={handleCustomInputKeyDown}
-                        placeholder="Type and press Enter"
+                        placeholder={placeholder || "Add custom..."}
                         className="w-full h-full outline-none bg-transparent"
                     />
                 </div>

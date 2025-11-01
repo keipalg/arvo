@@ -7,6 +7,7 @@ import { SetupStepoverheadCostPercentage } from "../../../components/setup/Setup
 import { SetupStepProfitMargin } from "../../../components/setup/SetupStepProfitMargin";
 import { trpcClient } from "../../../utils/trpcClient";
 import { SetupStepMaterialTypes } from "../../../components/setup/SetupStepMaterialType";
+import { SetupStepProductTypes } from "../../../components/setup/SetupStepProductType";
 
 export const Route = createFileRoute("/_protected/setup/")({
     beforeLoad: async () => {
@@ -29,6 +30,8 @@ function SetupScreens() {
         estimatedMonthlyProducedUnits: undefined,
         operatingCostPercentage: undefined,
         overheadCostPercentage: undefined,
+        productTypes: [],
+        materialTypes: [],
     });
 
     useEffect(() => {
@@ -41,13 +44,18 @@ function SetupScreens() {
     // Screen array (flexible for adding screens 1-3 later)
     const screens = [
         // TODO Screen for Nature of Business
-        // TODO Screen Product Types
-        // TODO Screen Material Types
+        <SetupStepProductTypes
+            key="product-types"
+            data={formData}
+            onUpdate={setFormData}
+            onNext={handleSaveAndContinue}
+        />,
         <SetupStepMaterialTypes
             key="material-types"
             data={formData}
             onUpdate={setFormData}
             onNext={handleSaveAndContinue}
+            onBack={handleBack}
         />,
         <SetupStepProfitMargin
             key="profit-margin"
