@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const userPreferencesInputValidation = z.object({
-    natureOfBusiness: z.string().optional(),
+    handcraftTypes: z.array(z.string()).optional(),
     materialTypes: z.array(z.string()).optional(),
     productTypes: z.array(z.string()).optional(),
     profitPercentage: z
@@ -20,10 +20,6 @@ export const userPreferencesInputValidation = z.object({
 export type UserPreferencesValidationForm = z.infer<
     typeof userPreferencesInputValidation
 >;
-
-export const userPreferenceNatureOfBusinessValidation = z.object({
-    natureOfBusiness: z.string("Nature of Business must be a string."),
-});
 
 export const userPreferenceMaterialTypesValidation = z.object({
     materialTypes: z
@@ -69,4 +65,10 @@ export const userPreferenceOverheadCostValidation = z.object({
     overheadCostPercentage: z
         .number("Overhead Cost Percentage must be a number.")
         .min(0, "Overhead Cost Percentage must be a positive value."),
+});
+
+export const userPreferenceHandcraftTypesValidation = z.object({
+    handcraftTypes: z
+        .array(z.string())
+        .min(1, "At least one Handcraft Type must be selected."),
 });
