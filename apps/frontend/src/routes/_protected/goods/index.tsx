@@ -96,6 +96,15 @@ function GoodsList() {
         trpc.goods.materialOutputRatio.queryOptions(),
     );
 
+    const getUnusedProductTypes = () => {
+        if (!productTypesList || !data) return [];
+
+        const usedTypeIds = data.map((good) => good.typeId);
+        return productTypesList.filter(
+            (type) => !usedTypeIds.includes(type.id),
+        );
+    };
+
     const columns: Array<{
         key: keyof Goods;
         header: string;
@@ -108,6 +117,7 @@ function GoodsList() {
         {
             key: "type",
             header: "Product Type",
+            render: (value) => value || "-",
         },
         {
             key: "inventoryQuantity",
@@ -154,10 +164,30 @@ function GoodsList() {
         setDrawerOpen(false);
         resetForm();
     };
-    const tabledData = data?.map((element) => ({
-        ...element,
-        actions: "",
-    }));
+
+    const tabledData = (() => {
+        const goodsData =
+            data?.map((element) => ({
+                ...element,
+                actions: "",
+            })) || [];
+
+        const unusedTypes = getUnusedProductTypes();
+        const emptyRows = unusedTypes.map(
+            (type) =>
+                ({
+                    id: type.id,
+                    name: "-",
+                    type: type.name,
+                    typeId: type.id,
+                    inventoryQuantity: 0,
+                    retailPrice: 0,
+                    actions: "",
+                }) as Goods,
+        );
+
+        return [...goodsData, ...emptyRows];
+    })();
 
     const addMaterialRow = () => {
         setMaterials([
@@ -347,35 +377,53 @@ function GoodsList() {
     };
 
     const handleEdit = (good: Goods) => {
-        setEditingGoodId(good.id);
-        console.log("editingGoodId", editingGoodId);
-        setDrawerOpen(true);
-        setName(good.name);
-        setProductType(good.typeId || "");
-        setRetailPrice(good.retailPrice || 0.0);
-        setInventoryQuantity(good.inventoryQuantity || 0);
-        setNote(good.note || "");
-        setMinimumStockLevel(good.minimumStockLevel || 0);
-        setEditingGoodId(good.id);
-        setMcpu(good.materialCost || 0);
+        // Check if this is an empty row (productType-only row)
+        const isEmptyRow = good.name === "-";
 
-        if (materialOutputRatioData) {
-            const filteredMaterials = materialOutputRatioData
-                .filter((mor) => mor.id === good.id)
-                .map((mor) => ({
-                    materialId: mor?.materialId || "",
-                    name: mor?.materialName || "",
-                    amount: mor?.input || 0,
-                    unitAbbreviation: mor?.abbreviation || "",
-                    costPerUnit: mor?.costPerUnit || 0,
-                    materialCost: calculateMaterialCost(
-                        mor?.input || 0,
-                        mor?.costPerUnit || 0,
-                    ),
-                }));
-            setMaterials(filteredMaterials);
-        } else {
+        if (isEmptyRow) {
+            // Treat as new product creation
+            setEditingGoodId(null);
+            setDrawerOpen(true);
+            setName("");
+            setProductType(good.typeId || "");
+            setRetailPrice(0);
+            setInventoryQuantity(0);
+            setNote("");
+            setMinimumStockLevel(0);
+            setMcpu(0);
             setMaterials([]);
+        } else {
+            // Existing product editing
+            setEditingGoodId(good.id);
+            console.log("editingGoodId", editingGoodId);
+            setDrawerOpen(true);
+            setName(good.name);
+            setProductType(good.typeId || "");
+            setRetailPrice(good.retailPrice || 0.0);
+            setInventoryQuantity(good.inventoryQuantity || 0);
+            setNote(good.note || "");
+            setMinimumStockLevel(good.minimumStockLevel || 0);
+            setEditingGoodId(good.id);
+            setMcpu(good.materialCost || 0);
+
+            if (materialOutputRatioData) {
+                const filteredMaterials = materialOutputRatioData
+                    .filter((mor) => mor.id === good.id)
+                    .map((mor) => ({
+                        materialId: mor?.materialId || "",
+                        name: mor?.materialName || "",
+                        amount: mor?.input || 0,
+                        unitAbbreviation: mor?.abbreviation || "",
+                        costPerUnit: mor?.costPerUnit || 0,
+                        materialCost: calculateMaterialCost(
+                            mor?.input || 0,
+                            mor?.costPerUnit || 0,
+                        ),
+                    }));
+                setMaterials(filteredMaterials);
+            } else {
+                setMaterials([]);
+            }
         }
     };
 
