@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../../auth/auth-client";
 import { PasswordInput } from "../../components/input/PasswordInput";
@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_public/signup")({
 });
 
 function SignUp() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -33,8 +34,23 @@ function SignUp() {
             });
             if (result.error) {
                 setError(result.error.message || "Sign up failed");
+                setSuccess("initial");
             } else {
                 setSuccess("success");
+                // automatically log in the user after successful signup
+                const loginResult = await authClient.signIn.email({
+                    email,
+                    password,
+                });
+                if (loginResult.error) {
+                    setError(
+                        "Signup successful, but login failed. Please login manually.",
+                    );
+                    await navigate({ to: "/login" });
+                } else {
+                    // navigate to home page after successful login
+                    await navigate({ to: "/" });
+                }
             }
         } catch (err) {
             if (err instanceof Error) {
@@ -42,6 +58,7 @@ function SignUp() {
             } else {
                 setError("Sign up failed");
             }
+            setSuccess("initial");
         }
     };
 
