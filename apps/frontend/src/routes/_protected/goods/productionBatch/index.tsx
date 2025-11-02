@@ -17,6 +17,7 @@ import {
     productionBatchInputValidation,
     productionBatchUpdateValidation,
 } from "@arvo/shared";
+import NumberInput from "../../../../components/input/NumberInput";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -45,6 +46,7 @@ type MaterialOutputRatio = {
     input: number;
     abbreviation: string;
     costPerUnit: number;
+    currentQuantity: number;
 };
 
 function ProductionBatchList() {
@@ -59,12 +61,17 @@ function ProductionBatchList() {
         MaterialOutputRatio[]
     >([]);
     const [editingBatchId, setEditingBatchId] = useState<string>("");
+    const [isOver, setIsOver] = useState(false);
+    const [maxQuantity, setMaxQuantity] = useState(0);
     const { data, isLoading, error } = useQuery(
         trpc.productionBatch.list.queryOptions(),
     );
     const { data: goods } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
+    );
+    const { data: materialList } = useQuery(
+        trpc.materials.materialList.queryOptions(),
     );
 
     const calculateProductionCost = (
@@ -137,6 +144,7 @@ function ProductionBatchList() {
         setProductionCost(0);
         setMaterials([]);
         setMaterialOutputRatios([]);
+        setEditingBatchId("");
     };
 
     const closeDrawer = () => {
@@ -154,6 +162,9 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.productionBatch.list.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.materialList.queryKey(),
+                });
             },
         }),
     );
@@ -163,6 +174,9 @@ function ProductionBatchList() {
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.productionBatch.list.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.materialList.queryKey(),
                 });
             },
         }),
@@ -182,6 +196,26 @@ function ProductionBatchList() {
         e.preventDefault();
 
         if (editingBatchId) {
+            // Validate the number of inventry quantity won't be negative or not by the editing
+            const originalBatch = data?.find((b) => b.id === editingBatchId);
+            const quantityReduction = (originalBatch?.quantity || 0) - quantity;
+
+            if (quantityReduction > 0) {
+                const wouldGoNegative = materialOutputRatios.some((ratio) => {
+                    const currentInventory =
+                        ratio.currentQuantity + ratio.input * quantityReduction;
+                    return currentInventory < 0;
+                });
+
+                if (wouldGoNegative) {
+                    setFormErrors({
+                        quantity:
+                            "Reducing quantity would make inventory negative",
+                    });
+                    return;
+                }
+            }
+
             const result = productionBatchUpdateValidation.safeParse({
                 id: editingBatchId,
                 goodId,
@@ -266,6 +300,7 @@ function ProductionBatchList() {
         materials,
     });
 
+    // find material output ratio by selected good id
     useEffect(() => {
         setMaterialOutputRatios(
             materialOutputRatioData
@@ -278,9 +313,36 @@ function ProductionBatchList() {
                     input: ratio.input ?? 0,
                     abbreviation: ratio.abbreviation ?? "",
                     costPerUnit: ratio.costPerUnit ?? 0,
+                    currentQuantity:
+                        materialList?.find((m) => ratio.materialId === m.id)
+                            ?.quantity ?? 0,
                 })) ?? [],
         );
-    }, [goodId, materialOutputRatioData]);
+    }, [goodId, materialOutputRatioData, materialList]);
+
+    // Update current quantities when materialList changes
+    useEffect(() => {
+        if (materialOutputRatios.length > 0 && materialList) {
+            setMaterialOutputRatios((prev) =>
+                prev.map((ratio) => ({
+                    ...ratio,
+                    currentQuantity:
+                        materialList.find((m) => m.id === ratio.materialId)
+                            ?.quantity ?? 0,
+                })),
+            );
+        }
+    }, [materialList]);
+
+    useEffect(() => {
+        if (materialOutputRatios.length > 0) {
+            const maxQuantityForEach = materialOutputRatios.map((ratio) => {
+                return ratio.currentQuantity / ratio.input;
+            });
+
+            setMaxQuantity(Math.floor(Math.max(...maxQuantityForEach)));
+        }
+    }, [materialOutputRatios]);
 
     useEffect(() => {
         if (materialOutputRatios && quantity > 0) {
@@ -303,6 +365,13 @@ function ProductionBatchList() {
             unitAbbreviation: ratio.abbreviation ?? "",
         }));
         setMaterials(materialsArray);
+    }, [materialOutputRatios, quantity]);
+
+    useEffect(() => {
+        const hasInsufficientInventory = materialOutputRatios?.some(
+            (ratio) => ratio.input * quantity > ratio.currentQuantity,
+        );
+        setIsOver(hasInsufficientInventory || false);
     }, [materialOutputRatios, quantity]);
 
     return (
@@ -349,23 +418,32 @@ function ProductionBatchList() {
                         onChange={(e) => setGoodId(e.target.value)}
                     ></Select>
 
-                    <TextInput
+                    <NumberInput
                         label="Quantity"
-                        type="number"
+                        min="0"
+                        step="1"
                         value={quantity}
-                        placeholder="0"
+                        max={maxQuantity.toString()}
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
-                    ></TextInput>
+                    ></NumberInput>
+
                     <ul>
                         {" "}
                         Recipe:
                         {materialOutputRatios?.map((ratio) => (
                             <li key={ratio.id}>
                                 {ratio.materialName} : {ratio.input}{" "}
-                                {ratio.abbreviation} | Uased Amount{" "}
+                                {ratio.abbreviation} | Used Amount{" "}
                                 {Number(ratio.input * quantity).toFixed(2)}{" "}
-                                {ratio.abbreviation}
+                                {ratio.abbreviation} | Inventory{" "}
+                                {ratio.currentQuantity} {ratio.abbreviation}
+                                {ratio.input * quantity >
+                                    ratio.currentQuantity && (
+                                    <p className="text-red-500">
+                                        Error: Your inventory is insufficient.
+                                    </p>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -381,7 +459,11 @@ function ProductionBatchList() {
                                 onClick={() => handleDelete(editingBatchId)}
                             ></Button>
                         )}
-                        <Button type="submit" value="Save"></Button>
+                        <Button
+                            type="submit"
+                            value="Save"
+                            disabled={isOver}
+                        ></Button>
                     </div>
                 </form>
             </RightDrawer>
