@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { file, z } from "zod";
 import { db } from "./db/client.js";
 import { sampleTable } from "./db/schema.js";
 import type { About } from "@arvo/shared";
@@ -19,6 +19,7 @@ import { userRouter } from "./routes/userRouter.js";
 import { dashboardRouter } from "./routes/dashboardRoute.js";
 import { priceSuggestionRouter } from "./routes/priceSuggestionRoute.js";
 import { notificationRouter } from "./routes/notificationsRoute.js";
+import { fileRouter } from "./routes/fileRouter.js";
 
 export const appRouter = router({
     hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -44,6 +45,7 @@ export const appRouter = router({
     dashboard: dashboardRouter,
     priceSuggestion: priceSuggestionRouter,
     notification: notificationRouter,
+    file: fileRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -25,6 +25,8 @@ import {
 import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
 import NumberInput from "../../../components/input/NumberInput.tsx";
 import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
+import { FileInput } from "../../../components/input/FileInput.tsx";
+import { uploadFile } from "../../../utils/fileUpload.ts";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -82,6 +84,10 @@ function GoodsList() {
     const [suggestedPrice, setSuggestedPrice] = useState(0);
     const [editingGoodId, setEditingGoodId] = useState<string | null>(null);
     const [canSuggest, setCanSuggest] = useState(false);
+    const [productImage, setProductImage] = useState<File | string | null>(
+        null,
+    );
+
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
         trpc.goods.materials.queryOptions(),
@@ -112,6 +118,29 @@ function GoodsList() {
         header: string;
         render?: (value: Goods[keyof Goods], row: Goods) => React.ReactNode;
     }> = [
+        {
+            key: "image",
+            header: "Image",
+            render: (value) => {
+                return (
+                    <div className="h-16 flex justify-center items-center rounded">
+                        {value ? (
+                            <img
+                                src={value as string}
+                                alt="Product"
+                                className="h-14 object-cover rounded"
+                            />
+                        ) : (
+                            <div className="w-full h-14 bg-arvo-black-5 flex items-center justify-center rounded">
+                                <span className="text-arvo-black-50 text-sm">
+                                    No Image
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                );
+            },
+        },
         {
             key: "name",
             header: "Product Name",
@@ -161,6 +190,7 @@ function GoodsList() {
         setNetProfitMargin(0);
         setSuggestedPrice(0);
         setCanSuggest(false);
+        setProductImage(null);
     };
 
     const closeDrawer = () => {
@@ -299,12 +329,21 @@ function GoodsList() {
         }),
     );
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        let productImageUrl: string | undefined = undefined;
+        if (productImage instanceof File) {
+            productImageUrl = await uploadFile(productImage);
+        } else if (typeof productImage === "string") {
+            productImageUrl = productImage;
+        }
+
         // Update existing good
         if (editingGoodId) {
             const result = goodsUpdateValidation.safeParse({
                 id: editingGoodId,
+                image: productImageUrl,
                 name,
                 productTypeId: productType,
                 retailPrice,
@@ -339,6 +378,7 @@ function GoodsList() {
             // Add new good
             const result = goodsInputValidation.safeParse({
                 name,
+                image: productImageUrl,
                 productTypeId: productType,
                 retailPrice,
                 note,
@@ -395,6 +435,7 @@ function GoodsList() {
             setMinimumStockLevel(0);
             setMcpu(0);
             setMaterials([]);
+            setProductImage(null);
         } else {
             // Existing product editing
             setEditingGoodId(good.id);
@@ -408,6 +449,7 @@ function GoodsList() {
             setMinimumStockLevel(good.minimumStockLevel || 0);
             setEditingGoodId(good.id);
             setMcpu(good.materialCost || 0);
+            setProductImage(good.image || null);
 
             if (materialOutputRatioData) {
                 const filteredMaterials = materialOutputRatioData
@@ -498,6 +540,13 @@ function GoodsList() {
                         void handleSubmit(e);
                     }}
                 >
+                    <FileInput
+                        label="Product Image"
+                        file={productImage || undefined}
+                        onChange={(e) =>
+                            setProductImage(e.target.files?.[0] ?? null)
+                        }
+                    />
                     <TextInput
                         label="Product Name"
                         name="name"
@@ -572,7 +621,7 @@ function GoodsList() {
 
                             <NumberInput
                                 label="Amount"
-                                value={Number(row.amount).toFixed(2)}
+                                value={row.amount}
                                 step="0.50"
                                 min="0.00"
                                 unit={row.unitAbbreviation}
@@ -604,7 +653,7 @@ function GoodsList() {
                     ))}
                     <NumberInput
                         label="Price (per Item)"
-                        value={Number(retailPrice).toFixed(2)}
+                        value={retailPrice}
                         onChange={(e) => setRetailPrice(Number(e.target.value))}
                         step="0.50"
                         unit="$"
