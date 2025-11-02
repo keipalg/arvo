@@ -11,7 +11,7 @@ import {
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "../auth/auth-schema.js";
+import { user } from "../auth/auth-schema.ts";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -208,14 +208,38 @@ export const good = pgTable("good", {
         .notNull(),
 });
 
+export const priceSuggestionCache = pgTable("price_suggestion_cache", {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    inputHash: text("input_hash").notNull().unique(),
+    suggestedPrice: numeric("suggested_price", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
+    priceRangeMin: numeric("price_range_min", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
+    priceRangeMax: numeric("price_range_max", {
+        precision: 12,
+        scale: 2,
+        mode: "number",
+    }).notNull(),
+    reasoning: text("reasoning").notNull(),
+    marketInsights: text("market_insights").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const productionBatch = pgTable("production_batch", {
     id: uuid("id").primaryKey(),
     goodId: uuid("good_id")
         .notNull()
         .references(() => good.id, { onDelete: "cascade" }),
-    productionDate: timestamp("production_date", {
-        withTimezone: true,
-    }).notNull(),
+    productionDate: date("production_date").notNull(),
     statusId: uuid("").references(() => productionStatus.id, {
         onDelete: "cascade",
     }),
