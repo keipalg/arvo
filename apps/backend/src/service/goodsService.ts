@@ -131,11 +131,7 @@ export const getProductTypesList = async (userId: string) => {
             name: productType.name,
         })
         .from(productType)
-        .innerJoin(
-            userPreference,
-            sql`${productType.id} = ANY(${userPreference.productTypeIds} )`,
-        )
-        .where(eq(userPreference.userId, userId));
+        .where(eq(productType.userId, userId));
 };
 
 export const getUserPreference = async (userId: string) => {
@@ -242,6 +238,22 @@ export const updateMaterialOutputRatio = async (
 
 export const deleteGood = async (goodId: string) => {
     await db.delete(good).where(eq(good.id, goodId));
+};
+
+export const deleteMaterialOutputRatio = async (
+    materialOutputRatioId: string,
+) => {
+    await db
+        .delete(goodToMaterialOutputRatio)
+        .where(
+            eq(
+                goodToMaterialOutputRatio.materialOutputRatioId,
+                materialOutputRatioId,
+            ),
+        );
+    await db
+        .delete(materialOutputRatio)
+        .where(eq(materialOutputRatio.id, materialOutputRatioId));
 };
 
 export const getProductsListForSales = async (userId: string) => {

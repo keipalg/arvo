@@ -19,6 +19,7 @@ import {
     updateMaterialOutputRatio,
     getGoodToMaterialOutputRatio,
     getMaterialOutputRatioByGoodId,
+    deleteMaterialOutputRatio,
 } from "../service/goodsService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
 
@@ -117,12 +118,15 @@ export const goodsRouter = router({
             const materialOutputRatioData =
                 await getMaterialOutputRatioByGoodId(ctx.user.id, input.id);
 
-            // Create a map for efficient lookup
             const existingMaterials = new Map(
                 materialOutputRatioData.map((mor) => [mor.materialId, mor]),
             );
 
+            const processedMaterialIds = new Set();
+
             for (const material of input.materials) {
+                processedMaterialIds.add(material.materialId);
+
                 const existingMaterial = existingMaterials.get(
                     material.materialId,
                 );
@@ -131,9 +135,7 @@ export const goodsRouter = router({
                     // Update existing material
                     await updateMaterialOutputRatio(
                         existingMaterial.materialOutputRatioId,
-                        {
-                            input: material.amount,
-                        },
+                        { input: material.amount },
                     );
                 } else {
                     // Add new material
@@ -159,6 +161,16 @@ export const goodsRouter = router({
                     );
                 }
             }
+
+            // Delete materials removed from input
+            for (const [materialId, existingMaterial] of existingMaterials) {
+                if (!processedMaterialIds.has(materialId)) {
+                    await deleteMaterialOutputRatio(
+                        existingMaterial.materialOutputRatioId,
+                    );
+                }
+            }
+
             return { success: true };
         }),
 

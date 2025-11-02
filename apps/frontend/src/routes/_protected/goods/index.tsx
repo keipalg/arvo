@@ -23,6 +23,7 @@ import {
 } from "../../../utils/pricing.ts";
 
 import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
+import NumberInput from "../../../components/input/NumberInput.tsx";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -247,6 +248,10 @@ function GoodsList() {
         setMaterials((prevMaterials) => {
             const updatedMaterials = [...prevMaterials];
             updatedMaterials.splice(index, 1);
+
+            const totalCost = calculateTotalMaterialCost(updatedMaterials);
+            setMcpu(totalCost);
+
             return updatedMaterials;
         });
     };
@@ -458,33 +463,38 @@ function GoodsList() {
                         onChange={(e) => setProductType(e.target.value)}
                     ></Select>
 
-                    <TextInput
+                    <NumberInput
                         label="Stock Level"
-                        type="number"
                         value={inventoryQuantity}
-                        placeholder="0"
+                        min="0"
+                        step="1"
+                        required={true}
                         onChange={(e) =>
                             setInventoryQuantity(Number(e.target.value))
                         }
                         error={formErrors.inventoryQuantity}
-                    ></TextInput>
-                    <TextInput
+                    ></NumberInput>
+                    <NumberInput
                         label="Min. Stock Level"
-                        type="number"
+                        min="0"
+                        step="1"
                         value={minimumStockLevel}
-                        placeholder="0"
                         onChange={(e) =>
                             setMinimumStockLevel(Number(e.target.value))
                         }
                         error={formErrors.minimumStockLevel}
-                    ></TextInput>
+                    ></NumberInput>
 
                     <h4 className="font-semibold">Recipe Per Item</h4>
-                    <Button
-                        type="button"
-                        value="Add Material"
-                        onClick={addMaterialRow}
-                    ></Button>
+                    {!editingGoodId ? (
+                        <Button
+                            type="button"
+                            value="Add Material"
+                            onClick={addMaterialRow}
+                        ></Button>
+                    ) : (
+                        ""
+                    )}
                     {materials.map((row, index) => (
                         <div
                             key={index}
@@ -500,6 +510,7 @@ function GoodsList() {
                                         label: material.name,
                                     })) || []),
                                 ]}
+                                disabled={!editingGoodId ? false : true}
                                 onChange={(e) =>
                                     updateMaterialRow(
                                         index,
@@ -509,12 +520,13 @@ function GoodsList() {
                                 }
                             />
 
-                            <TextInput
+                            <NumberInput
                                 label="Amount"
-                                type="number"
-                                value={row.amount}
-                                step="0.01"
-                                placeholder="0.00"
+                                value={Number(row.amount).toFixed(2)}
+                                step="0.50"
+                                min="0.00"
+                                unit={row.unitAbbreviation}
+                                disabled={!editingGoodId ? false : true}
                                 onChange={(e) =>
                                     updateMaterialRow(
                                         index,
@@ -522,32 +534,33 @@ function GoodsList() {
                                         Number(e.target.value),
                                     )
                                 }
-                            ></TextInput>
-                            {row.unitAbbreviation && (
-                                <span>Unit: {row.unitAbbreviation}</span>
-                            )}
+                            ></NumberInput>
 
-                            <button
-                                type="button"
-                                onClick={() => removeMaterialRow(index)}
-                            >
-                                <img
-                                    src="/icon/close.svg"
-                                    alt="Close"
-                                    className="w-4 cursor-pointer"
-                                />
-                            </button>
+                            {!editingGoodId ? (
+                                <button
+                                    type="button"
+                                    onClick={() => removeMaterialRow(index)}
+                                >
+                                    <img
+                                        src="/icon/close.svg"
+                                        alt="Close"
+                                        className="w-4 cursor-pointer"
+                                    />
+                                </button>
+                            ) : (
+                                ""
+                            )}
                         </div>
                     ))}
-                    <TextInput
+                    <NumberInput
                         label="Price (per Item)"
-                        type="number"
                         value={Number(retailPrice).toFixed(2)}
                         onChange={(e) => setRetailPrice(Number(e.target.value))}
-                        step="0.01"
-                        placeholder="0.00"
+                        step="0.50"
+                        unit="$"
                         error={formErrors.retailPrice}
-                    ></TextInput>
+                        min="0"
+                    ></NumberInput>
                     <p className="font-semibold">
                         Suggested Price:$
                         {!suggestedPrice

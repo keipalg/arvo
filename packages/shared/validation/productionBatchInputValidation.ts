@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const productionBatchInputValidation = z.object({
-    goodId: z.uuid("Please select a product"),
+    goodId: z.uuid().nonempty("Please select a product"),
     quantity: z.number().min(1, "amount must be at least 1"),
     productionCost: z.number(),
     productionDate: z.string(),

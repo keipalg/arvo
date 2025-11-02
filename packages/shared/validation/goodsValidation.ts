@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const goodsInputValidation = z.object({
     name: z.string().nonempty("Product name is required"),
-    productTypeId: z.uuid(),
+    productTypeId: z.uuid().nonempty("Product Type is required"),
     inventoryQuantity: z.number().min(0, "Stock level must be at least 0"),
     retailPrice: z.number().min(0.01, "Retail price must be at least $0.01"),
     note: z.string().optional(),
@@ -30,7 +30,7 @@ export type GoodsInput = z.infer<typeof goodsInputValidation>;
 export const goodsUpdateValidation = z.object({
     id: z.uuid("Invalid good ID"),
     name: z.string().nonempty("Product name is required"),
-    productTypeId: z.uuid(),
+    productTypeId: z.uuid().nonempty("Product Type is required"),
     inventoryQuantity: z.number().min(0, "Stock level must be at least 0"),
     retailPrice: z.number().min(0.01, "Retail price must be at least $0.01"),
     note: z.string().optional(),
