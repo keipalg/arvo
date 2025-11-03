@@ -23,6 +23,16 @@ export const operationalExpenseValidation = z
         notes: z.string(),
         attach_recipt: z.string(),
         createdAt: z.date().default(() => new Date()),
+        repeat_every: z
+            .enum([
+                "daily",
+                "weekly",
+                "bi-weekly",
+                "monthly",
+                "quarterly",
+                "yearly",
+            ])
+            .nullable(),
         start_date: z.date().nullable(),
         due_date: z.date().nullable(),
     })

@@ -40,6 +40,7 @@ export const operationalExpenseRouter = router({
                 quantity: input.quantity.toString(),
                 notes: input.notes,
                 attach_recipt: input.attach_recipt,
+                repeat_every: input.repeat_every,
                 start_date: input.start_date,
                 due_date: input.due_date,
                 good_id: input.good_id === "" ? null : input.good_id,
@@ -125,6 +126,8 @@ export const operationalExpenseRouter = router({
             if (input.notes !== undefined) updates.notes = input.notes;
             if (input.attach_recipt !== undefined)
                 updates.attach_recipt = input.attach_recipt;
+            if (input.repeat_every !== undefined)
+                updates.repeat_every = input.repeat_every;
             if (input.start_date !== undefined)
                 updates.start_date = input.start_date;
             if (input.due_date !== undefined) updates.due_date = input.due_date;

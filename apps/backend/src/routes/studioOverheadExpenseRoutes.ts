@@ -24,13 +24,16 @@ export const studioOverheadExpenseRouter = router({
                 id: "",
                 user_id: ctx.user.id,
                 name: input.name,
-                createdAt: new Date(),
+                createdAt: input.createdAt,
                 payment_method: input.payment_method,
                 expense_type: input.expense_type,
                 cost: input.cost.toString(),
                 payee: input.payee,
                 notes: input.notes,
                 attach_recipt: input.attach_recipt,
+                repeat_every: input.repeat_every,
+                start_date: input.start_date,
+                due_date: input.due_date,
             };
 
             try {
@@ -71,6 +74,11 @@ export const studioOverheadExpenseRouter = router({
             if (input.notes !== undefined) updates.notes = input.notes;
             if (input.attach_recipt !== undefined)
                 updates.attach_recipt = input.attach_recipt;
+            if (input.repeat_every !== undefined)
+                updates.repeat_every = input.repeat_every;
+            if (input.start_date !== undefined)
+                updates.start_date = input.start_date;
+            if (input.due_date !== undefined) updates.due_date = input.due_date;
 
             await updateStudioOverheadExpense(input.id, updates);
             return { success: true };

@@ -9,14 +9,14 @@ import {
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Button from "../../../../components/button/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
-import { DateInput } from "../../../../components/input/DateInput";
 import TextInput from "../../../../components/input/TextInput";
 import Select from "../../../../components/input/Select";
 import TextArea from "../../../../components/input/TextArea";
 import { Switcher } from "../../../../components/button/Switcher";
 import PageTitle from "../../../../components/layout/PageTitle";
+import { MoreButton } from "../../../../components/button/MoreButton";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -31,10 +31,10 @@ type BusinessExpense = {
         | "utilities"
         | "office_supplies"
         | "studio_rent"
-        | "space_rent"
         | "labor"
         | "storage_fee"
         | "inventory_loss"
+        | "space_rent"
         | "tools_equipment"
         | "packaging_supplies"
         | "miscellaneous";
@@ -48,6 +48,14 @@ type BusinessExpense = {
     notes: string;
     attach_recipt: string;
     createdAt: Date;
+    repeat_every:
+        | "daily"
+        | "weekly"
+        | "bi-weekly"
+        | "monthly"
+        | "quarterly"
+        | "yearly"
+        | null;
     start_date: Date | null;
     due_date: Date | null;
 };
@@ -67,8 +75,9 @@ function BusinessExpense() {
         quantity: 0,
         notes: "",
         attach_recipt: "",
+        repeat_every: "monthly",
         createdAt: new Date(),
-        start_date: null,
+        start_date: new Date(),
         due_date: null,
     };
 
@@ -79,6 +88,9 @@ function BusinessExpense() {
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [toggleOpen, setToggleOpen] = useState(false);
+    const [dueDateOptions, setDueDateOptions] = useState<
+        { label: string; value: string }[]
+    >([]);
     const [validationError, setValidationError] = useState<
         Record<string, string>
     >({});
@@ -116,6 +128,63 @@ function BusinessExpense() {
         ...(studioOverheadExpensesList ?? []),
     ];
     console.log("combinedExpensesList", combinedExpensesList);
+
+    useEffect(() => {
+        if (
+            !businessExpenseFormData.start_date ||
+            !businessExpenseFormData.repeat_every
+        ) {
+            setDueDateOptions([]);
+            return;
+        }
+
+        const options: { label: string; value: string }[] = [];
+        const start = new Date(businessExpenseFormData.start_date);
+
+        for (let i = 1; i <= 12; i++) {
+            const nextDate = new Date(start);
+
+            switch (businessExpenseFormData.repeat_every) {
+                case "daily":
+                    nextDate.setDate(start.getDate() + i);
+                    break;
+                case "weekly":
+                    nextDate.setDate(start.getDate() + i * 7);
+                    break;
+                case "bi-weekly":
+                    nextDate.setDate(start.getDate() + i * 14);
+                    break;
+                case "monthly":
+                    nextDate.setMonth(start.getMonth() + i);
+                    break;
+                case "quarterly":
+                    nextDate.setMonth(start.getMonth() + i * 3);
+                    break;
+                case "yearly":
+                    nextDate.setFullYear(start.getFullYear() + i);
+                    break;
+            }
+
+            const formatted = nextDate.toISOString().substring(0, 10);
+            options.push({ label: formatted, value: formatted });
+        }
+
+        setDueDateOptions(options);
+        setBusinessExpenseFormData((prev) => {
+            if (!prev.due_date) {
+                return {
+                    ...prev,
+                    due_date: new Date(options[0].value),
+                };
+            }
+            return prev;
+        });
+
+        console.log("dueDateOptions", options);
+    }, [
+        businessExpenseFormData.start_date,
+        businessExpenseFormData.repeat_every,
+    ]);
 
     const closeDrawer = () => {
         setDrawerOpen(false);
@@ -215,7 +284,8 @@ function BusinessExpense() {
                           quantity: businessExpenseFormData.quantity,
                           notes: businessExpenseFormData.notes,
                           attach_recipt: businessExpenseFormData.attach_recipt,
-                          createdAt: new Date(),
+                          createdAt: businessExpenseFormData.createdAt,
+                          repeat_every: businessExpenseFormData.repeat_every,
                           start_date: null,
                           due_date: null,
                       }
@@ -231,7 +301,8 @@ function BusinessExpense() {
                           quantity: 0,
                           notes: businessExpenseFormData.notes,
                           attach_recipt: businessExpenseFormData.attach_recipt,
-                          createdAt: new Date(),
+                          createdAt: businessExpenseFormData.createdAt,
+                          repeat_every: businessExpenseFormData.repeat_every,
                           start_date: businessExpenseFormData.start_date,
                           due_date: businessExpenseFormData.due_date,
                       };
@@ -272,7 +343,10 @@ function BusinessExpense() {
                 payment_method: businessExpenseFormData.payment_method,
                 notes: businessExpenseFormData.notes,
                 attach_recipt: businessExpenseFormData.attach_recipt,
-                createdAt: new Date(),
+                createdAt: businessExpenseFormData.createdAt,
+                repeat_every: businessExpenseFormData.repeat_every,
+                start_date: businessExpenseFormData.start_date,
+                due_date: businessExpenseFormData.due_date,
             };
 
             const result = studioOverheadExpenseValidation.safeParse(
@@ -342,9 +416,26 @@ function BusinessExpense() {
             header: "Category",
             render: (value) => {
                 if (!value) return <span>-</span>;
-                const s = String(value);
-                return (
-                    <span className="capitalize">{s.replace("_", " ")}</span>
+                const highlightValues = [
+                    "marketing",
+                    "business_fee",
+                    "utilities",
+                    "office_supplies",
+                    "studio_rent",
+                    "space_rent",
+                    "labor",
+                    "storage_fee",
+                    "inventory_loss",
+                ];
+
+                return highlightValues.includes(String(value)) ? (
+                    <span className="capitalize bg-arvo-blue-80 text-white rounded-xl px-2 py-1">
+                        {String(value).replace("_", " ")}
+                    </span>
+                ) : (
+                    <span className="capitalize bg-arvo-orange-50 text-arvo-orange-100 rounded-xl px-2 py-1">
+                        {String(value).replace("_", " ")}
+                    </span>
                 );
             },
         },
@@ -358,7 +449,13 @@ function BusinessExpense() {
                 return isNaN(d.getTime()) ? (
                     <>-</>
                 ) : (
-                    <>{d.toLocaleDateString()}</>
+                    <>
+                        {d.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                        })}
+                    </>
                 );
             },
         },
@@ -371,31 +468,27 @@ function BusinessExpense() {
             header: "Actions",
             render: (_value, row) => (
                 <>
-                    <div className="flex gap-2">
-                        <button
-                            className="text-blue-400 hover:underline"
-                            onClick={() => {
-                                setBusinessExpenseFormData({
-                                    ...row,
-                                    cost: Number(row.cost),
-                                });
-                                setDrawerOpen(true);
-                            }}
-                        >
-                            Edit
-                        </button>
-                        <button
-                            className="text-blue-400 hover:underline"
-                            onClick={() =>
-                                handleDelete(
-                                    row.expense_category,
-                                    String(row.id),
-                                )
+                    <MoreButton
+                        onEdit={() => {
+                            setBusinessExpenseFormData({
+                                ...row,
+                                cost: Number(row.cost),
+                            });
+                            setDrawerOpen(true);
+                            if (
+                                row.due_date &&
+                                row.start_date &&
+                                row.repeat_every
+                            ) {
+                                setToggleOpen(true);
+                            } else {
+                                setToggleOpen(false);
                             }
-                        >
-                            Delete
-                        </button>
-                    </div>
+                        }}
+                        onDelete={() => {
+                            handleDelete(row.expense_category, row.id);
+                        }}
+                    />
                 </>
             ),
         },
@@ -417,7 +510,11 @@ function BusinessExpense() {
                 />
                 <Button
                     value="Add"
-                    onClick={() => setDrawerOpen(true)}
+                    onClick={() => {
+                        setToggleOpen(false);
+                        setBusinessExpenseFormData(initialBusinessExpense);
+                        setDrawerOpen(true);
+                    }}
                     icon="/icon/plus.svg"
                 ></Button>
             </div>
@@ -439,16 +536,19 @@ function BusinessExpense() {
                         handleSubmit(e);
                     }}
                 >
-                    <DateInput
+                    <TextInput
+                        type="date"
                         label="Date"
                         value={
-                            businessExpenseFormData.createdAt
-                                .toISOString()
-                                .split("T")[0]
+                            businessExpenseFormData.start_date
+                                ? businessExpenseFormData.createdAt
+                                      .toISOString()
+                                      .substring(0, 10)
+                                : ""
                         }
                         onChange={(e) => {
                             setBusinessExpenseFormData((prev) => ({
-                                ...structuredClone(prev),
+                                ...prev,
                                 createdAt: new Date(e.target.value),
                             }));
                         }}
@@ -461,7 +561,7 @@ function BusinessExpense() {
                             setBusinessExpenseFormData(
                                 (prev) =>
                                     ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         expense_category:
                                             e.target.options[
                                                 e.target.selectedIndex
@@ -536,7 +636,7 @@ function BusinessExpense() {
                                 error={validationError.good_id}
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         good_id: e.target.value,
                                         materialAndSupply_id: "",
                                         name:
@@ -576,7 +676,7 @@ function BusinessExpense() {
                                         );
 
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         materialAndSupply_id: e.target.value,
                                         good_id: "",
                                         cost: selectedMaterial?.costPerUnit
@@ -619,7 +719,7 @@ function BusinessExpense() {
                                                         prev.materialAndSupply_id,
                                                 );
                                             return {
-                                                ...structuredClone(prev),
+                                                ...prev,
                                                 quantity: newQuantity,
                                                 cost: selectedMaterial?.costPerUnit
                                                     ? selectedMaterial.costPerUnit *
@@ -640,6 +740,11 @@ function BusinessExpense() {
                                                       newQuantity
                                                     : prev.cost,
                                             };
+                                        } else {
+                                            return {
+                                                ...prev,
+                                                quantity: newQuantity,
+                                            };
                                         }
                                     });
                                 }}
@@ -655,7 +760,7 @@ function BusinessExpense() {
                                 value={businessExpenseFormData.name}
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         name: e.target.value,
                                     }));
                                 }}
@@ -669,7 +774,7 @@ function BusinessExpense() {
                                 step="0.01"
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         cost: parseFloat(e.target.value),
                                     }));
                                 }}
@@ -681,7 +786,7 @@ function BusinessExpense() {
                                 value={businessExpenseFormData.payee}
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         payee: e.target.value,
                                     }));
                                 }}
@@ -693,7 +798,7 @@ function BusinessExpense() {
                                 value={businessExpenseFormData.payment_method}
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
-                                        ...structuredClone(prev),
+                                        ...prev,
                                         payment_method: e.target
                                             .value as typeof businessExpenseFormData.payment_method,
                                     }));
@@ -711,7 +816,7 @@ function BusinessExpense() {
                         value={businessExpenseFormData.notes}
                         onChange={(e) => {
                             setBusinessExpenseFormData((prev) => ({
-                                ...structuredClone(prev),
+                                ...prev,
                                 notes: e.target.value,
                             }));
                         }}
@@ -731,39 +836,75 @@ function BusinessExpense() {
                         "inventory_loss" && (
                         <Switcher
                             label="Make this a recurring expense?"
+                            checked={toggleOpen}
                             onChange={() => setToggleOpen((prev) => !prev)}
-                            defaultChecked={toggleOpen}
                         >
                             <>
-                                <DateInput
-                                    label="Start Date"
+                                <Select
+                                    name="repeat_every"
+                                    label="Repeat Every"
                                     value={
-                                        businessExpenseFormData.start_date
-                                            ?.toISOString()
-                                            .split("T")[0] || ""
+                                        businessExpenseFormData.repeat_every ||
+                                        ""
                                     }
                                     onChange={(e) => {
                                         setBusinessExpenseFormData((prev) => ({
-                                            ...structuredClone(prev),
+                                            ...prev,
+                                            repeat_every: e.target
+                                                .value as BusinessExpense["repeat_every"],
+                                        }));
+                                    }}
+                                    options={[
+                                        { label: "Daily", value: "daily" },
+                                        { label: "Weekly", value: "weekly" },
+                                        {
+                                            label: "Bi-Weekly",
+                                            value: "bi-weekly",
+                                        },
+                                        { label: "Monthly", value: "monthly" },
+                                        {
+                                            label: "Quarterly",
+                                            value: "quarterly",
+                                        },
+                                        { label: "Yearly", value: "yearly" },
+                                    ]}
+                                />
+                                <TextInput
+                                    type="date"
+                                    label="Start Date"
+                                    value={
+                                        businessExpenseFormData.start_date
+                                            ? businessExpenseFormData.start_date
+                                                  .toISOString()
+                                                  .substring(0, 10)
+                                            : ""
+                                    }
+                                    onChange={(e) => {
+                                        setBusinessExpenseFormData((prev) => ({
+                                            ...prev,
                                             start_date: new Date(
                                                 e.target.value,
                                             ),
                                         }));
                                     }}
                                 />
-                                <DateInput
+                                <Select
+                                    name="due_date"
                                     label="Due Date"
                                     value={
                                         businessExpenseFormData.due_date
-                                            ?.toISOString()
-                                            .split("T")[0] || ""
+                                            ? businessExpenseFormData.due_date
+                                                  .toISOString()
+                                                  .substring(0, 10)
+                                            : ""
                                     }
                                     onChange={(e) => {
                                         setBusinessExpenseFormData((prev) => ({
-                                            ...structuredClone(prev),
+                                            ...prev,
                                             due_date: new Date(e.target.value),
                                         }));
                                     }}
+                                    options={dueDateOptions}
                                 />
                             </>
                         </Switcher>

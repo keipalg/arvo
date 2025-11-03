@@ -15,8 +15,15 @@ export const studioOverheadExpenseValidation = z.object({
     attach_recipt: z.string(),
     createdAt: z.date().default(() => new Date()),
     repeat_every: z
-        .enum(["weekly", "bi-weekly", "monthly", "quarterly", "yearly"])
-        .default("weekly"),
+        .enum([
+            "daily",
+            "weekly",
+            "bi-weekly",
+            "monthly",
+            "quarterly",
+            "yearly",
+        ])
+        .nullable(),
     start_date: z.date().optional(),
     due_date: z.date().optional(),
 });
