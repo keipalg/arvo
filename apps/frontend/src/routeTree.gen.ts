@@ -26,82 +26,82 @@ import { Route as ProtectedExpensesUsedMaterialsIndexRouteImport } from "./route
 import { Route as ProtectedExpensesBusinessIndexRouteImport } from "./routes/_protected/expenses/business/index";
 
 const ProtectedRoute = ProtectedRouteImport.update({
-    id: "/_protected",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_protected',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
-    id: "/_public/",
-    path: "/",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicSignupRoute = PublicSignupRouteImport.update({
-    id: "/_public/signup",
-    path: "/signup",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicLoginRoute = PublicLoginRouteImport.update({
-    id: "/_public/login",
-    path: "/login",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
-    id: "/_public/about",
-    path: "/about",
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/_public/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProtectedSetupIndexRoute = ProtectedSetupIndexRouteImport.update({
-    id: "/setup/",
-    path: "/setup/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/setup/',
+  path: '/setup/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedSettingsIndexRoute = ProtectedSettingsIndexRouteImport.update({
-    id: "/settings/",
-    path: "/settings/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedSalesIndexRoute = ProtectedSalesIndexRouteImport.update({
-    id: "/sales/",
-    path: "/sales/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/sales/',
+  path: '/sales/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedMaterialsIndexRoute = ProtectedMaterialsIndexRouteImport.update({
-    id: "/materials/",
-    path: "/materials/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/materials/',
+  path: '/materials/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedGoodsIndexRoute = ProtectedGoodsIndexRouteImport.update({
-    id: "/goods/",
-    path: "/goods/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/goods/',
+  path: '/goods/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedExpensesIndexRoute = ProtectedExpensesIndexRouteImport.update({
-    id: "/expenses/",
-    path: "/expenses/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/expenses/',
+  path: '/expenses/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedDashboardIndexRoute = ProtectedDashboardIndexRouteImport.update({
     id: "/dashboard/",
     path: "/dashboard/",
     getParentRoute: () => ProtectedRoute,
 } as any);
 const ProtectedGoodsProductionBatchIndexRoute =
-    ProtectedGoodsProductionBatchIndexRouteImport.update({
-        id: "/goods/productionBatch/",
-        path: "/goods/productionBatch/",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedGoodsProductionBatchIndexRouteImport.update({
+    id: '/goods/productionBatch/',
+    path: '/goods/productionBatch/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const ProtectedExpensesUsedMaterialsIndexRoute =
-    ProtectedExpensesUsedMaterialsIndexRouteImport.update({
-        id: "/expenses/usedMaterials/",
-        path: "/expenses/usedMaterials/",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedExpensesUsedMaterialsIndexRouteImport.update({
+    id: '/expenses/usedMaterials/',
+    path: '/expenses/usedMaterials/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const ProtectedExpensesBusinessIndexRoute =
-    ProtectedExpensesBusinessIndexRouteImport.update({
-        id: "/expenses/business/",
-        path: "/expenses/business/",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
+  ProtectedExpensesBusinessIndexRouteImport.update({
+    id: '/expenses/business/',
+    path: '/expenses/business/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
     "/about": typeof PublicAboutRoute;
@@ -206,11 +206,11 @@ export interface FileRouteTypes {
     fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-    ProtectedRoute: typeof ProtectedRouteWithChildren;
-    PublicAboutRoute: typeof PublicAboutRoute;
-    PublicLoginRoute: typeof PublicLoginRoute;
-    PublicSignupRoute: typeof PublicSignupRoute;
-    PublicIndexRoute: typeof PublicIndexRoute;
+  ProtectedRoute: typeof ProtectedRouteWithChildren
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicLoginRoute: typeof PublicLoginRoute
+  PublicSignupRoute: typeof PublicSignupRoute
+  PublicIndexRoute: typeof PublicIndexRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -352,16 +352,16 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
 };
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
-    ProtectedRouteChildren,
-);
+  ProtectedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-    ProtectedRoute: ProtectedRouteWithChildren,
-    PublicAboutRoute: PublicAboutRoute,
-    PublicLoginRoute: PublicLoginRoute,
-    PublicSignupRoute: PublicSignupRoute,
-    PublicIndexRoute: PublicIndexRoute,
-};
+  ProtectedRoute: ProtectedRouteWithChildren,
+  PublicAboutRoute: PublicAboutRoute,
+  PublicLoginRoute: PublicLoginRoute,
+  PublicSignupRoute: PublicSignupRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
 export const routeTree = rootRouteImport
-    ._addFileChildren(rootRouteChildren)
-    ._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()

@@ -1,7 +1,7 @@
 import { and, count, desc, eq } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { notification } from "../db/schema.js";
+import { notification, notificationType } from "../db/schema.js";
 import { NOTIFICATION_TYPES } from "../utils/constants/notificationTypes.js";
 
 /**
@@ -109,8 +109,23 @@ export const getNotifications = async (
     const offset = (page - 1) * limit;
 
     const notifications = await db
-        .select()
+        .select({
+            id: notification.id,
+            userId: notification.userId,
+            type_id: notification.type_id,
+            title: notification.title,
+            message: notification.message,
+            notifiedAt: notification.notifiedAt,
+            isRead: notification.isRead,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+            typeKey: notificationType.key,
+        })
         .from(notification)
+        .leftJoin(
+            notificationType,
+            eq(notification.type_id, notificationType.id),
+        )
         .where(eq(notification.userId, userId))
         .orderBy(desc(notification.notifiedAt))
         .limit(limit)

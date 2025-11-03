@@ -1,8 +1,22 @@
+import { useState } from "react";
+import { NotificationBadge } from "../notification/NotificationBadge";
+import { NotificationTray } from "../notification/NotificationTray";
+
 type HeaderProps = {
     onToggleSidebar: () => void;
 };
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
+    const [isTrayOpen, setIsTrayOpen] = useState(false);
+
+    const toggleTray = () => {
+        setIsTrayOpen(!isTrayOpen);
+    };
+
+    const closeTray = () => {
+        setIsTrayOpen(false);
+    };
+
     return (
         <>
             <header className="flex justify-between min-h-14 h-14 min-w-full w-full">
@@ -19,9 +33,16 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                     <a href="#">
                         <img src="/icon/search.svg" alt="Search" />
                     </a>
-                    <a href="#">
-                        <img src="/icon/notification.svg" alt="Notification" />
-                    </a>
+                    <div className="relative">
+                        <button
+                            type="button"
+                            className="cursor-pointer"
+                            onClick={toggleTray}
+                        >
+                            <NotificationBadge isActive={isTrayOpen} />
+                        </button>
+                        {isTrayOpen && <NotificationTray onClose={closeTray} />}
+                    </div>
                 </div>
             </header>
         </>
