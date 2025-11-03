@@ -76,9 +76,8 @@ export const processProductionBatch = async (
         const productionBatchData = await addProductionBatch({
             id: "",
             goodId: input.goodId,
-            productionDate: input.productionDate
-                ? new Date(input.productionDate)
-                : new Date(),
+            productionDate:
+                input.productionDate || new Date().toISOString().split("T")[0],
             quantity: input.quantity,
             productionCost: input.productionCost,
         });
@@ -106,7 +105,10 @@ export const updateProductionBatch = async (
         .update(productionBatch)
         .set({
             ...data,
-            productionDate: new Date(data.productionDate),
+            productionDate:
+                data.productionDate instanceof Date
+                    ? data.productionDate.toISOString().split("T")[0]
+                    : data.productionDate,
         })
         .where(and(eq(productionBatch.id, id)))
         .returning({ id: productionBatch.id });
@@ -120,11 +122,12 @@ export const processProductionBatchUpdate = async (
     const updatedProductionBatch = await updateProductionBatch(data.id, data);
 
     // Calculate difference of quantity
-    const quantityDiff = data.quantity - lastProductionBatch[0].quantity;
+    const quantityDiff =
+        data.quantity - (lastProductionBatch[0]?.quantity || 0);
 
     for (const material of data.materials) {
         const amountDiff =
-            lastProductionBatch[0].quantity *
+            (lastProductionBatch[0]?.quantity || 0) *
                 (material.amount / data.quantity) -
             material.amount;
 

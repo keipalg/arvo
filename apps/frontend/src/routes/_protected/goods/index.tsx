@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import React, { useState, useEffect } from "react";
 
+import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
 import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
 import RightDrawer from "../../../components/drawer/RightDrawer";
@@ -80,6 +81,7 @@ function GoodsList() {
     const [materials, setMaterials] = useState<Materials[]>([]);
     const [suggestedPrice, setSuggestedPrice] = useState(0);
     const [editingGoodId, setEditingGoodId] = useState<string | null>(null);
+    const [canSuggest, setCanSuggest] = useState(false);
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
         trpc.goods.materials.queryOptions(),
@@ -158,6 +160,7 @@ function GoodsList() {
         setMcpu(0);
         setNetProfitMargin(0);
         setSuggestedPrice(0);
+        setCanSuggest(false);
     };
 
     const closeDrawer = () => {
@@ -466,6 +469,13 @@ function GoodsList() {
         );
     }, [cogs]);
 
+    useEffect(() => {
+        if (productType && mcpu > 0) {
+            setCanSuggest(true);
+            console.log(canSuggest);
+        }
+    }, [mcpu, productType, setDrawerOpen]);
+
     return (
         <BaseLayout title="Product List">
             <div className="flex justify-between">
@@ -609,6 +619,24 @@ function GoodsList() {
                         error={formErrors.retailPrice}
                         min="0"
                     ></NumberInput>
+                    {userPreference ? (
+                        <PriceSuggestionWidget
+                            productType={productType}
+                            materialCost={mcpu}
+                            laborCost={userPreference?.[0].laborCost}
+                            overheadCost={overheadCost}
+                            operationalCost={
+                                userPreference[0].operatingCostPercentage
+                            }
+                            profitMarginPreference={
+                                userPreference[0].profitPercentage
+                            }
+                            canSuggest={canSuggest}
+                            shouldReset={!drawerOpen}
+                        />
+                    ) : (
+                        ""
+                    )}
                     <p className="font-semibold">
                         Suggested Price:$
                         {!suggestedPrice
