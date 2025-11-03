@@ -61,7 +61,6 @@ function ProductionBatchList() {
         MaterialOutputRatio[]
     >([]);
     const [editingBatchId, setEditingBatchId] = useState<string>("");
-    const [isOver, setIsOver] = useState(false);
     const [maxQuantity, setMaxQuantity] = useState(0);
     const { data, isLoading, error } = useQuery(
         trpc.productionBatch.list.queryOptions(),
@@ -94,17 +93,9 @@ function ProductionBatchList() {
         {
             key: "productionDate",
             header: "Production Date",
-            render: (value) => {
-                if (typeof value === "string" || value instanceof Date) {
-                    const dateObj = new Date(value);
-                    return isNaN(dateObj.getTime()) ? (
-                        <></>
-                    ) : (
-                        <>{dateObj.toLocaleDateString()}</>
-                    );
-                }
-                return <></>;
-            },
+            render: (value) => (
+                <>{new Date(value as string).toLocaleDateString()}</>
+            ),
         },
         {
             key: "goodName",
@@ -279,7 +270,7 @@ function ProductionBatchList() {
             productionBatch.productionDate
                 ? new Date(productionBatch.productionDate)
                       .toISOString()
-                      .slice(0, 16)
+                      .split("T")[0]
                 : "",
         );
         setQuantity(productionBatch.quantity || 0);
@@ -367,13 +358,6 @@ function ProductionBatchList() {
         setMaterials(materialsArray);
     }, [materialOutputRatios, quantity]);
 
-    useEffect(() => {
-        const hasInsufficientInventory = materialOutputRatios?.some(
-            (ratio) => ratio.input * quantity > ratio.currentQuantity,
-        );
-        setIsOver(hasInsufficientInventory || false);
-    }, [materialOutputRatios, quantity]);
-
     return (
         <BaseLayout title="Batch Production">
             <div className="flex justify-between">
@@ -398,7 +382,7 @@ function ProductionBatchList() {
                     <TextInput
                         label="Production Date"
                         name="productionDate"
-                        type="datetime-local"
+                        type="date"
                         value={productionDate}
                         onChange={(e) => setProductionDate(e.target.value)}
                         error={formErrors.productionDate}
@@ -459,11 +443,7 @@ function ProductionBatchList() {
                                 onClick={() => handleDelete(editingBatchId)}
                             ></Button>
                         )}
-                        <Button
-                            type="submit"
-                            value="Save"
-                            disabled={isOver}
-                        ></Button>
+                        <Button type="submit" value="Save"></Button>
                     </div>
                 </form>
             </RightDrawer>

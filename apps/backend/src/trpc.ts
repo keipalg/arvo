@@ -17,6 +17,7 @@ import { userPreferencesRouter } from "./routes/userPreferencesRoute.js";
 import { productionBatchRouter } from "./routes/productionBatchRoute.js";
 import { userRouter } from "./routes/userRouter.js";
 import { dashboardRouter } from "./routes/dashboardRoute.js";
+import { priceSuggestionRouter } from "./routes/priceSuggestionRoute.js";
 import { notificationRouter } from "./routes/notificationsRoute.js";
 
 export const appRouter = router({
@@ -41,6 +42,7 @@ export const appRouter = router({
     productionBatch: productionBatchRouter,
     user: userRouter,
     dashboard: dashboardRouter,
+    priceSuggestion: priceSuggestionRouter,
     notification: notificationRouter,
 });
 
