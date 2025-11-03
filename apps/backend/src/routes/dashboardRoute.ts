@@ -15,7 +15,11 @@ import {
     getMonthlyProductionCount,
 } from "../service/dashboardService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
-import { dashboardTimezoneValidation } from "@arvo/shared";
+import {
+    dashboardTimezoneValidation,
+    dashboardRevenueProfitSummaryOverviewValidation,
+} from "@arvo/shared";
+import { generateRevenueProfitSummaryOverview } from "src/service/dashboardOverviewService.js";
 
 export const dashboardRouter = router({
     revenueProfitSummary: protectedProcedure
@@ -33,9 +37,21 @@ export const dashboardRouter = router({
                 ],
             );
             return {
-                totalRevenue: sales.totalRevenue,
-                totalExpenses: businessExpense + materialExpense,
-                totalProfit: sales.totalProfit,
+                totalRevenue: Number(sales.totalRevenue),
+                totalExpenses: Number(businessExpense + materialExpense),
+                totalProfit: Number(sales.totalProfit),
+            };
+        }),
+    revenueProfitSummaryOverview: protectedProcedure
+        .input(dashboardRevenueProfitSummaryOverviewValidation)
+        .query(async ({ input }) => {
+            const overview = await generateRevenueProfitSummaryOverview({
+                totalRevenue: input.totalRevenue,
+                totalExpenses: input.totalExpenses,
+                totalProfit: input.totalProfit,
+            });
+            return {
+                overview: overview,
             };
         }),
     revenueProfitSummary6Months: protectedProcedure

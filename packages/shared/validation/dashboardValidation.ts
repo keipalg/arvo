@@ -11,6 +11,16 @@ export const dashboardTimezoneValidation = z.object({
     }),
 });
 
+export const dashboardRevenueProfitSummaryOverviewValidation = z.object({
+    totalRevenue: z.number(),
+    totalExpenses: z.number(),
+    totalProfit: z.number(),
+});
+
 export type DashboardTimezoneInput = z.infer<
     typeof dashboardTimezoneValidation
+>;
+
+export type DashboardRevenueProfitSummaryOverviewInput = z.infer<
+    typeof dashboardRevenueProfitSummaryOverviewValidation
 >;
