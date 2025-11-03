@@ -5,7 +5,6 @@ import DataTable from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import React, { useState, useEffect } from "react";
-
 import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
 import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
@@ -25,6 +24,7 @@ import {
 
 import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
 import NumberInput from "../../../components/input/NumberInput.tsx";
+import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -505,21 +505,13 @@ function GoodsList() {
                         onChange={(e) => setName(e.target.value)}
                         error={formErrors.name}
                     ></TextInput>
-                    <Select
+
+                    <ProductTypeSelector
                         label="Product Type"
-                        name="productType"
                         value={productType}
-                        options={[
-                            { value: "", label: "" },
-                            ...(productTypesList
-                                ? productTypesList.map((productType) => ({
-                                      value: productType.id,
-                                      label: productType.name,
-                                  }))
-                                : []),
-                        ]}
-                        onChange={(e) => setProductType(e.target.value)}
-                    ></Select>
+                        onChange={setProductType}
+                        error={formErrors.productType}
+                    />
 
                     <NumberInput
                         label="Stock Level"
