@@ -33,9 +33,11 @@ const TopSellingTable = ({ data }: TopSellingTableProps) => {
                             className="border-b border-gray-200"
                         >
                             <td className="px-4 py-3">
-                                {product.goodImage && (
-                                    <img src={product.goodImage}></img>
-                                )}
+                                <div className="h-14 flex justify-center">
+                                    {product.goodImage && (
+                                        <img src={product.goodImage}></img>
+                                    )}
+                                </div>
                             </td>
                             <td className="px-4 py-3">{product.goodName}</td>
                             <td className="px-4 py-3">

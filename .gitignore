@@ -151,3 +151,5 @@ vite.config.ts.timestamp-*
 
 # Temporary file from tanstack
 apps/frontend/.tanstack
+apps/backend/wmdd-pj2-handcraft-*.json
+apps/backend/gcs-cors.json

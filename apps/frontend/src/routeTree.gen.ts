@@ -8,22 +8,22 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as ProtectedRouteImport } from "./routes/_protected";
-import { Route as PublicIndexRouteImport } from "./routes/_public/index";
-import { Route as PublicSignupRouteImport } from "./routes/_public/signup";
-import { Route as PublicLoginRouteImport } from "./routes/_public/login";
-import { Route as PublicAboutRouteImport } from "./routes/_public/about";
-import { Route as ProtectedSetupIndexRouteImport } from "./routes/_protected/setup/index";
-import { Route as ProtectedSettingsIndexRouteImport } from "./routes/_protected/settings/index";
-import { Route as ProtectedSalesIndexRouteImport } from "./routes/_protected/sales/index";
-import { Route as ProtectedMaterialsIndexRouteImport } from "./routes/_protected/materials/index";
-import { Route as ProtectedGoodsIndexRouteImport } from "./routes/_protected/goods/index";
-import { Route as ProtectedExpensesIndexRouteImport } from "./routes/_protected/expenses/index";
-import { Route as ProtectedDashboardIndexRouteImport } from "./routes/_protected/dashboard/index";
-import { Route as ProtectedGoodsProductionBatchIndexRouteImport } from "./routes/_protected/goods/productionBatch/index";
-import { Route as ProtectedExpensesUsedMaterialsIndexRouteImport } from "./routes/_protected/expenses/usedMaterials/index";
-import { Route as ProtectedExpensesBusinessIndexRouteImport } from "./routes/_protected/expenses/business/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicSignupRouteImport } from './routes/_public/signup'
+import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as ProtectedSetupIndexRouteImport } from './routes/_protected/setup/index'
+import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
+import { Route as ProtectedSalesIndexRouteImport } from './routes/_protected/sales/index'
+import { Route as ProtectedMaterialsIndexRouteImport } from './routes/_protected/materials/index'
+import { Route as ProtectedGoodsIndexRouteImport } from './routes/_protected/goods/index'
+import { Route as ProtectedExpensesIndexRouteImport } from './routes/_protected/expenses/index'
+import { Route as ProtectedDashboardIndexRouteImport } from './routes/_protected/dashboard/index'
+import { Route as ProtectedGoodsProductionBatchIndexRouteImport } from './routes/_protected/goods/productionBatch/index'
+import { Route as ProtectedExpensesUsedMaterialsIndexRouteImport } from './routes/_protected/expenses/usedMaterials/index'
+import { Route as ProtectedExpensesBusinessIndexRouteImport } from './routes/_protected/expenses/business/index'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -80,10 +80,10 @@ const ProtectedExpensesIndexRoute = ProtectedExpensesIndexRouteImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedDashboardIndexRoute = ProtectedDashboardIndexRouteImport.update({
-    id: "/dashboard/",
-    path: "/dashboard/",
-    getParentRoute: () => ProtectedRoute,
-} as any);
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedGoodsProductionBatchIndexRoute =
   ProtectedGoodsProductionBatchIndexRouteImport.update({
     id: '/goods/productionBatch/',
@@ -104,106 +104,106 @@ const ProtectedExpensesBusinessIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-    "/about": typeof PublicAboutRoute;
-    "/login": typeof PublicLoginRoute;
-    "/signup": typeof PublicSignupRoute;
-    "/": typeof PublicIndexRoute;
-    "/dashboard": typeof ProtectedDashboardIndexRoute;
-    "/expenses": typeof ProtectedExpensesIndexRoute;
-    "/goods": typeof ProtectedGoodsIndexRoute;
-    "/materials": typeof ProtectedMaterialsIndexRoute;
-    "/sales": typeof ProtectedSalesIndexRoute;
-    "/settings": typeof ProtectedSettingsIndexRoute;
-    "/setup": typeof ProtectedSetupIndexRoute;
-    "/expenses/business": typeof ProtectedExpensesBusinessIndexRoute;
-    "/expenses/usedMaterials": typeof ProtectedExpensesUsedMaterialsIndexRoute;
-    "/goods/productionBatch": typeof ProtectedGoodsProductionBatchIndexRoute;
+  '/about': typeof PublicAboutRoute
+  '/login': typeof PublicLoginRoute
+  '/signup': typeof PublicSignupRoute
+  '/': typeof PublicIndexRoute
+  '/dashboard': typeof ProtectedDashboardIndexRoute
+  '/expenses': typeof ProtectedExpensesIndexRoute
+  '/goods': typeof ProtectedGoodsIndexRoute
+  '/materials': typeof ProtectedMaterialsIndexRoute
+  '/sales': typeof ProtectedSalesIndexRoute
+  '/settings': typeof ProtectedSettingsIndexRoute
+  '/setup': typeof ProtectedSetupIndexRoute
+  '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
+  '/expenses/usedMaterials': typeof ProtectedExpensesUsedMaterialsIndexRoute
+  '/goods/productionBatch': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRoutesByTo {
-    "/about": typeof PublicAboutRoute;
-    "/login": typeof PublicLoginRoute;
-    "/signup": typeof PublicSignupRoute;
-    "/": typeof PublicIndexRoute;
-    "/dashboard": typeof ProtectedDashboardIndexRoute;
-    "/expenses": typeof ProtectedExpensesIndexRoute;
-    "/goods": typeof ProtectedGoodsIndexRoute;
-    "/materials": typeof ProtectedMaterialsIndexRoute;
-    "/sales": typeof ProtectedSalesIndexRoute;
-    "/settings": typeof ProtectedSettingsIndexRoute;
-    "/setup": typeof ProtectedSetupIndexRoute;
-    "/expenses/business": typeof ProtectedExpensesBusinessIndexRoute;
-    "/expenses/usedMaterials": typeof ProtectedExpensesUsedMaterialsIndexRoute;
-    "/goods/productionBatch": typeof ProtectedGoodsProductionBatchIndexRoute;
+  '/about': typeof PublicAboutRoute
+  '/login': typeof PublicLoginRoute
+  '/signup': typeof PublicSignupRoute
+  '/': typeof PublicIndexRoute
+  '/dashboard': typeof ProtectedDashboardIndexRoute
+  '/expenses': typeof ProtectedExpensesIndexRoute
+  '/goods': typeof ProtectedGoodsIndexRoute
+  '/materials': typeof ProtectedMaterialsIndexRoute
+  '/sales': typeof ProtectedSalesIndexRoute
+  '/settings': typeof ProtectedSettingsIndexRoute
+  '/setup': typeof ProtectedSetupIndexRoute
+  '/expenses/business': typeof ProtectedExpensesBusinessIndexRoute
+  '/expenses/usedMaterials': typeof ProtectedExpensesUsedMaterialsIndexRoute
+  '/goods/productionBatch': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRoutesById {
-    __root__: typeof rootRouteImport;
-    "/_protected": typeof ProtectedRouteWithChildren;
-    "/_public/about": typeof PublicAboutRoute;
-    "/_public/login": typeof PublicLoginRoute;
-    "/_public/signup": typeof PublicSignupRoute;
-    "/_public/": typeof PublicIndexRoute;
-    "/_protected/dashboard/": typeof ProtectedDashboardIndexRoute;
-    "/_protected/expenses/": typeof ProtectedExpensesIndexRoute;
-    "/_protected/goods/": typeof ProtectedGoodsIndexRoute;
-    "/_protected/materials/": typeof ProtectedMaterialsIndexRoute;
-    "/_protected/sales/": typeof ProtectedSalesIndexRoute;
-    "/_protected/settings/": typeof ProtectedSettingsIndexRoute;
-    "/_protected/setup/": typeof ProtectedSetupIndexRoute;
-    "/_protected/expenses/business/": typeof ProtectedExpensesBusinessIndexRoute;
-    "/_protected/expenses/usedMaterials/": typeof ProtectedExpensesUsedMaterialsIndexRoute;
-    "/_protected/goods/productionBatch/": typeof ProtectedGoodsProductionBatchIndexRoute;
+  __root__: typeof rootRouteImport
+  '/_protected': typeof ProtectedRouteWithChildren
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/login': typeof PublicLoginRoute
+  '/_public/signup': typeof PublicSignupRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_protected/dashboard/': typeof ProtectedDashboardIndexRoute
+  '/_protected/expenses/': typeof ProtectedExpensesIndexRoute
+  '/_protected/goods/': typeof ProtectedGoodsIndexRoute
+  '/_protected/materials/': typeof ProtectedMaterialsIndexRoute
+  '/_protected/sales/': typeof ProtectedSalesIndexRoute
+  '/_protected/settings/': typeof ProtectedSettingsIndexRoute
+  '/_protected/setup/': typeof ProtectedSetupIndexRoute
+  '/_protected/expenses/business/': typeof ProtectedExpensesBusinessIndexRoute
+  '/_protected/expenses/usedMaterials/': typeof ProtectedExpensesUsedMaterialsIndexRoute
+  '/_protected/goods/productionBatch/': typeof ProtectedGoodsProductionBatchIndexRoute
 }
 export interface FileRouteTypes {
-    fileRoutesByFullPath: FileRoutesByFullPath;
-    fullPaths:
-        | "/about"
-        | "/login"
-        | "/signup"
-        | "/"
-        | "/dashboard"
-        | "/expenses"
-        | "/goods"
-        | "/materials"
-        | "/sales"
-        | "/settings"
-        | "/setup"
-        | "/expenses/business"
-        | "/expenses/usedMaterials"
-        | "/goods/productionBatch";
-    fileRoutesByTo: FileRoutesByTo;
-    to:
-        | "/about"
-        | "/login"
-        | "/signup"
-        | "/"
-        | "/dashboard"
-        | "/expenses"
-        | "/goods"
-        | "/materials"
-        | "/sales"
-        | "/settings"
-        | "/setup"
-        | "/expenses/business"
-        | "/expenses/usedMaterials"
-        | "/goods/productionBatch";
-    id:
-        | "__root__"
-        | "/_protected"
-        | "/_public/about"
-        | "/_public/login"
-        | "/_public/signup"
-        | "/_public/"
-        | "/_protected/dashboard/"
-        | "/_protected/expenses/"
-        | "/_protected/goods/"
-        | "/_protected/materials/"
-        | "/_protected/sales/"
-        | "/_protected/settings/"
-        | "/_protected/setup/"
-        | "/_protected/expenses/business/"
-        | "/_protected/expenses/usedMaterials/"
-        | "/_protected/goods/productionBatch/";
-    fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/dashboard'
+    | '/expenses'
+    | '/goods'
+    | '/materials'
+    | '/sales'
+    | '/settings'
+    | '/setup'
+    | '/expenses/business'
+    | '/expenses/usedMaterials'
+    | '/goods/productionBatch'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/'
+    | '/dashboard'
+    | '/expenses'
+    | '/goods'
+    | '/materials'
+    | '/sales'
+    | '/settings'
+    | '/setup'
+    | '/expenses/business'
+    | '/expenses/usedMaterials'
+    | '/goods/productionBatch'
+  id:
+    | '__root__'
+    | '/_protected'
+    | '/_public/about'
+    | '/_public/login'
+    | '/_public/signup'
+    | '/_public/'
+    | '/_protected/dashboard/'
+    | '/_protected/expenses/'
+    | '/_protected/goods/'
+    | '/_protected/materials/'
+    | '/_protected/sales/'
+    | '/_protected/settings/'
+    | '/_protected/setup/'
+    | '/_protected/expenses/business/'
+    | '/_protected/expenses/usedMaterials/'
+    | '/_protected/goods/productionBatch/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
@@ -213,143 +213,143 @@ export interface RootRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
 }
 
-declare module "@tanstack/react-router" {
-    interface FileRoutesByPath {
-        "/_protected": {
-            id: "/_protected";
-            path: "";
-            fullPath: "";
-            preLoaderRoute: typeof ProtectedRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/": {
-            id: "/_public/";
-            path: "/";
-            fullPath: "/";
-            preLoaderRoute: typeof PublicIndexRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/signup": {
-            id: "/_public/signup";
-            path: "/signup";
-            fullPath: "/signup";
-            preLoaderRoute: typeof PublicSignupRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/login": {
-            id: "/_public/login";
-            path: "/login";
-            fullPath: "/login";
-            preLoaderRoute: typeof PublicLoginRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_public/about": {
-            id: "/_public/about";
-            path: "/about";
-            fullPath: "/about";
-            preLoaderRoute: typeof PublicAboutRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        "/_protected/setup/": {
-            id: "/_protected/setup/";
-            path: "/setup";
-            fullPath: "/setup";
-            preLoaderRoute: typeof ProtectedSetupIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/settings/": {
-            id: "/_protected/settings/";
-            path: "/settings";
-            fullPath: "/settings";
-            preLoaderRoute: typeof ProtectedSettingsIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/sales/": {
-            id: "/_protected/sales/";
-            path: "/sales";
-            fullPath: "/sales";
-            preLoaderRoute: typeof ProtectedSalesIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/materials/": {
-            id: "/_protected/materials/";
-            path: "/materials";
-            fullPath: "/materials";
-            preLoaderRoute: typeof ProtectedMaterialsIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/goods/": {
-            id: "/_protected/goods/";
-            path: "/goods";
-            fullPath: "/goods";
-            preLoaderRoute: typeof ProtectedGoodsIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/": {
-            id: "/_protected/expenses/";
-            path: "/expenses";
-            fullPath: "/expenses";
-            preLoaderRoute: typeof ProtectedExpensesIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/dashboard/": {
-            id: "/_protected/dashboard/";
-            path: "/dashboard";
-            fullPath: "/dashboard";
-            preLoaderRoute: typeof ProtectedDashboardIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/goods/productionBatch/": {
-            id: "/_protected/goods/productionBatch/";
-            path: "/goods/productionBatch";
-            fullPath: "/goods/productionBatch";
-            preLoaderRoute: typeof ProtectedGoodsProductionBatchIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/usedMaterials/": {
-            id: "/_protected/expenses/usedMaterials/";
-            path: "/expenses/usedMaterials";
-            fullPath: "/expenses/usedMaterials";
-            preLoaderRoute: typeof ProtectedExpensesUsedMaterialsIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
-        "/_protected/expenses/business/": {
-            id: "/_protected/expenses/business/";
-            path: "/expenses/business";
-            fullPath: "/expenses/business";
-            preLoaderRoute: typeof ProtectedExpensesBusinessIndexRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ProtectedRouteImport
+      parentRoute: typeof rootRouteImport
     }
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/signup': {
+      id: '/_public/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof PublicSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/setup/': {
+      id: '/_protected/setup/'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof ProtectedSetupIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings/': {
+      id: '/_protected/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/sales/': {
+      id: '/_protected/sales/'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof ProtectedSalesIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/materials/': {
+      id: '/_protected/materials/'
+      path: '/materials'
+      fullPath: '/materials'
+      preLoaderRoute: typeof ProtectedMaterialsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/goods/': {
+      id: '/_protected/goods/'
+      path: '/goods'
+      fullPath: '/goods'
+      preLoaderRoute: typeof ProtectedGoodsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/': {
+      id: '/_protected/expenses/'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ProtectedExpensesIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/dashboard/': {
+      id: '/_protected/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ProtectedDashboardIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/goods/productionBatch/': {
+      id: '/_protected/goods/productionBatch/'
+      path: '/goods/productionBatch'
+      fullPath: '/goods/productionBatch'
+      preLoaderRoute: typeof ProtectedGoodsProductionBatchIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/usedMaterials/': {
+      id: '/_protected/expenses/usedMaterials/'
+      path: '/expenses/usedMaterials'
+      fullPath: '/expenses/usedMaterials'
+      preLoaderRoute: typeof ProtectedExpensesUsedMaterialsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/expenses/business/': {
+      id: '/_protected/expenses/business/'
+      path: '/expenses/business'
+      fullPath: '/expenses/business'
+      preLoaderRoute: typeof ProtectedExpensesBusinessIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+  }
 }
 
 interface ProtectedRouteChildren {
-    ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute;
-    ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute;
-    ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute;
-    ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute;
-    ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute;
-    ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute;
-    ProtectedSetupIndexRoute: typeof ProtectedSetupIndexRoute;
-    ProtectedExpensesBusinessIndexRoute: typeof ProtectedExpensesBusinessIndexRoute;
-    ProtectedExpensesUsedMaterialsIndexRoute: typeof ProtectedExpensesUsedMaterialsIndexRoute;
-    ProtectedGoodsProductionBatchIndexRoute: typeof ProtectedGoodsProductionBatchIndexRoute;
+  ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute
+  ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute
+  ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute
+  ProtectedMaterialsIndexRoute: typeof ProtectedMaterialsIndexRoute
+  ProtectedSalesIndexRoute: typeof ProtectedSalesIndexRoute
+  ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
+  ProtectedSetupIndexRoute: typeof ProtectedSetupIndexRoute
+  ProtectedExpensesBusinessIndexRoute: typeof ProtectedExpensesBusinessIndexRoute
+  ProtectedExpensesUsedMaterialsIndexRoute: typeof ProtectedExpensesUsedMaterialsIndexRoute
+  ProtectedGoodsProductionBatchIndexRoute: typeof ProtectedGoodsProductionBatchIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-    ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
-    ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
-    ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,
-    ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
-    ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
-    ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
-    ProtectedSetupIndexRoute: ProtectedSetupIndexRoute,
-    ProtectedExpensesBusinessIndexRoute: ProtectedExpensesBusinessIndexRoute,
-    ProtectedExpensesUsedMaterialsIndexRoute:
-        ProtectedExpensesUsedMaterialsIndexRoute,
-    ProtectedGoodsProductionBatchIndexRoute:
-        ProtectedGoodsProductionBatchIndexRoute,
-};
+  ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
+  ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
+  ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,
+  ProtectedMaterialsIndexRoute: ProtectedMaterialsIndexRoute,
+  ProtectedSalesIndexRoute: ProtectedSalesIndexRoute,
+  ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
+  ProtectedSetupIndexRoute: ProtectedSetupIndexRoute,
+  ProtectedExpensesBusinessIndexRoute: ProtectedExpensesBusinessIndexRoute,
+  ProtectedExpensesUsedMaterialsIndexRoute:
+    ProtectedExpensesUsedMaterialsIndexRoute,
+  ProtectedGoodsProductionBatchIndexRoute:
+    ProtectedGoodsProductionBatchIndexRoute,
+}
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
   ProtectedRouteChildren,
