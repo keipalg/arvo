@@ -4,6 +4,7 @@ import { db, type NeonDbTx } from "../db/client.js";
 import { materialAndSupply, materialType, unit } from "../db/schema.js";
 import { getQuantityWithUnit } from "../utils/materialsUtil.js";
 import { getStatus } from "src/utils/inventoryUtil.js";
+import { createMaterialLowInventoryNotification } from "./notificationsService.js";
 
 /**
  * Get list of materials for a specific user
@@ -123,7 +124,7 @@ export const updateMaterial = async (
     userId: string,
     data: MaterialUpdate,
 ) => {
-    return await db
+    const result = await db
         .update(materialAndSupply)
         .set(data)
         .where(
@@ -133,6 +134,64 @@ export const updateMaterial = async (
             ),
         )
         .returning({ id: materialAndSupply.id });
+
+    // Check inventory and notify if needed when quantity or threshold changed
+    if (data.quantity !== undefined || data.threshold !== undefined) {
+        await _checkAndNotifyLowInventory(materialId, userId);
+    }
+
+    return result;
+};
+
+/**
+ * Private helper to check material inventory and create notification if below threshold
+ * @param materialId material ID
+ * @param userId user ID
+ */
+const _checkAndNotifyLowInventory = async (
+    materialId: string,
+    userId: string,
+) => {
+    const material = await db
+        .select({
+            name: materialAndSupply.name,
+            materialTypeName: materialType.name,
+            quantity: materialAndSupply.quantity,
+            threshold: materialAndSupply.threshold,
+            unitAbbreviation: unit.abbreviation,
+        })
+        .from(materialAndSupply)
+        .where(
+            and(
+                eq(materialAndSupply.id, materialId),
+                eq(materialAndSupply.userId, userId),
+            ),
+        )
+        .innerJoin(
+            materialType,
+            eq(materialAndSupply.materialTypeId, materialType.id),
+        )
+        .innerJoin(unit, eq(materialAndSupply.unitId, unit.id))
+        .limit(1)
+        .then((result) => result[0]);
+
+    if (!material) {
+        return;
+    }
+
+    // Check if quantity is at or below threshold, then create notification
+    if (
+        material.threshold !== null &&
+        material.quantity <= (material.threshold as number)
+    ) {
+        await createMaterialLowInventoryNotification(
+            userId,
+            material.materialTypeName,
+            material.name,
+            material.threshold as number,
+            material.unitAbbreviation,
+        );
+    }
 };
 
 /**
@@ -212,7 +271,7 @@ export const reduceMaterialQuantity = async (
 
     const newQuantity = material.quantity - quantityToDeduct;
 
-    return await db
+    const result = await db
         .update(materialAndSupply)
         .set({ quantity: newQuantity })
         .where(
@@ -225,6 +284,10 @@ export const reduceMaterialQuantity = async (
             id: materialAndSupply.id,
             quantity: materialAndSupply.quantity,
         });
+
+    await _checkAndNotifyLowInventory(materialId, userId);
+
+    return result;
 };
 
 // add material quantity when batch record is deleted

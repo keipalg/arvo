@@ -165,6 +165,9 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.notification.unreadCount.queryKey(),
+                });
             },
         }),
     );
@@ -313,6 +316,7 @@ function MaterialsList() {
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
                         min="0"
+                        step="0.01"
                         // disabled={!!editingMaterialId} // TODO - to disable later for add quantity implementation
                     ></NumberInput>
                     <NumberInput
