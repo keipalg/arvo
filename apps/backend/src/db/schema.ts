@@ -11,7 +11,7 @@ import {
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "../auth/auth-schema.ts";
+import { user } from "../auth/auth-schema.js";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -563,10 +563,11 @@ export const notification = pgTable("notification", {
     userId: uuid("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    type: uuid("type")
+    type_id: uuid("type_id")
         .notNull()
         .references(() => notificationType.id),
     notifiedAt: timestamp("notified_at").defaultNow().notNull(),
+    title: text("title").notNull(),
     message: text("message").notNull(),
     isRead: boolean("is_read").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -583,6 +584,7 @@ export const userToNotification = relations(user, ({ many }) => ({
 
 export const notificationType = pgTable("notification_type", {
     id: uuid("id").primaryKey(),
+    key: text("key").notNull().unique(),
     name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

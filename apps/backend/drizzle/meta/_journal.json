@@ -169,6 +169,13 @@
             "when": 1762111336019,
             "tag": "0023_dusty_speed_demon",
             "breakpoints": true
+        },
+        {
+            "idx": 24,
+            "version": "7",
+            "when": 1762143024246,
+            "tag": "0024_chemical_blur",
+            "breakpoints": true
         }
     ]
 }
