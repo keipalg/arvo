@@ -21,7 +21,6 @@ import { Route as ProtectedMaterialsIndexRouteImport } from "./routes/_protected
 import { Route as ProtectedGoodsIndexRouteImport } from "./routes/_protected/goods/index";
 import { Route as ProtectedExpensesIndexRouteImport } from "./routes/_protected/expenses/index";
 import { Route as ProtectedDashboardIndexRouteImport } from "./routes/_protected/dashboard/index";
-import { Route as ProtectedSettingsIndexcopyRouteImport } from "./routes/_protected/settings/index copy";
 import { Route as ProtectedGoodsProductionBatchIndexRouteImport } from "./routes/_protected/goods/productionBatch/index";
 import { Route as ProtectedExpensesUsedMaterialsIndexRouteImport } from "./routes/_protected/expenses/usedMaterials/index";
 import { Route as ProtectedExpensesBusinessIndexRouteImport } from "./routes/_protected/expenses/business/index";
@@ -85,12 +84,6 @@ const ProtectedDashboardIndexRoute = ProtectedDashboardIndexRouteImport.update({
     path: "/dashboard/",
     getParentRoute: () => ProtectedRoute,
 } as any);
-const ProtectedSettingsIndexcopyRoute =
-    ProtectedSettingsIndexcopyRouteImport.update({
-        id: "/settings/index copy",
-        path: "/settings/index copy",
-        getParentRoute: () => ProtectedRoute,
-    } as any);
 const ProtectedGoodsProductionBatchIndexRoute =
     ProtectedGoodsProductionBatchIndexRouteImport.update({
         id: "/goods/productionBatch/",
@@ -115,7 +108,6 @@ export interface FileRoutesByFullPath {
     "/login": typeof PublicLoginRoute;
     "/signup": typeof PublicSignupRoute;
     "/": typeof PublicIndexRoute;
-    "/settings/index copy": typeof ProtectedSettingsIndexcopyRoute;
     "/dashboard": typeof ProtectedDashboardIndexRoute;
     "/expenses": typeof ProtectedExpensesIndexRoute;
     "/goods": typeof ProtectedGoodsIndexRoute;
@@ -132,7 +124,6 @@ export interface FileRoutesByTo {
     "/login": typeof PublicLoginRoute;
     "/signup": typeof PublicSignupRoute;
     "/": typeof PublicIndexRoute;
-    "/settings/index copy": typeof ProtectedSettingsIndexcopyRoute;
     "/dashboard": typeof ProtectedDashboardIndexRoute;
     "/expenses": typeof ProtectedExpensesIndexRoute;
     "/goods": typeof ProtectedGoodsIndexRoute;
@@ -151,7 +142,6 @@ export interface FileRoutesById {
     "/_public/login": typeof PublicLoginRoute;
     "/_public/signup": typeof PublicSignupRoute;
     "/_public/": typeof PublicIndexRoute;
-    "/_protected/settings/index copy": typeof ProtectedSettingsIndexcopyRoute;
     "/_protected/dashboard/": typeof ProtectedDashboardIndexRoute;
     "/_protected/expenses/": typeof ProtectedExpensesIndexRoute;
     "/_protected/goods/": typeof ProtectedGoodsIndexRoute;
@@ -170,7 +160,6 @@ export interface FileRouteTypes {
         | "/login"
         | "/signup"
         | "/"
-        | "/settings/index copy"
         | "/dashboard"
         | "/expenses"
         | "/goods"
@@ -187,7 +176,6 @@ export interface FileRouteTypes {
         | "/login"
         | "/signup"
         | "/"
-        | "/settings/index copy"
         | "/dashboard"
         | "/expenses"
         | "/goods"
@@ -205,7 +193,6 @@ export interface FileRouteTypes {
         | "/_public/login"
         | "/_public/signup"
         | "/_public/"
-        | "/_protected/settings/index copy"
         | "/_protected/dashboard/"
         | "/_protected/expenses/"
         | "/_protected/goods/"
@@ -312,13 +299,6 @@ declare module "@tanstack/react-router" {
             preLoaderRoute: typeof ProtectedDashboardIndexRouteImport;
             parentRoute: typeof ProtectedRoute;
         };
-        "/_protected/settings/index copy": {
-            id: "/_protected/settings/index copy";
-            path: "/settings/index copy";
-            fullPath: "/settings/index copy";
-            preLoaderRoute: typeof ProtectedSettingsIndexcopyRouteImport;
-            parentRoute: typeof ProtectedRoute;
-        };
         "/_protected/goods/productionBatch/": {
             id: "/_protected/goods/productionBatch/";
             path: "/goods/productionBatch";
@@ -344,7 +324,6 @@ declare module "@tanstack/react-router" {
 }
 
 interface ProtectedRouteChildren {
-    ProtectedSettingsIndexcopyRoute: typeof ProtectedSettingsIndexcopyRoute;
     ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute;
     ProtectedExpensesIndexRoute: typeof ProtectedExpensesIndexRoute;
     ProtectedGoodsIndexRoute: typeof ProtectedGoodsIndexRoute;
@@ -358,7 +337,6 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-    ProtectedSettingsIndexcopyRoute: ProtectedSettingsIndexcopyRoute,
     ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
     ProtectedExpensesIndexRoute: ProtectedExpensesIndexRoute,
     ProtectedGoodsIndexRoute: ProtectedGoodsIndexRoute,
