@@ -11,7 +11,7 @@ import {
     timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "../auth/auth-schema.js";
+import { user } from "../auth/auth-schema.ts";
 
 export const sampleTable = pgTable("sample", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -229,8 +229,6 @@ export const priceSuggestionCache = pgTable("price_suggestion_cache", {
         scale: 2,
         mode: "number",
     }).notNull(),
-    reasoning: text("reasoning").notNull(),
-    marketInsights: text("market_insights").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
