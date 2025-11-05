@@ -176,6 +176,13 @@
             "when": 1762143024246,
             "tag": "0024_chemical_blur",
             "breakpoints": true
+        },
+        {
+            "idx": 25,
+            "version": "7",
+            "when": 1762364429084,
+            "tag": "0025_equal_wendell_rand",
+            "breakpoints": true
         }
     ]
 }
