@@ -7,6 +7,7 @@ type TypeBadgeProps = {
     onDelete: (id: string) => void;
     isSelected?: boolean;
     canDelete?: boolean;
+    isUsed?: boolean;
     index: number;
 };
 
@@ -55,7 +56,7 @@ const TypeBadge = ({
     onSelect,
     onDelete,
     isSelected,
-    canDelete = true,
+    isUsed = false,
     index,
 }: TypeBadgeProps) => {
     const getStyleByIndex = (index: number) => {
@@ -64,7 +65,6 @@ const TypeBadge = ({
         return typeStyles[styleKey];
     };
     const orderedStyle = getStyleByIndex(index);
-    console.log(orderedStyle);
 
     return (
         <div
@@ -76,7 +76,7 @@ const TypeBadge = ({
                     className={`${orderedStyle.textColor} ${orderedStyle.bgColor}`}
                 />
             </div>
-            {canDelete && (
+            {!isUsed && (
                 <button
                     type="button"
                     onClick={(e) => {

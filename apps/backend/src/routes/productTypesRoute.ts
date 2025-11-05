@@ -4,6 +4,7 @@ import {
     addProductTypes,
     deleteProductType,
     getProductTypes,
+    getProductTypesWithUsage,
     updateProductType,
 } from "../service/productTypesService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
@@ -11,7 +12,7 @@ import { userPreferenceProductTypesValidation } from "@arvo/shared";
 
 export const productTypesRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
-        return await getProductTypes(ctx.user.id);
+        return await getProductTypesWithUsage(ctx.user.id);
     }),
     add: protectedProcedure
         .input(z.object({ name: z.string() })) // TODO: To update when doing frontend

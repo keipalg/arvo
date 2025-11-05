@@ -6,7 +6,7 @@ import type { TypeItem } from "../../utils/useTypeManager";
 
 interface TypeSelectorProps extends BaseInputProps {
     items: TypeItem[];
-    onAdd: (data: { name: string }) => void;
+    onAdd: (data: { name: string }) => Promise<{ id: string }> | void;
     onDelete: (data: { id: string }) => void;
     value: string;
     onChange: (value: string) => void;
@@ -44,7 +44,9 @@ const TypeSelector = ({
         }
     };
 
-    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleInputKeyDown = async (
+        e: React.KeyboardEvent<HTMLInputElement>,
+    ) => {
         if (e.key === "Enter" && inputValue.trim() && canAdd) {
             e.preventDefault();
             const existingItem = items.find(
@@ -53,10 +55,15 @@ const TypeSelector = ({
 
             if (existingItem) {
                 onChange(existingItem.id);
+                setInputValue(existingItem.name);
                 setIsOpen(false);
             } else {
-                onAdd({ name: inputValue.trim() });
-                setIsOpen(false);
+                const result = await onAdd({ name: inputValue.trim() });
+                if (result?.id) {
+                    onChange(result.id);
+                    setInputValue(inputValue.trim());
+                    setIsOpen(false);
+                }
             }
         }
     };
@@ -118,7 +125,9 @@ const TypeSelector = ({
                             : inputValue || selectedType?.name || ""
                     }
                     onChange={handleInputChange}
-                    onKeyDown={handleInputKeyDown}
+                    onKeyDown={(e) => {
+                        handleInputKeyDown(e).catch(console.error);
+                    }}
                     onFocus={() => {
                         setIsOpen(true);
                         if (selectedType && inputValue === selectedType.name) {
@@ -141,6 +150,7 @@ const TypeSelector = ({
                                 isSelected={item.id === value}
                                 canDelete={canDelete}
                                 index={i}
+                                isUsed={Boolean(item.isUsed)}
                             />
                         ))}
 
