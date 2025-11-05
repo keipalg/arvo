@@ -17,6 +17,7 @@ import TextArea from "../../../../components/input/TextArea";
 import { Switcher } from "../../../../components/button/Switcher";
 import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
+import FormLabel from "../../../../components/input/FormLabel";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -42,6 +43,7 @@ type BusinessExpense = {
     cost: number;
     payee: string;
     payment_method: "credit" | "cash";
+    selectedInventoryLossOption: "goods_loss" | "materials_loss";
     good_id: string | null;
     materialAndSupply_id: string | null;
     quantity: number;
@@ -70,6 +72,7 @@ function BusinessExpense() {
         cost: 0,
         payee: "",
         payment_method: "credit",
+        selectedInventoryLossOption: "goods_loss",
         good_id: "",
         materialAndSupply_id: "",
         quantity: 0,
@@ -472,6 +475,9 @@ function BusinessExpense() {
                         onEdit={() => {
                             setBusinessExpenseFormData({
                                 ...row,
+                                selectedInventoryLossOption: row.good_id
+                                    ? "goods_loss"
+                                    : "materials_loss",
                                 cost: Number(row.cost),
                             });
                             setDrawerOpen(true);
@@ -530,7 +536,7 @@ function BusinessExpense() {
             )}
 
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
-                <h3 className="text-2xl">Add New Operational Expense</h3>
+                <h3 className="text-2xl">Add New Expense</h3>
                 <form
                     onSubmit={(e) => {
                         handleSubmit(e);
@@ -540,7 +546,7 @@ function BusinessExpense() {
                         type="date"
                         label="Date"
                         value={
-                            businessExpenseFormData.start_date
+                            businessExpenseFormData.createdAt
                                 ? businessExpenseFormData.createdAt
                                       .toISOString()
                                       .substring(0, 10)
@@ -629,81 +635,160 @@ function BusinessExpense() {
                     {businessExpenseFormData.expense_type ==
                     "inventory_loss" ? (
                         <>
-                            <Select
-                                name="goods"
-                                label="Goods"
-                                value={businessExpenseFormData.good_id ?? ""}
-                                error={validationError.good_id}
-                                onChange={(e) => {
-                                    setBusinessExpenseFormData((prev) => ({
-                                        ...prev,
-                                        good_id: e.target.value,
-                                        materialAndSupply_id: "",
-                                        name:
-                                            goodsList?.find(
-                                                (goods) =>
-                                                    goods.id === e.target.value,
-                                            )?.name || prev.name,
-                                    }));
-                                }}
-                                options={
-                                    goodsList
-                                        ?.map((goods) => {
-                                            return {
-                                                label: goods.name,
-                                                value: goods.id,
-                                            };
-                                        })
-                                        .concat({
-                                            label: "-- Select Goods --",
-                                            value: "",
-                                        }) ?? []
-                                }
-                            />
-                            <Select
-                                name="materials"
-                                label="Materials"
-                                value={
-                                    businessExpenseFormData.materialAndSupply_id ??
-                                    ""
-                                }
-                                error={validationError.materialAndSupply_id}
-                                onChange={(e) => {
-                                    const selectedMaterial =
-                                        materialsList?.find(
-                                            (materials) =>
-                                                materials.id === e.target.value,
-                                        );
+                            <div className="flex flex-col">
+                                <FormLabel label="Inventory Loss" />
+                                <div className="flex gap-5">
+                                    <label
+                                        htmlFor="inventory_loss_option_goods_loss"
+                                        className="flex items-center gap-2"
+                                    >
+                                        <input
+                                            id="inventory_loss_option_goods_loss"
+                                            type="radio"
+                                            name="inventory_loss_option"
+                                            value="goods_loss"
+                                            checked={
+                                                businessExpenseFormData.selectedInventoryLossOption ===
+                                                "goods_loss"
+                                            }
+                                            onChange={() => {
+                                                setBusinessExpenseFormData(
+                                                    (prev) => ({
+                                                        ...prev,
+                                                        selectedInventoryLossOption:
+                                                            "goods_loss",
+                                                        materialAndSupply_id:
+                                                            "",
+                                                    }),
+                                                );
+                                            }}
+                                        />
+                                        <span>Goods Loss</span>
+                                    </label>
+                                    <label
+                                        htmlFor="inventory_loss_option_materials_loss"
+                                        className="flex items-center gap-2"
+                                    >
+                                        <input
+                                            id="inventory_loss_option_materials_loss"
+                                            type="radio"
+                                            name="inventory_loss_option"
+                                            value="materials_loss"
+                                            checked={
+                                                businessExpenseFormData.selectedInventoryLossOption ===
+                                                "materials_loss"
+                                            }
+                                            onChange={() => {
+                                                setBusinessExpenseFormData(
+                                                    (prev) => ({
+                                                        ...prev,
+                                                        selectedInventoryLossOption:
+                                                            "materials_loss",
+                                                        good_id: "",
+                                                    }),
+                                                );
+                                            }}
+                                        />
+                                        <span>Materials Loss</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {businessExpenseFormData.selectedInventoryLossOption ===
+                            "goods_loss" ? (
+                                <Select
+                                    name="goods"
+                                    label="Goods"
+                                    value={
+                                        businessExpenseFormData.good_id ?? ""
+                                    }
+                                    error={validationError.good_id}
+                                    onChange={(e) => {
+                                        setBusinessExpenseFormData((prev) => ({
+                                            ...prev,
+                                            good_id: e.target.value,
+                                            materialAndSupply_id: "",
+                                            name:
+                                                goodsList?.find(
+                                                    (goods) =>
+                                                        goods.id ===
+                                                        e.target.value,
+                                                )?.name || prev.name,
+                                        }));
+                                    }}
+                                    options={
+                                        goodsList
+                                            ?.map((goods) => {
+                                                return {
+                                                    label: goods.name,
+                                                    value: goods.id,
+                                                };
+                                            })
+                                            .concat({
+                                                label: "-- Select Goods --",
+                                                value: "",
+                                            }) ?? []
+                                    }
+                                />
+                            ) : (
+                                <Select
+                                    name="materials"
+                                    label="Materials"
+                                    value={
+                                        businessExpenseFormData.materialAndSupply_id ??
+                                        ""
+                                    }
+                                    error={validationError.materialAndSupply_id}
+                                    onChange={(e) => {
+                                        const selectedMaterial =
+                                            materialsList?.find(
+                                                (materials) =>
+                                                    materials.id ===
+                                                    e.target.value,
+                                            );
 
-                                    setBusinessExpenseFormData((prev) => ({
-                                        ...prev,
-                                        materialAndSupply_id: e.target.value,
-                                        good_id: "",
-                                        cost: selectedMaterial?.costPerUnit
-                                            ? selectedMaterial.costPerUnit *
-                                              prev.quantity
-                                            : prev.cost,
-                                        name:
-                                            selectedMaterial?.name || prev.name,
-                                    }));
-                                }}
-                                options={
-                                    materialsList
-                                        ?.map((materials) => {
-                                            return {
-                                                label: materials.name,
-                                                value: materials.id,
-                                            };
-                                        })
-                                        .concat({
-                                            label: "-- Select Material --",
-                                            value: "",
-                                        }) ?? []
-                                }
-                            />
+                                        setBusinessExpenseFormData((prev) => ({
+                                            ...prev,
+                                            materialAndSupply_id:
+                                                e.target.value,
+                                            good_id: "",
+                                            cost: selectedMaterial?.costPerUnit
+                                                ? selectedMaterial.costPerUnit *
+                                                  prev.quantity
+                                                : prev.cost,
+                                            name:
+                                                selectedMaterial?.name ||
+                                                prev.name,
+                                        }));
+                                    }}
+                                    options={
+                                        materialsList
+                                            ?.map((materials) => {
+                                                return {
+                                                    label: materials.name,
+                                                    value: materials.id,
+                                                };
+                                            })
+                                            .concat({
+                                                label: "-- Select Material --",
+                                                value: "",
+                                            }) ?? []
+                                    }
+                                />
+                            )}
                             <TextInput
                                 type="number"
-                                label="Quantity"
+                                step="0.1"
+                                label={
+                                    "Quantity: " +
+                                    (businessExpenseFormData.selectedInventoryLossOption ===
+                                    "goods_loss"
+                                        ? "(item)"
+                                        : materialsList?.find(
+                                              (m) =>
+                                                  m.id ===
+                                                  businessExpenseFormData.materialAndSupply_id,
+                                          )?.unitAbbreviation || "")
+                                }
                                 name="quantity"
                                 value={businessExpenseFormData.quantity}
                                 onChange={(e) => {
