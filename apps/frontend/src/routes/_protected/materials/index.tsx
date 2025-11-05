@@ -1,24 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
 import DataTable from "../../../components/table/DataTable";
+import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
 
-import type { inferRouterOutputs } from "@trpc/server";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import Button from "../../../components/button/Button";
-import { useEffect, useState } from "react";
-import RightDrawer from "../../../components/drawer/RightDrawer";
-import TextInput from "../../../components/input/TextInput";
-import NumberInput from "../../../components/input/NumberInput";
-import TextArea from "../../../components/input/TextArea";
-import Select from "../../../components/input/Select";
 import {
     addMaterialsValidation,
     updateMaterialsValidation,
 } from "@arvo/shared";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import type { inferRouterOutputs } from "@trpc/server";
+import { useEffect, useState } from "react";
+import InventoryStatus from "../../../components/badge/InventoryStatus";
+import Button from "../../../components/button/Button";
+import RightDrawer from "../../../components/drawer/RightDrawer";
+import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
+import NumberInput from "../../../components/input/NumberInput";
+import Select from "../../../components/input/Select";
+import TextArea from "../../../components/input/TextArea";
+import TextInput from "../../../components/input/TextInput";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
-import InventoryStatus from "../../../components/badge/InventoryStatus";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -32,7 +33,7 @@ function MaterialsList() {
     const tooltip =
         "Materials are raw items that go into direct creation of your product.";
     const [itemName, setItemName] = useState("");
-    const [typeId, setTypeId] = useState("");
+    const [materialType, setMaterialType] = useState("");
     const [quantity, setQuantity] = useState(0);
     const [minStockLevel, setMinStockLevel] = useState(0);
     const [costPerUnit, setCostPerUnit] = useState(0);
@@ -47,9 +48,6 @@ function MaterialsList() {
     );
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
-    const { data: materialTypesList } = useQuery(
-        trpc.materialTypes.list.queryOptions(),
-    );
     const { data, isLoading, error } = useQuery(
         trpc.materials.list.queryOptions(),
     );
@@ -107,7 +105,7 @@ function MaterialsList() {
 
     const resetForm = () => {
         setItemName("");
-        setTypeId("");
+        setMaterialType("");
         setQuantity(0);
         setMinStockLevel(0);
         setCostPerUnit(0);
@@ -127,7 +125,7 @@ function MaterialsList() {
     const handleEdit = (material: Materials) => {
         setEditingMaterialId(material.id);
         setItemName(material.name);
-        setTypeId(material.materialTypeId);
+        setMaterialType(material.materialTypeId);
         setQuantity(material.quantity);
         setMinStockLevel(material.threshold || 0);
         setCostPerUnit(Number(material.costPerUnit) || 0);
@@ -155,6 +153,9 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materialTypes.list.queryKey(),
+                });
             },
         }),
     );
@@ -164,6 +165,9 @@ function MaterialsList() {
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materialTypes.list.queryKey(),
                 });
                 await queryClient.invalidateQueries({
                     queryKey: trpc.notification.unreadCount.queryKey(),
@@ -190,7 +194,7 @@ function MaterialsList() {
             const result = updateMaterialsValidation.safeParse({
                 id: editingMaterialId,
                 name: itemName,
-                typeId,
+                typeId: materialType,
                 unit,
                 quantity,
                 costPerUnit,
@@ -201,13 +205,23 @@ function MaterialsList() {
             });
 
             setFormErrors({});
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                setFormErrors(errors);
+                return;
+            }
             updateMaterialMutation.mutate(result.data);
             closeDrawer();
         } else {
             // Add new material
             const result = addMaterialsValidation.safeParse({
                 name: itemName,
-                typeId,
+                typeId: materialType,
                 unit,
                 quantity,
                 costPerUnit,
@@ -288,27 +302,12 @@ function MaterialsList() {
                         onChange={(e) => setItemName(e.target.value)}
                         error={formErrors.name}
                     ></TextInput>
-                    {/* TODO be update to dynamic text input type where user can select existing types */}
-                    <Select
+                    <MaterialTypeSelector
                         label="Material Type"
-                        name="typeId"
-                        value={typeId}
-                        options={
-                            materialTypesList
-                                ? [
-                                      { value: "", label: "Select a type..." },
-                                      ...materialTypesList.map(
-                                          (typeOption) => ({
-                                              value: typeOption.id,
-                                              label: typeOption.name,
-                                          }),
-                                      ),
-                                  ]
-                                : [{ value: "", label: "Select a type..." }]
-                        }
-                        onChange={(e) => setTypeId(e.target.value)}
-                        error={formErrors.typeId}
-                    ></Select>
+                        value={materialType}
+                        onChange={setMaterialType}
+                        error={formErrors.materialType}
+                    />
                     <NumberInput
                         label="Quantity"
                         name="quantity"

@@ -1,18 +1,38 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { materialType } from "../db/schema.js";
+import { materialAndSupply, materialType } from "../db/schema.js";
 
 /**
  * Get all material types for a specific user
  * @param userId user ID
- * @returns List of material types
+ * @returns List of material types with isUsed flag
  */
 export const getMaterialTypes = async (userId: string) => {
-    return await db
-        .select()
+    const materialTypes = await db
+        .select({
+            id: materialType.id,
+            name: materialType.name,
+            userId: materialType.userId,
+            createdAt: materialType.createdAt,
+            updatedAt: materialType.updatedAt,
+            isUsed: sql<boolean>`CASE WHEN COUNT(${materialAndSupply.id}) > 0 THEN true ELSE false END`,
+        })
         .from(materialType)
-        .where(eq(materialType.userId, userId));
+        .leftJoin(
+            materialAndSupply,
+            eq(materialAndSupply.materialTypeId, materialType.id),
+        )
+        .where(eq(materialType.userId, userId))
+        .groupBy(
+            materialType.id,
+            materialType.name,
+            materialType.userId,
+            materialType.createdAt,
+            materialType.updatedAt,
+        );
+
+    return materialTypes;
 };
 
 /**
