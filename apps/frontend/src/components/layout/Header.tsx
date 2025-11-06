@@ -26,7 +26,11 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                         className="cursor-pointer sm:hidden"
                         onClick={onToggleSidebar}
                     >
-                        <img src="/icon/menu.svg" alt="Menu" />
+                        <img
+                            src="/icon/menu.svg"
+                            alt="Menu"
+                            className="w-6 h-6"
+                        />
                     </button>
                 </div>
                 <div className="flex px-2 my-auto gap-4">

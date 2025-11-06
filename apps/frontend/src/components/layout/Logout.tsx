@@ -28,8 +28,11 @@ export const LogoutButton = () => {
     // Return React component for logout button.
     return (
         <>
-            <div className="px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-80 hover:text-arvo-white-0 hover:rounded-xl cursor-pointer">
-                <img src="/icon/logout.svg" className="w-6 h-6"></img>
+            <div className="px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-50 hover:rounded-xl cursor-pointer">
+                <img
+                    src="/icon/logout.svg"
+                    className="w-8 h-8 max-sm:w-10 max-sm:h-10"
+                ></img>
                 <button
                     // Event handler
                     onClick={() => void handleLogout()}
