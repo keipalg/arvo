@@ -11,10 +11,7 @@ import TextInput from "../../../components/input/TextInput";
 import Button from "../../../components/button/Button";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
-import {
-    salesInputValidation,
-    salesUpdateValidation,
-} from "@arvo/shared";
+import { salesInputValidation, salesUpdateValidation } from "@arvo/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SalesStatus from "../../../components/badge/SalesStatus";
 import PageTitle from "../../../components/layout/PageTitle";
@@ -23,6 +20,9 @@ import SelectCustom from "../../../components/input/SelectCustom";
 import NumberInput from "../../../components/input/NumberInput";
 import DisplayValue from "../../../components/input/DisplayValue";
 import HorizontalRule from "../../../components/hr/HorizontalRule";
+import { MoreButton } from "../../../components/button/MoreButton";
+import { useIsSmUp } from "../../../utils/screenWidth";
+import SaleDetails from "../../../components/table/DataTableDetailSale";
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
 });
@@ -62,6 +62,36 @@ function SalesList() {
     const { data: nextSalesNumber } = useQuery(
         trpc.sales.nextSalesNumber.queryOptions(),
     );
+
+    const isSmUp = useIsSmUp();
+
+    const detailsRender = (row: Sales) => {
+        // replicate DataTable's default mobile-visible logic so counts match
+        const defaultMobileSet = new Set<keyof Sales>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof Sales>(
+            /* if you pass mobileVisibleKeys to DataTable, replace `undefined` below */
+            undefined || Array.from(defaultMobileSet),
+        );
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <SaleDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
+    };
+
     const columns: Array<{
         key: keyof Sales;
         header: string;
@@ -113,17 +143,13 @@ function SalesList() {
         },
         {
             key: "actions",
-            header: "Actions",
+            header: "Edit",
             render: (_value, row) => (
                 <>
-                    <div className="flex gap-2">
-                        <button
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(row)}
-                        >
-                            <img src="/icon/edit.svg"></img>
-                        </button>
-                    </div>
+                    <MoreButton
+                        onEdit={() => handleEdit(row)}
+                        onDelete={() => handleDelete(row.id)}
+                    />
                 </>
             ),
         },
@@ -435,7 +461,12 @@ function SalesList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable columns={columns} data={tabledData || []} />
+                <DataTable
+                    columns={columns}
+                    data={tabledData || []}
+                    detailRender={detailsRender}
+                    mobileVisibleKeys={["salesNumber", "totalPrice", "actions"]}
+                />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
                 <h3 className="text-2xl">
