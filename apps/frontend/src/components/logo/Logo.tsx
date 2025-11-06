@@ -5,7 +5,7 @@ const Logo = () => {
                 <img
                     src="/arvo-logo.svg"
                     alt="ARVO Logo"
-                    className="h-8 mx-auto"
+                    className="h-10 mx-auto"
                 />
             </a>
         </div>
