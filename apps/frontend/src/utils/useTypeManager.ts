@@ -9,6 +9,7 @@ import { queryClient } from "../utils/trpcClient";
 interface TypeItem {
     id: string;
     name: string;
+    isUsed?: boolean;
 }
 
 interface TypeManagerConfig {
@@ -47,7 +48,7 @@ export const useTypeManager = (config: TypeManagerConfig) => {
 
     return {
         items: items as TypeItem[],
-        addItem: addMutation.mutate,
+        addItem: addMutation.mutateAsync,
         deleteItem: deleteMutation.mutate,
         isAdding: addMutation.isPending,
         isDeleting: deleteMutation.isPending,

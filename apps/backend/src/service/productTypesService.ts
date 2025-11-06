@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { productType } from "../db/schema.js";
+import { productType, good } from "../db/schema.js";
 
 /**
  * Get all product types for a specific user
@@ -85,6 +85,12 @@ export const addProductTypes = async (userId: string, names: string[]) => {
  * @param productTypeId product type ID
  */
 export const deleteProductType = async (productTypeId: string) => {
+    const isUsed = await isProductTypeUsed(productTypeId);
+    if (isUsed) {
+        throw new Error(
+            "Cannot delete product type: it is being used by existing products",
+        );
+    }
     await db.delete(productType).where(eq(productType.id, productTypeId));
 };
 
@@ -101,4 +107,29 @@ export const updateProductType = async (
         .update(productType)
         .set({ name: name })
         .where(eq(productType.id, productTypeId));
+};
+
+// check the type is used in product or not
+export const isProductTypeUsed = async (productTypeId: string) => {
+    const goods = await db
+        .select({ id: good.id })
+        .from(good)
+        .where(eq(good.productTypeId, productTypeId))
+        .limit(1);
+    return goods.length > 0;
+};
+
+/**
+ * Get all product types with usage status for a specific user
+ * @param userId user ID
+ * @returns List of product types with isUsed flag
+ */
+export const getProductTypesWithUsage = async (userId: string) => {
+    const types = await getProductTypes(userId);
+    return Promise.all(
+        types.map(async (type) => ({
+            ...type,
+            isUsed: await isProductTypeUsed(type.id),
+        })),
+    );
 };
