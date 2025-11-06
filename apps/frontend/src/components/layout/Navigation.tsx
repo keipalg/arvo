@@ -15,6 +15,11 @@ const tabs: Tab[] = [
         icon: "/icon/dashboard.svg",
     },
     {
+        name: "My Materials",
+        path: "/materials",
+        icon: "/icon/my-materials.svg",
+    },
+    {
         name: "My Products",
         path: "/goods",
         icon: "/icon/my-products.svg",
@@ -31,11 +36,7 @@ const tabs: Tab[] = [
             },
         ],
     },
-    {
-        name: "My Materials",
-        path: "/materials",
-        icon: "/icon/my-materials.svg",
-    },
+    { name: "Sales", path: "/sales", icon: "/icon/sales.svg" },
     {
         name: "Expenses",
         path: "/expenses/usedMaterials",
@@ -53,7 +54,6 @@ const tabs: Tab[] = [
             },
         ],
     },
-    { name: "Sales", path: "/sales", icon: "/icon/sales.svg" },
 ];
 
 const Navigation = () => {
