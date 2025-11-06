@@ -45,47 +45,102 @@ export const FileInput = ({
         }
     };
 
+    const handleRemove = () => {
+        const event = {
+            target: {
+                files: [],
+            },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onChange(event);
+    };
+
     return (
         <div className="flex flex-col gap-1">
             <FormLabel label={label} />
-            <div
-                onClick={handleClick}
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                className={`border bg-arvo-white-0 rounded-xl px-2 py-6 flex items-center justify-center
+            {!file && (
+                <div
+                    onClick={handleClick}
+                    onDragEnter={handleDrag}
+                    onDragOver={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDrop={handleDrop}
+                    className={`border bg-arvo-white-0 rounded-xl border-dashed px-2 py-6 flex items-center justify-center
                     ${
                         dragActive
                             ? "border-arvo-blue-100 bg-arvo-blue-50"
                             : "border-arvo-black-5"
                     }`}
-            >
-                <input
-                    ref={inputRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={onChange}
-                />
-                <div className="flex items-center gap-2">
-                    <div>Upload the photo</div>
-                </div>
-            </div>
-            <div className="flex justify-center">
-                {file instanceof File && (
-                    <img
-                        src={URL.createObjectURL(file)}
-                        alt=""
-                        className="max-h-48 object-contain"
+                >
+                    <input
+                        ref={inputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={onChange}
                     />
+                    <div className="flex items-center gap-5">
+                        <img
+                            src="../../../public/icon/icon-Photo.svg"
+                            className="w-25 h-25"
+                        />
+                        <div className="font-semibold flex flex-col items-center">
+                            <div className="text-arvo-black-25">
+                                Drag and Drop here
+                            </div>
+                            <div className="text-arvo-black-25">or</div>
+                            <div className="text-arvo-blue-100">
+                                Browse Files
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className="flex flex-col gap-x-1 justify-center">
+                {file instanceof File && (
+                    <>
+                        <p className="text-center text-arvo-black-50">
+                            {file.name}
+                        </p>
+                        <img
+                            src={URL.createObjectURL(file)}
+                            alt=""
+                            className="max-h-48 object-contain"
+                        />
+                    </>
                 )}
                 {typeof file === "string" && (
-                    <img
-                        src={file}
-                        alt=""
-                        className="max-h-48 object-contain"
-                    />
+                    <>
+                        <img
+                            src={file}
+                            alt=""
+                            className="max-h-48 object-contain"
+                        />
+                    </>
+                )}
+                {(file instanceof File || typeof file === "string") && (
+                    <div className="flex justify-center gap-4 mt-2">
+                        <button
+                            type="button"
+                            className="text-arvo-blue-100 font-semibold"
+                            onClick={handleClick}
+                        >
+                            Replace
+                        </button>
+                        <button
+                            type="button"
+                            className="text-arvo-blue-100 font-semibold"
+                            onClick={handleRemove}
+                        >
+                            Remove
+                        </button>
+                        <input
+                            ref={inputRef}
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={onChange}
+                        />
+                    </div>
                 )}
             </div>
         </div>
