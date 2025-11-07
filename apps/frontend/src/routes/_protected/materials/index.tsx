@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import InventoryStatus from "../../../components/badge/InventoryStatus";
 import Button from "../../../components/button/Button";
 import RightDrawer from "../../../components/drawer/RightDrawer";
+import DisplayValue from "../../../components/input/DisplayValue";
 import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
 import NumberInput from "../../../components/input/NumberInput";
 import Select from "../../../components/input/Select";
@@ -37,7 +38,9 @@ function MaterialsList() {
     const [quantity, setQuantity] = useState(0);
     const [minStockLevel, setMinStockLevel] = useState(0);
     const [costPerUnit, setCostPerUnit] = useState(0);
+    const [purchasePrice, setPurchasePrice] = useState(0);
     const [unit, setUnit] = useState("");
+    const [unitAbbreviation, setUnitAbbreviation] = useState("");
     const [lastPurchaseDate, setLastPurchaseDate] = useState("");
     const [supplier, setSupplier] = useState("");
     const [notes, setNotes] = useState("");
@@ -109,7 +112,9 @@ function MaterialsList() {
         setQuantity(0);
         setMinStockLevel(0);
         setCostPerUnit(0);
+        setPurchasePrice(0);
         setUnit("");
+        setUnitAbbreviation("");
         setLastPurchaseDate("");
         setSupplier("");
         setNotes("");
@@ -128,8 +133,12 @@ function MaterialsList() {
         setMaterialType(material.materialTypeId);
         setQuantity(material.quantity);
         setMinStockLevel(material.threshold || 0);
-        setCostPerUnit(Number(material.costPerUnit) || 0);
+
+        const currentCostPerUnit = Number(material.costPerUnit) || 0;
+        setCostPerUnit(currentCostPerUnit);
+
         setUnit(material.unitName);
+        setUnitAbbreviation(material.unitAbbreviation);
         setLastPurchaseDate(
             material.lastPurchaseDate
                 ? new Date(material.lastPurchaseDate)
@@ -190,19 +199,20 @@ function MaterialsList() {
         e.preventDefault();
 
         if (editingMaterialId) {
-            // Update existing material
-            const result = updateMaterialsValidation.safeParse({
+            // Update existing material - no pricing fields sent
+            const updatePayload = {
                 id: editingMaterialId,
                 name: itemName,
                 typeId: materialType,
                 unit,
                 quantity,
-                costPerUnit,
                 minStockLevel,
                 lastPurchaseDate,
                 supplierName: supplier,
                 notes,
-            });
+            };
+
+            const result = updateMaterialsValidation.safeParse(updatePayload);
 
             setFormErrors({});
             if (!result.success) {
@@ -224,7 +234,7 @@ function MaterialsList() {
                 typeId: materialType,
                 unit,
                 quantity,
-                costPerUnit,
+                purchasePrice,
                 minStockLevel,
                 lastPurchaseDate,
                 supplierName: supplier,
@@ -256,11 +266,28 @@ function MaterialsList() {
         }
     };
 
+    // Auto-compute Cost Per Unit for Add mode
+    useEffect(() => {
+        if (!editingMaterialId && quantity > 0) {
+            const computed = purchasePrice / quantity;
+            setCostPerUnit(computed);
+        }
+    }, [purchasePrice, quantity, editingMaterialId]);
+
     useEffect(() => {
         if (unitsList && unitsList.length > 0 && !unit) {
             setUnit(unitsList[0].name);
+            setUnitAbbreviation(unitsList[0].abv);
         }
     }, [unitsList, unit]);
+
+    // Set default date to today when opening drawer for adding new material
+    useEffect(() => {
+        if (drawerOpen && !editingMaterialId && !lastPurchaseDate) {
+            const today = new Date().toISOString().split("T")[0];
+            setLastPurchaseDate(today);
+        }
+    }, [drawerOpen, editingMaterialId, lastPurchaseDate]);
 
     return (
         <BaseLayout title="Materials List">
@@ -316,8 +343,64 @@ function MaterialsList() {
                         error={formErrors.quantity}
                         min="0"
                         step="0.01"
-                        // disabled={!!editingMaterialId} // TODO - to disable later for add quantity implementation
                     ></NumberInput>
+                    <Select
+                        label="Unit"
+                        name="unit"
+                        value={unit}
+                        options={
+                            unitsList
+                                ? unitsList.map((unitsOption) => ({
+                                      value: unitsOption.name,
+                                      label: `${unitsOption.name} (${unitsOption.abv})`,
+                                  }))
+                                : []
+                        }
+                        onChange={(e) => {
+                            const selectedUnitName = e.target.value;
+                            setUnit(selectedUnitName);
+                            const selectedUnit = unitsList?.find(
+                                (u) => u.name === selectedUnitName,
+                            );
+                            if (selectedUnit) {
+                                setUnitAbbreviation(selectedUnit.abv);
+                            }
+                        }}
+                    ></Select>
+                    {/* Pricing Fields - Different for Add vs Edit mode */}
+                    {editingMaterialId ? (
+                        // Edit Mode - Show Inventory Value (dynamically computed)
+                        <DisplayValue label="Inventory Value" unit="$">
+                            {(costPerUnit * quantity).toFixed(2)}
+                        </DisplayValue>
+                    ) : (
+                        // Add Mode
+                        <>
+                            <NumberInput
+                                label="Purchase Price"
+                                name="purchasePrice"
+                                value={purchasePrice}
+                                onChange={(e) =>
+                                    setPurchasePrice(Number(e.target.value))
+                                }
+                                error={formErrors.purchasePrice}
+                                min="0"
+                                step="0.01"
+                                unit="$"
+                            />
+                        </>
+                    )}
+                    <DisplayValue label="Cost Per Unit" unit={unitAbbreviation}>
+                        {costPerUnit.toFixed(2)}
+                    </DisplayValue>
+                    <TextInput
+                        label="Last Purchase Date"
+                        type="date"
+                        name="lastPurchaseDate"
+                        value={lastPurchaseDate}
+                        onChange={(e) => setLastPurchaseDate(e.target.value)}
+                        error={formErrors.lastPurchaseDate}
+                    ></TextInput>
                     <NumberInput
                         label="Min. Stock Level"
                         name="minStockLevel"
@@ -328,23 +411,6 @@ function MaterialsList() {
                         error={formErrors.minStockLevel}
                         min="0"
                     ></NumberInput>
-                    <NumberInput
-                        label="Unit Price"
-                        name="costPerUnit"
-                        value={costPerUnit}
-                        onChange={(e) => setCostPerUnit(Number(e.target.value))}
-                        error={formErrors.costPerUnit}
-                        min="0"
-                        step="0.01"
-                    ></NumberInput>
-                    <TextInput
-                        label="Last Purchase Date"
-                        type="date"
-                        name="lastPurchaseDate"
-                        value={lastPurchaseDate}
-                        onChange={(e) => setLastPurchaseDate(e.target.value)}
-                        error={formErrors.lastPurchaseDate}
-                    ></TextInput>
                     <TextInput
                         label="Supplier"
                         name="supplier"
@@ -358,20 +424,6 @@ function MaterialsList() {
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                     ></TextArea>
-                    <Select
-                        label="Unit"
-                        name="unit"
-                        value={unit}
-                        options={
-                            unitsList
-                                ? unitsList.map((unitsOption) => ({
-                                      value: unitsOption.name,
-                                      label: `${unitsOption.name} (${unitsOption.abv})`,
-                                  }))
-                                : []
-                        }
-                        onChange={(e) => setUnit(e.target.value)}
-                    ></Select>
                     <div className="flex gap-2">
                         {editingMaterialId && (
                             <Button

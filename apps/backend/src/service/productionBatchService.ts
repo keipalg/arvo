@@ -72,7 +72,7 @@ export const processProductionBatch = async (
     input: ProductionBatchInput,
     userId: string,
 ) => {
-    return await db.transaction(async () => {
+    return await db.transaction(async (tx) => {
         const productionBatchData = await addProductionBatch({
             id: "",
             goodId: input.goodId,
@@ -88,6 +88,7 @@ export const processProductionBatch = async (
                 material.materialId,
                 userId,
                 material.amount,
+                tx,
             );
         }
 
