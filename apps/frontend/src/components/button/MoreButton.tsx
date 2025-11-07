@@ -2,10 +2,10 @@ import { useState } from "react";
 
 export const MoreButton = ({
     onEdit,
-    onDelete,
+    onDeleteModal,
 }: {
     onEdit?: () => void;
-    onDelete?: () => void;
+    onDeleteModal?: () => void;
 }) => {
     const [isClicked, setIsClicked] = useState(false);
     return (
@@ -32,7 +32,7 @@ export const MoreButton = ({
                 </button>
                 <button
                     className="flex gap-1 p-3 items-center text-arvo-red-100 hover:bg-gray-200 rounded"
-                    onClick={onDelete}
+                    onClick={onDeleteModal}
                 >
                     <img
                         src="/icon/delete.svg"
