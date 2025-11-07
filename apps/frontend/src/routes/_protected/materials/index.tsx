@@ -62,20 +62,13 @@ function MaterialsList() {
             row: Materials,
         ) => React.ReactNode;
     }> = [
-        { key: "materialType", header: "Type" },
-        { key: "name", header: "Item" },
+        { key: "name", header: "Material Item" },
+        { key: "materialType", header: "Material Type" },
         { key: "formattedQuantity", header: "Quantity" },
         {
             key: "costPerUnit",
             header: "Unit Price",
             render: (value) => <>${Number(value).toFixed(2)}</>,
-        },
-        {
-            key: "lastPurchaseDate",
-            header: "Last Purchase Date",
-            render: (value) => (
-                <>{new Date(value as Date).toLocaleDateString()}</>
-            ),
         },
         {
             key: "status",
@@ -151,7 +144,38 @@ function MaterialsList() {
         setDrawerOpen(true);
     };
 
-    const tabledData = data?.map((element) => ({
+    const sortByStockStatus = (
+        materials: typeof data,
+        sortOrder: "asc" | "desc" = "asc",
+    ) => {
+        if (!materials) return materials;
+
+        const statusOrder = {
+            outOfStock: 0,
+            lowStock: 1,
+            sufficient: 2,
+        };
+
+        return materials.slice().sort((a, b) => {
+            let statusA = statusOrder[a.status as keyof typeof statusOrder];
+            if (statusA === undefined) {
+                console.log(`Status not found: "${a.status}", assigning 3`);
+                statusA = 3;
+            }
+
+            let statusB = statusOrder[b.status as keyof typeof statusOrder];
+            if (statusB === undefined) {
+                console.log(`Status not found: "${b.status}", assigning 3`);
+                statusB = 3;
+            }
+
+            return sortOrder === "asc" ? statusA - statusB : statusB - statusA;
+        });
+    };
+
+    const sortedData = sortByStockStatus(data, "asc");
+
+    const tabledData = sortedData?.map((element) => ({
         ...element,
         actions: "",
     }));
