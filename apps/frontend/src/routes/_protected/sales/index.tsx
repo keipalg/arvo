@@ -491,6 +491,7 @@ function SalesList() {
                         <Select
                             label="Channel"
                             name="channelId"
+                            style="top-3/5"
                             value={channelId}
                             options={
                                 channels

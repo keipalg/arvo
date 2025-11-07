@@ -114,9 +114,9 @@ const TypeSelector = ({
     }, [selectedType, isOpen, inputValue]);
 
     return (
-        <div>
+        <div className="pt-3">
             <FormLabel label={label} />
-            <div ref={selectorRef} className="relative">
+            <div ref={selectorRef} className="relative pt-1.5">
                 <input
                     type="text"
                     value={

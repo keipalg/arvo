@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { usePriceSuggestion } from "../../utils/usePriceSuggestion";
-import Button from "../button/Button";
+import WhiteRoundButton from "../button/WhiteRoundButton.tsx";
 
 interface PriceSuggestion {
     suggestedPrice: number;
-    priceRange: { min: number; max: number };
-    reasoning: string;
-    marketInsights: string;
 }
 
 interface Props {
@@ -60,30 +57,31 @@ export const PriceSuggestionWidget: React.FC<Props> = ({
     }, [shouldReset]);
 
     return (
-        <div className="bg-blue-50">
-            <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium">AI Price Suggestion</span>
-                <Button
+        <div className="flex grow flex-3 gap-y-1.5 flex-wrap items-center gap-2 sm:flex-2">
+            <div className="flex items-center gap-2 ">
+                <WhiteRoundButton
                     onClick={() => {
                         handleGetSuggestion().catch(console.error);
                     }}
-                    value={isLoading ? "Analyzing..." : "Get Suggestion"}
+                    value={
+                        isLoading ? "Analyzing..." : "Get AI Suggested Price"
+                    }
                     disabled={!canSuggest}
+                    icon={
+                        !canSuggest
+                            ? "../../../public/icon/ai-black.svg"
+                            : "../../../public/icon/ai-blue.svg"
+                    }
                 />
             </div>
 
             {suggestion && (
-                <div className="text-sm space-y-1">
-                    <div className="font-semibold text-green-700">
-                        Suggested: ${suggestion.suggestedPrice.toFixed(2)}
-                    </div>
-                    <div className="text-gray-600">
-                        Range: ${suggestion.priceRange.min.toFixed(2)} - $
-                        {suggestion.priceRange.max.toFixed(2)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                        {suggestion.reasoning}
-                    </div>
+                <div className=" text-arvo-black-100">
+                    Suggested Price:{" "}
+                    <span className="font-semibold">
+                        {" "}
+                        ${suggestion.suggestedPrice.toFixed(2)}
+                    </span>
                 </div>
             )}
 

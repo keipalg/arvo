@@ -88,7 +88,7 @@ export const FileInput = ({
                                 Drag and Drop here
                             </div>
                             <div className="text-arvo-black-25">or</div>
-                            <div className="text-arvo-blue-100">
+                            <div className="text-arvo-blue-100 cursor-pointer">
                                 Browse Files
                             </div>
                         </div>
@@ -121,14 +121,14 @@ export const FileInput = ({
                     <div className="flex justify-center gap-4 mt-2">
                         <button
                             type="button"
-                            className="text-arvo-blue-100 font-semibold"
+                            className="text-arvo-blue-100 font-semibold cursor-pointer"
                             onClick={handleClick}
                         >
                             Replace
                         </button>
                         <button
                             type="button"
-                            className="text-arvo-blue-100 font-semibold"
+                            className="text-arvo-blue-100 font-semibold cursor-pointer"
                             onClick={handleRemove}
                         >
                             Remove

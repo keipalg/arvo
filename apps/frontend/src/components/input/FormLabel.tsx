@@ -7,7 +7,7 @@ const FormLabel = ({ label, required }: FormLabelProps) => {
     return (
         <>
             {label && (
-                <label className="font-semibold">
+                <label className="font-semibold pt-3 pb-1.5">
                     {label}
                     {required && <span>*</span>}
                 </label>

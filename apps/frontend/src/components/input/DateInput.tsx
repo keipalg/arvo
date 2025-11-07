@@ -10,7 +10,7 @@ export const DateInput = ({
     label: string;
 }) => {
     return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 pb-2">
             <FormLabel label={label} />
             <input
                 type="date"

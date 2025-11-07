@@ -45,7 +45,7 @@ const SelectCustom = <T extends string | number>({
     return (
         <div>
             <FormLabel label={label} />
-            <div ref={selectRef} className="relative">
+            <div ref={selectRef} className="relative ">
                 <button
                     type="button"
                     role="combobox"

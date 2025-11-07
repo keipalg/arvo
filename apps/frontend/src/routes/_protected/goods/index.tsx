@@ -12,12 +12,14 @@ import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
 import PageTitle from "../../../components/layout/PageTitle.tsx";
+import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
+import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
+import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
 
 import {
     getOverheadCostPerUnit,
     getCOGS,
     getNetProfitMargin,
-    getSalePrice,
     calculateMaterialCost,
     calculateTotalMaterialCost,
 } from "../../../utils/pricing.ts";
@@ -27,6 +29,7 @@ import NumberInput from "../../../components/input/NumberInput.tsx";
 import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
 import { FileInput } from "../../../components/input/FileInput.tsx";
 import { uploadFile } from "../../../utils/fileUpload.ts";
+import FormLabel from "../../../components/input/FormLabel.tsx";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -81,12 +84,12 @@ function GoodsList() {
     const [netProfitMargin, setNetProfitMargin] = useState(0);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [materials, setMaterials] = useState<Materials[]>([]);
-    const [suggestedPrice, setSuggestedPrice] = useState(0);
     const [editingGoodId, setEditingGoodId] = useState<string | null>(null);
     const [canSuggest, setCanSuggest] = useState(false);
     const [productImage, setProductImage] = useState<File | string | null>(
         null,
     );
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
@@ -188,13 +191,13 @@ function GoodsList() {
         setFormErrors({});
         setMcpu(0);
         setNetProfitMargin(0);
-        setSuggestedPrice(0);
         setCanSuggest(false);
         setProductImage(null);
     };
 
     const closeDrawer = () => {
         setDrawerOpen(false);
+        setDeleteError(null);
         resetForm();
     };
 
@@ -315,6 +318,10 @@ function GoodsList() {
             const totalCost = calculateTotalMaterialCost(updatedMaterials);
             setMcpu(totalCost);
 
+            if (totalCost === 0) {
+                setCanSuggest(false);
+            }
+
             return updatedMaterials;
         });
     };
@@ -325,6 +332,12 @@ function GoodsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.list.queryKey(),
                 });
+                setDeleteError(null);
+            },
+            onError: () => {
+                setDeleteError(
+                    "You can't delete. This record have been used in sales record.",
+                );
             },
         }),
     );
@@ -337,6 +350,8 @@ function GoodsList() {
             productImageUrl = await uploadFile(productImage);
         } else if (typeof productImage === "string") {
             productImageUrl = productImage;
+        } else if (editingGoodId && productImage === undefined) {
+            productImageUrl = "";
         }
 
         // Update existing good
@@ -412,10 +427,16 @@ function GoodsList() {
         }
     };
 
+    const handleAddGood = () => {
+        setDrawerOpen(true);
+        addMaterialRow();
+        setEditingGoodId("");
+    };
+
     const handleDelete = (id: string) => {
         if (window.confirm("Are you sure you want to delete this good?")) {
+            setDeleteError(null);
             deleteGoodMutation.mutate({ id });
-            closeDrawer();
         }
     };
 
@@ -434,8 +455,8 @@ function GoodsList() {
             setNote("");
             setMinimumStockLevel(0);
             setMcpu(0);
-            setMaterials([]);
             setProductImage(null);
+            addMaterialRow();
         } else {
             // Existing product editing
             setEditingGoodId(good.id);
@@ -502,16 +523,6 @@ function GoodsList() {
     }, [retailPrice, cogs]);
 
     useEffect(() => {
-        setSuggestedPrice(
-            getSalePrice(
-                cogs,
-                userPreference?.[0]?.operatingCostPercentage,
-                userPreference?.[0]?.profitPercentage,
-            ),
-        );
-    }, [cogs]);
-
-    useEffect(() => {
         if (productType && mcpu > 0) {
             setCanSuggest(true);
             console.log(canSuggest);
@@ -525,7 +536,7 @@ function GoodsList() {
                 <Button
                     value="Add Product"
                     icon="/icon/plus.svg"
-                    onClick={() => setDrawerOpen(true)}
+                    onClick={() => handleAddGood()}
                 ></Button>
             </div>
             {isLoading && <div>Loading...</div>}
@@ -534,7 +545,6 @@ function GoodsList() {
                 <DataTable columns={columns} data={tabledData || []} />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
-                <h3 className="text-2xl">Product Information</h3>
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -544,211 +554,197 @@ function GoodsList() {
                         label="Product Image"
                         file={productImage || undefined}
                         onChange={(e) =>
-                            setProductImage(e.target.files?.[0] ?? null)
+                            setProductImage(e.target.files?.[0] ?? undefined)
                         }
                     />
-                    <TextInput
-                        label="Product Name"
-                        name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        error={formErrors.name}
-                    ></TextInput>
-
-                    <ProductTypeSelector
-                        label="Product Type"
-                        value={productType}
-                        onChange={setProductType}
-                        error={formErrors.productType}
-                    />
-
-                    <NumberInput
-                        label="Stock Level"
-                        value={inventoryQuantity}
-                        min="0"
-                        step="1"
-                        required={true}
-                        onChange={(e) =>
-                            setInventoryQuantity(Number(e.target.value))
-                        }
-                        error={formErrors.inventoryQuantity}
-                    ></NumberInput>
-                    <NumberInput
-                        label="Min. Stock Level"
-                        min="0"
-                        step="1"
-                        value={minimumStockLevel}
-                        onChange={(e) =>
-                            setMinimumStockLevel(Number(e.target.value))
-                        }
-                        error={formErrors.minimumStockLevel}
-                    ></NumberInput>
-
-                    <h4 className="font-semibold">Recipe Per Item</h4>
-                    {!editingGoodId ? (
-                        <Button
-                            type="button"
-                            value="Add Material"
-                            onClick={addMaterialRow}
-                        ></Button>
-                    ) : (
-                        ""
-                    )}
-                    {materials.map((row, index) => (
-                        <div
-                            key={index}
-                            className="sm:flex gap-y-2 justify-between items-center"
-                        >
-                            <Select
-                                label="Material"
-                                value={row.materialId}
-                                options={[
-                                    { value: "", label: "" },
-                                    ...(materialList?.map((material) => ({
-                                        value: material.id,
-                                        label: material.name,
-                                    })) || []),
-                                ]}
-                                disabled={!editingGoodId ? false : true}
-                                onChange={(e) =>
-                                    updateMaterialRow(
-                                        index,
-                                        "materialId",
-                                        e.target.value,
-                                    )
-                                }
-                            />
-
-                            <NumberInput
-                                label="Amount"
-                                value={row.amount}
-                                step="0.50"
-                                min="0.00"
-                                unit={row.unitAbbreviation}
-                                disabled={!editingGoodId ? false : true}
-                                onChange={(e) =>
-                                    updateMaterialRow(
-                                        index,
-                                        "amount",
-                                        Number(e.target.value),
-                                    )
-                                }
-                            ></NumberInput>
-
-                            {!editingGoodId ? (
-                                <button
-                                    type="button"
-                                    onClick={() => removeMaterialRow(index)}
+                    <div className="grid grid-cols-2 gap-2">
+                        <TextInput
+                            label="Product Name"
+                            name="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            error={formErrors.name}
+                        ></TextInput>
+                        <ProductTypeSelector
+                            label="Product Type"
+                            value={productType}
+                            onChange={setProductType}
+                            error={formErrors.productType}
+                        />
+                        <NumberInput
+                            label="Stock Level"
+                            value={inventoryQuantity}
+                            min="0"
+                            step="1"
+                            required={true}
+                            onChange={(e) =>
+                                setInventoryQuantity(Number(e.target.value))
+                            }
+                            error={formErrors.inventoryQuantity}
+                        ></NumberInput>
+                        <NumberInput
+                            label="Min. Stock Level"
+                            min="0"
+                            step="1"
+                            value={minimumStockLevel}
+                            onChange={(e) =>
+                                setMinimumStockLevel(Number(e.target.value))
+                            }
+                            error={formErrors.minimumStockLevel}
+                        ></NumberInput>
+                        <div className="col-span-2 grid gap-2">
+                            <FormLabel label="Material per Item" />
+                            {materials.map((row, index) => (
+                                <div
+                                    key={index}
+                                    className="col-span-2 grid grid-cols-2 gap-1.5"
                                 >
-                                    <img
-                                        src="/icon/close.svg"
-                                        alt="Close"
-                                        className="w-4 cursor-pointer"
+                                    <Select
+                                        value={row.materialId}
+                                        options={[
+                                            { value: "", label: "" },
+                                            ...(materialList?.map(
+                                                (material) => ({
+                                                    value: material.id,
+                                                    label: material.name,
+                                                }),
+                                            ) || []),
+                                        ]}
+                                        disabled={!editingGoodId ? false : true}
+                                        style="top-1/3"
+                                        onChange={(e) =>
+                                            updateMaterialRow(
+                                                index,
+                                                "materialId",
+                                                e.target.value,
+                                            )
+                                        }
                                     />
-                                </button>
+                                    <div className=" grid grid-cols-[85%_15%] gap-2">
+                                        <WeightWithUnit
+                                            value={row.amount}
+                                            step="0.50"
+                                            min="0.00"
+                                            unit={row.unitAbbreviation}
+                                            disabled={
+                                                !editingGoodId ? false : true
+                                            }
+                                            onChange={(e) =>
+                                                updateMaterialRow(
+                                                    index,
+                                                    "amount",
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                        ></WeightWithUnit>
+                                        {!editingGoodId ? (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeMaterialRow(index)
+                                                }
+                                            >
+                                                <img
+                                                    src="/icon/close.svg"
+                                                    alt="Close"
+                                                    className="w-4  cursor-pointer pb-2"
+                                                />
+                                            </button>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            {!editingGoodId ? (
+                                <UnderLinedButton
+                                    type="button"
+                                    value="Add Material"
+                                    icon="../../../../public/icon/plus-blue.svg"
+                                    onClick={addMaterialRow}
+                                ></UnderLinedButton>
                             ) : (
                                 ""
                             )}
                         </div>
-                    ))}
-                    <NumberInput
-                        label="Price (per Item)"
-                        value={retailPrice}
-                        onChange={(e) => setRetailPrice(Number(e.target.value))}
-                        step="0.50"
-                        unit="$"
-                        error={formErrors.retailPrice}
-                        min="0"
-                    ></NumberInput>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <NumberInput
+                            label="Unit Price"
+                            value={retailPrice}
+                            onChange={(e) =>
+                                setRetailPrice(Number(e.target.value))
+                            }
+                            step="0.50"
+                            unit="$"
+                            error={formErrors.retailPrice}
+                            min="0"
+                        ></NumberInput>
+                    </div>
                     {userPreference ? (
-                        <PriceSuggestionWidget
-                            productType={productType}
-                            materialCost={mcpu}
-                            laborCost={userPreference?.[0].laborCost}
-                            overheadCost={overheadCost}
-                            operationalCost={
-                                userPreference[0].operatingCostPercentage
-                            }
-                            profitMarginPreference={
-                                userPreference[0].profitPercentage
-                            }
-                            canSuggest={canSuggest}
-                            shouldReset={!drawerOpen}
-                        />
+                        <div className="py-3">
+                            <PriceSuggestionWidget
+                                productType={productType}
+                                materialCost={mcpu}
+                                laborCost={userPreference?.[0].laborCost}
+                                overheadCost={overheadCost}
+                                operationalCost={
+                                    userPreference[0].operatingCostPercentage
+                                }
+                                profitMarginPreference={
+                                    userPreference[0].profitPercentage
+                                }
+                                canSuggest={canSuggest}
+                                shouldReset={!drawerOpen}
+                            />
+                        </div>
                     ) : (
                         ""
                     )}
-                    <p className="font-semibold">
-                        Suggested Price:$
-                        {!suggestedPrice
-                            ? "0.00"
-                            : suggestedPrice.toFixed(2)}{" "}
-                    </p>
-                    <p>
-                        {" "}
-                        * Based on profit percentage in user setting:
-                        {userPreference?.[0].profitPercentage
-                            ? userPreference[0].profitPercentage * 100
-                            : "0.00"}
-                        %
-                    </p>
-                    <h4 className="font-semibold">Cost Breakdown per Item</h4>
-                    <ul>
-                        <li>
-                            1️⃣Total Material Cost: $
-                            {!mcpu ? "0.00" : mcpu.toFixed(2)}
-                        </li>
-                        <li>
-                            2️⃣Labor Cost : $
-                            {userPreference?.[0].laborCost
-                                ? userPreference[0].laborCost.toFixed(2)
-                                : "0.00"}
-                        </li>
-                        <li>
-                            3️⃣Overhead Cost : $
-                            {!overheadCost ? "0.00" : overheadCost.toFixed(2)}
-                        </li>
-                        ----
-                        <li>
-                            COGS（1️⃣+2️⃣+3️⃣） : $
-                            {!cogs ? "0.00" : cogs.toFixed(2)}
-                        </li>
-                        <li>
-                            Operational Cost : $
-                            {userPreference?.[0].operatingCostPercentage
-                                ? userPreference[0].operatingCostPercentage.toFixed(
-                                      2,
-                                  )
-                                : "0.00"}
-                        </li>
-                        ----
-                        <li>
-                            Net Profit Margin :
-                            {!netProfitMargin
-                                ? "0.00"
-                                : netProfitMargin.toFixed(2)}
-                            %
-                        </li>
-                    </ul>
-
-                    <TextArea
-                        label="Notes"
-                        name="notes"
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                    ></TextArea>
-
-                    <div
-                        className={`grid ${editingGoodId && "grid-cols-2 gap-2"}`}
-                    >
-                        {editingGoodId && (
-                            <Button
-                                type="button"
-                                value="Delete"
-                                onClick={() => handleDelete(editingGoodId)}
-                            />
-                        )}
-                        <Button type="submit" value="Save"></Button>
+                    <div className="grid col-auto gap-3">
+                        <CostBreakDown
+                            mor={!mcpu ? "0.00" : mcpu.toFixed(2)}
+                            cogs={!cogs ? "0.00" : cogs.toFixed(2)}
+                            operatingCosts={
+                                userPreference?.[0].operatingCostPercentage
+                                    ? userPreference[0].operatingCostPercentage.toFixed(
+                                          2,
+                                      )
+                                    : "0.00"
+                            }
+                            profitMargin={
+                                !netProfitMargin
+                                    ? "0.00"
+                                    : netProfitMargin.toFixed(2)
+                            }
+                        />
+                        <TextArea
+                            label="Notes"
+                            name="notes"
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                        ></TextArea>
+                        <div
+                            className={`grid ${editingGoodId && "grid-cols-2 gap-2"}`}
+                        >
+                            {editingGoodId && (
+                                <div className="grid">
+                                    {deleteError && (
+                                        <div className="mb-1 p-2 text-red-700 rounded">
+                                            {deleteError}
+                                        </div>
+                                    )}
+                                    <Button
+                                        type="button"
+                                        value="Delete"
+                                        onClick={() =>
+                                            handleDelete(editingGoodId)
+                                        }
+                                    />
+                                </div>
+                            )}
+                            <Button type="submit" value="Save"></Button>
+                        </div>
                     </div>
                 </form>
             </RightDrawer>
