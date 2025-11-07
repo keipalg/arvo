@@ -1,11 +1,13 @@
-const DeleteConfirmationModal = ({
+const ConfirmationModal = ({
+    confirmationMessage,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
-    onDelete,
+    onConfirm,
 }: {
+    confirmationMessage: string;
     isDeleteModalOpen: boolean;
     setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    onDelete: () => void;
+    onConfirm: () => void;
 }) => {
     return (
         <>
@@ -17,7 +19,7 @@ const DeleteConfirmationModal = ({
                     <div className="bg-arvo-red-50 border-2 border-arvo-red-100 rounded-2xl shadow-lg w-full max-w-md">
                         <div className="p-6">
                             <h2 className="text-xl font-semibold mb-4 text-center">
-                                Are you sure you want to delete?
+                                {confirmationMessage}
                             </h2>
                             <div className="flex justify-center space-x-4">
                                 <button
@@ -29,11 +31,11 @@ const DeleteConfirmationModal = ({
                                 <button
                                     className="px-4 py-2 bg-arvo-blue-100 text-arvo-black-5 rounded-2xl border border-arvo-blue-100 w-30"
                                     onClick={() => {
-                                        onDelete();
+                                        onConfirm();
                                         setIsDeleteModalOpen(false);
                                     }}
                                 >
-                                    Delete
+                                    Confirm
                                 </button>
                             </div>
                         </div>
@@ -43,4 +45,4 @@ const DeleteConfirmationModal = ({
         </>
     );
 };
-export default DeleteConfirmationModal;
+export default ConfirmationModal;

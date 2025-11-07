@@ -20,7 +20,7 @@ import { MoreButton } from "../../../../components/button/MoreButton";
 import FormLabel from "../../../../components/input/FormLabel";
 import { FileInput } from "../../../../components/input/FileInput";
 import { uploadFile } from "../../../../utils/fileUpload";
-import DeleteConfirmationModal from "../../../../components/modal/DeleteConfirmationModal";
+import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -98,7 +98,8 @@ function BusinessExpense() {
     const [selectedItemForDeletion, setSelectedItemForDeletion] = useState<{
         id: string;
         expense_category: string;
-    }>({ id: "", expense_category: "" });
+        name: string;
+    }>({ id: "", expense_category: "", name: "" });
     const [dueDateOptions, setDueDateOptions] = useState<
         { label: string; value: string }[]
     >([]);
@@ -536,6 +537,7 @@ function BusinessExpense() {
                             setSelectedItemForDeletion({
                                 expense_category: row.expense_category,
                                 id: row.id,
+                                name: row.name,
                             });
                         }}
                     />
@@ -553,10 +555,11 @@ function BusinessExpense() {
 
     return (
         <BaseLayout title="Business Expenses List">
-            <DeleteConfirmationModal
+            <ConfirmationModal
+                confirmationMessage={`Are you sure you want to delete "${selectedItemForDeletion.name}"?`}
                 isDeleteModalOpen={isDeleteModalOpen}
                 setIsDeleteModalOpen={setIsDeleteModalOpen}
-                onDelete={() =>
+                onConfirm={() =>
                     handleDelete(
                         selectedItemForDeletion.expense_category,
                         selectedItemForDeletion.id,
