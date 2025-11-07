@@ -5,8 +5,8 @@ type ButtonProps = {
     icon?: string;
     disabled?: boolean;
 };
-// TODO: Hovering styling for delete button
-const Button = ({
+
+const UnderLinedButton = ({
     value,
     type = "button",
     onClick,
@@ -16,8 +16,7 @@ const Button = ({
     return (
         <button
             type={type}
-            className={`group rounded-2xl px-6 py-3.5 bg-arvo-blue-100 hover:bg-arvo-blue-50 text-arvo-white-0 hover:text-arvo-black-100 cursor-pointer flex items-center gap-2 justify-center disabled:bg-arvo-black-5 disabled:not-hover: disabled:text-arvo-black-100
-                ${value == "Delete" && "bg-arvo-red-50 border-2 border-arvo-red-100 !text-arvo-red-100 hover:bg-arvo-red-20"}`}
+            className="group ro  text-arvo-blue-100 hover:cursor-pointer flex items-center border-b-1 w-28"
             onClick={onClick}
             disabled={disabled}
         >
@@ -25,7 +24,7 @@ const Button = ({
                 <img
                     src={icon}
                     alt=""
-                    className="h-[1em] w-auto brightness-0 invert group-hover:brightness-100 group-hover:invert-0"
+                    className="h-[1em] mr-1.5 fill-arvo-blue-100 w-auto group-hover:cursor-pointer"
                 />
             )}
             {value}
@@ -33,4 +32,4 @@ const Button = ({
     );
 };
 
-export default Button;
+export default UnderLinedButton;

@@ -4,11 +4,13 @@ import FormLabel from "./FormLabel";
 type Option = {
     value: string;
     label: string;
+    style?: string;
 };
 
 type SelectProps = BaseInputProps & {
     name?: string;
     value: string;
+    style?: string;
     options?: Option[];
     optgroup?: {
         optGroupLabel: string;
@@ -28,12 +30,13 @@ const Select = ({
     disabled,
     onChange,
     error,
+    style,
 }: SelectProps) => {
     return (
-        <div className="flex flex-col">
+        <div className="relative flex flex-col">
             <FormLabel label={label} />
             <select
-                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 disabled:bg-arvo-black-5 disabled:cursor-not-allowed outline-none`}
+                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 disabled:bg-arvo-black-5 disabled:cursor-not-allowed outline-none appearance-none`}
                 name={name}
                 value={value}
                 onChange={onChange}
@@ -66,6 +69,14 @@ const Select = ({
                           </optgroup>
                       ))}
             </select>
+            <div
+                className={`absolute right-3  ${style ? style : "top-4/6"} pointer-events-none`}
+            >
+                <img
+                    src="../../../../public/icon/alt-arrow-down.svg "
+                    className="w-4 h-4 text-gray-500"
+                />
+            </div>
             {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
     );

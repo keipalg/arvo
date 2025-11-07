@@ -24,7 +24,7 @@ const TextInput = ({
     onChange,
 }: TextInputProps) => {
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pb-2">
             <FormLabel label={label} required={required} />
             <input
                 type={type}
