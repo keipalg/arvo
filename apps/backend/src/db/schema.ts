@@ -518,6 +518,18 @@ export const materialAndSupply = pgTable(
             scale: 2,
             mode: "number",
         }).notNull(),
+        // Bulk purchase price
+        purchasePrice: numeric("purchase_price", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        // Bulk purchase quantity
+        purchaseQuantity: numeric("purchase_quantity", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }),
         costPerUnit: numeric("cost_per_unit", {
             precision: 12,
             scale: 2,
@@ -554,6 +566,35 @@ export const materialAndSupplyToUnit = relations(
             references: [unit.id],
         }),
     }),
+);
+
+export const materialInventoryTransaction = pgTable(
+    "material_inventory_transaction",
+    {
+        id: uuid("id").primaryKey(),
+        materialId: uuid("material_id")
+            .notNull()
+            .references(() => materialAndSupply.id, { onDelete: "cascade" }),
+        userId: uuid("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        quantityChange: numeric("quantity_change", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        quantityBefore: numeric("quantity_before", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        quantityAfter: numeric("quantity_after", {
+            precision: 12,
+            scale: 2,
+            mode: "number",
+        }).notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+    },
 );
 
 export const notification = pgTable("notification", {

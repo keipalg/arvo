@@ -1,10 +1,31 @@
 import { and, eq, type InferInsertModel } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
-import { materialAndSupply, materialType, unit } from "../db/schema.js";
+import {
+    materialAndSupply,
+    materialInventoryTransaction,
+    materialType,
+    unit,
+} from "../db/schema.js";
 import { getQuantityWithUnit } from "../utils/materialsUtil.js";
 import { getStatus } from "src/utils/inventoryUtil.js";
 import { createMaterialLowInventoryNotification } from "./notificationsService.js";
+
+/**
+ * Compute cost per unit
+ * @param purchasePrice Total purchase price
+ * @param quantity Quantity purchased
+ * @returns Cost per unit
+ */
+const computeCostPerUnit = (
+    purchasePrice: number,
+    quantity: number,
+): number => {
+    if (quantity === 0) {
+        throw new Error("Quantity cannot be zero when computing cost per unit");
+    }
+    return purchasePrice / quantity;
+};
 
 /**
  * Get list of materials for a specific user
@@ -22,6 +43,8 @@ export const getMaterialsList = async (userId: string) => {
             unitAbbreviation: unit.abbreviation,
             quantity: materialAndSupply.quantity,
             costPerUnit: materialAndSupply.costPerUnit,
+            purchasePrice: materialAndSupply.purchasePrice,
+            purchaseQuantity: materialAndSupply.purchaseQuantity,
             lastPurchaseDate: materialAndSupply.lastPurchaseDate,
             supplier: materialAndSupply.supplier,
             notes: materialAndSupply.notes,
@@ -77,31 +100,62 @@ export const deleteMaterial = async (materialId: string) => {
         .where(eq(materialAndSupply.id, materialId));
 };
 
-export type MaterialInsert = InferInsertModel<typeof materialAndSupply>;
+// Exclude costPerUnit from insert type since it's auto-computed
+export type MaterialInsert = Omit<
+    InferInsertModel<typeof materialAndSupply>,
+    "costPerUnit"
+> & {
+    purchasePrice: number; // Make purchasePrice required for inserts (needed to compute costPerUnit)
+};
 /**
  * Add a new material to the database
  * For Materials page
- * @param data MaterialInsert data
+ * @param data MaterialInsert data (must include purchasePrice and quantity)
  * @returns Inserted material ID
  */
 export const addMaterial = async (data: MaterialInsert) => {
     try {
-        return await db
-            .insert(materialAndSupply)
-            .values({
+        // Compute cost per unit from purchasePrice and quantity
+        const costPerUnit = computeCostPerUnit(
+            data.purchasePrice!,
+            data.quantity,
+        );
+
+        return await db.transaction(async (tx) => {
+            const materialId = uuidv7();
+
+            // Insert material
+            const [insertedMaterial] = await tx
+                .insert(materialAndSupply)
+                .values({
+                    id: materialId,
+                    userId: data.userId,
+                    name: data.name,
+                    materialTypeId: data.materialTypeId,
+                    unitId: data.unitId,
+                    quantity: data.quantity,
+                    purchasePrice: data.purchasePrice,
+                    purchaseQuantity: data.quantity, // Set purchaseQuantity same as quantity on initial add
+                    costPerUnit: costPerUnit,
+                    lastPurchaseDate: data.lastPurchaseDate,
+                    supplier: data.supplier,
+                    notes: data.notes,
+                    threshold: data.threshold,
+                })
+                .returning({ id: materialAndSupply.id });
+
+            // Record transaction for initial stock
+            await tx.insert(materialInventoryTransaction).values({
                 id: uuidv7(),
+                materialId: materialId,
                 userId: data.userId,
-                name: data.name,
-                materialTypeId: data.materialTypeId,
-                unitId: data.unitId,
-                quantity: data.quantity,
-                costPerUnit: data.costPerUnit,
-                lastPurchaseDate: data.lastPurchaseDate,
-                supplier: data.supplier,
-                notes: data.notes,
-                threshold: data.threshold,
-            })
-            .returning({ id: materialAndSupply.id });
+                quantityChange: data.quantity,
+                quantityBefore: 0,
+                quantityAfter: data.quantity,
+            });
+
+            return [insertedMaterial];
+        });
     } catch (error) {
         console.error("Error adding material:", error);
         throw error;
@@ -124,23 +178,76 @@ export const updateMaterial = async (
     userId: string,
     data: MaterialUpdate,
 ) => {
-    const result = await db
-        .update(materialAndSupply)
-        .set(data)
-        .where(
-            and(
-                eq(materialAndSupply.id, materialId),
-                eq(materialAndSupply.userId, userId),
-            ),
-        )
-        .returning({ id: materialAndSupply.id });
+    return await db.transaction(async (tx) => {
+        // Get current material state
+        const [currentMaterial] = await tx
+            .select()
+            .from(materialAndSupply)
+            .where(
+                and(
+                    eq(materialAndSupply.id, materialId),
+                    eq(materialAndSupply.userId, userId),
+                ),
+            );
 
-    // Check inventory and notify if needed when quantity or threshold changed
-    if (data.quantity !== undefined || data.threshold !== undefined) {
-        await _checkAndNotifyLowInventory(materialId, userId);
-    }
+        if (!currentMaterial) {
+            throw new Error("Material not found");
+        }
 
-    return result;
+        // Compute costPerUnit if purchasePrice and purchaseQuantity are both provided (from Update Material Pricing)
+        const updateData: MaterialUpdate & { costPerUnit?: number } = {
+            ...data,
+        };
+
+        // Only recalculate costPerUnit if BOTH purchasePrice and purchaseQuantity are provided
+        // This means user is updating the material pricing
+        if (
+            data.purchasePrice !== undefined &&
+            data.purchaseQuantity !== undefined &&
+            data.purchaseQuantity !== null
+        ) {
+            updateData.costPerUnit = computeCostPerUnit(
+                data.purchasePrice,
+                data.purchaseQuantity,
+            );
+        }
+
+        // Update material
+        const result = await tx
+            .update(materialAndSupply)
+            .set(updateData)
+            .where(
+                and(
+                    eq(materialAndSupply.id, materialId),
+                    eq(materialAndSupply.userId, userId),
+                ),
+            )
+            .returning({ id: materialAndSupply.id });
+
+        // Record transaction if quantity changed
+        if (
+            data.quantity !== undefined &&
+            data.quantity !== currentMaterial.quantity
+        ) {
+            const quantityChange = data.quantity - currentMaterial.quantity;
+
+            await tx.insert(materialInventoryTransaction).values({
+                id: uuidv7(),
+                materialId,
+                userId,
+                quantityChange,
+                quantityBefore: currentMaterial.quantity,
+                quantityAfter: data.quantity,
+            });
+        }
+
+        // Check inventory and notify if needed when quantity or threshold changed
+        if (data.quantity !== undefined || data.threshold !== undefined) {
+            await _checkAndNotifyLowInventory(materialId, userId);
+        }
+
+        return result;
+    });
 };
 
 /**
@@ -234,11 +341,12 @@ export const getMaterialListForBatch = async (userId: string) => {
 };
 
 /**
- * For reducing material quantity when used in production
- * For Products - Batch (Production)
+ * For reducing material quantity
+ * Used for: production, inventory loss, etc.
  * @param materialId
  * @param userId
  * @param quantityToDeduct
+ * @param tx Database transaction
  * @returns Updated material ID and new quantity
  */
 export const reduceMaterialQuantity = async (
@@ -271,7 +379,7 @@ export const reduceMaterialQuantity = async (
 
     const newQuantity = material.quantity - quantityToDeduct;
 
-    const result = await db
+    const result = await tx
         .update(materialAndSupply)
         .set({ quantity: newQuantity })
         .where(
@@ -285,13 +393,30 @@ export const reduceMaterialQuantity = async (
             quantity: materialAndSupply.quantity,
         });
 
+    // Record transaction
+    await tx.insert(materialInventoryTransaction).values({
+        id: uuidv7(),
+        materialId,
+        userId,
+        quantityChange: -quantityToDeduct,
+        quantityBefore: material.quantity,
+        quantityAfter: newQuantity,
+    });
+
     await _checkAndNotifyLowInventory(materialId, userId);
 
     return result;
 };
 
-// add material quantity when batch record is deleted
-
+/**
+ * Add material quantity when batch record / loss is deleted
+ * Used for: production, inventory loss, etc.
+ * @param materialId
+ * @param userId
+ * @param quantityToAdd
+ * @param tx Database transaction
+ * @returns Updated material ID and new quantity
+ */
 export const addMaterialQuantity = async (
     materialId: string,
     userId: string,
@@ -316,7 +441,7 @@ export const addMaterialQuantity = async (
 
     const newQuantity = material.quantity + quantityToAdd;
 
-    return await db
+    const result = await tx
         .update(materialAndSupply)
         .set({ quantity: newQuantity })
         .where(
@@ -329,4 +454,15 @@ export const addMaterialQuantity = async (
             id: materialAndSupply.id,
             quantity: materialAndSupply.quantity,
         });
+
+    await tx.insert(materialInventoryTransaction).values({
+        id: uuidv7(),
+        materialId,
+        userId,
+        quantityChange: quantityToAdd,
+        quantityBefore: material.quantity,
+        quantityAfter: newQuantity,
+    });
+
+    return result;
 };
