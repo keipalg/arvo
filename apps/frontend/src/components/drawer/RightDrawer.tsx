@@ -8,7 +8,7 @@ const RightDrawer = ({ isOpen, children, onClose }: RightDrawerProps) => {
     return (
         <>
             <div
-                className={`absolute top-0 right-0 z-20 w-full sm:max-w-3xl min-h-full p-7 pt-20 transition-transform bg-arvo-blue-20 shadow-2xl ${
+                className={`absolute top-0 right-0 z-20 w-full sm:max-w-3xl h-screen overflow-y-auto p-7 pt-20 transition-transform bg-arvo-blue-20 shadow-2xl ${
                     isOpen ? "translate-x-0" : "translate-x-full"
                 }`}
             >
