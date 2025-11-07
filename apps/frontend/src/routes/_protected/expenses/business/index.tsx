@@ -21,6 +21,7 @@ import FormLabel from "../../../../components/input/FormLabel";
 import { FileInput } from "../../../../components/input/FileInput";
 import { uploadFile } from "../../../../utils/fileUpload";
 import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
+import ToastNotification from "../../../../components/modal/ToastNotification";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -95,6 +96,8 @@ function BusinessExpense() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [toggleOpen, setToggleOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
     const [selectedItemForDeletion, setSelectedItemForDeletion] = useState<{
         id: string;
         expense_category: string;
@@ -211,6 +214,10 @@ function BusinessExpense() {
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
                 closeDrawer();
+                setToastMessage(
+                    `${businessExpenseFormData.name} added successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -222,6 +229,10 @@ function BusinessExpense() {
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
                 closeDrawer();
+                setToastMessage(
+                    `${businessExpenseFormData.name} updated successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -232,6 +243,10 @@ function BusinessExpense() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
+                setToastMessage(
+                    `${selectedItemForDeletion.name} deleted successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -243,6 +258,10 @@ function BusinessExpense() {
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
                 closeDrawer();
+                setToastMessage(
+                    `${businessExpenseFormData.name} updated successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -254,6 +273,10 @@ function BusinessExpense() {
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
                 closeDrawer();
+                setToastMessage(
+                    `${businessExpenseFormData.name} updated successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -264,6 +287,10 @@ function BusinessExpense() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
+                setToastMessage(
+                    `${selectedItemForDeletion.name} deleted successfully!`,
+                );
+                setVisibleToast(true);
             },
         }),
     );
@@ -555,6 +582,11 @@ function BusinessExpense() {
 
     return (
         <BaseLayout title="Business Expenses List">
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
             <ConfirmationModal
                 confirmationMessage={`Are you sure you want to delete "${selectedItemForDeletion.name}"?`}
                 isDeleteModalOpen={isDeleteModalOpen}
