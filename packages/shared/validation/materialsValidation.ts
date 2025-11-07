@@ -8,10 +8,10 @@ export const addMaterialsValidation = z.object({
         .number()
         .nonnegative("Quantity should be positive")
         .nonoptional("Quantity is required"),
-    costPerUnit: z
+    purchasePrice: z
         .number()
-        .nonnegative("Cost should be positive")
-        .nonoptional("Cost is required"),
+        .nonnegative("Purchase price should be positive")
+        .nonoptional("Purchase price is required"),
     minStockLevel: z
         .number()
         .nonnegative("Minimum stock level should be positive"),
@@ -25,14 +25,18 @@ export const updateMaterialsValidation = z.object({
     name: z.string().nonempty("Item name is required"),
     typeId: z.uuidv7("Type is required"),
     unit: z.string().nonempty("Unit is required"),
-    costPerUnit: z
-        .number()
-        .nonnegative("Cost should be positive")
-        .nonoptional("Cost is required"),
     quantity: z
         .number()
         .nonnegative("Quantity should be positive")
         .nonoptional("Quantity is required"),
+    purchasePrice: z
+        .number()
+        .nonnegative("Purchase price should be positive")
+        .optional(), // Optional for updates - only required when updating pricing
+    purchaseQuantity: z
+        .number()
+        .nonnegative("Purchase quantity should be positive")
+        .optional(), // Optional - only sent when updating pricing
     minStockLevel: z
         .number()
         .nonnegative("Minimum stock level should be positive"),

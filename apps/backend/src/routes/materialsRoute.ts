@@ -32,12 +32,12 @@ export const materialsRouter = router({
                 name: input.name,
                 materialTypeId: input.typeId,
                 quantity: input.quantity,
+                purchasePrice: input.purchasePrice,
                 lastPurchaseDate: input.lastPurchaseDate,
                 supplier: input.supplierName,
                 notes: input.notes,
                 threshold: input.minStockLevel,
                 id: "",
-                costPerUnit: input.costPerUnit,
             };
             await addMaterial(inputData);
             return { success: true };
@@ -54,7 +54,6 @@ export const materialsRouter = router({
                 name: input.name,
                 materialTypeId: input.typeId,
                 quantity: input.quantity,
-                costPerUnit: input.costPerUnit,
                 threshold: input.minStockLevel,
                 lastPurchaseDate: input.lastPurchaseDate,
                 unitId: unit.id,
