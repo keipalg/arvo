@@ -1,7 +1,11 @@
 import { and, count, desc, eq } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { notification, notificationType } from "../db/schema.js";
+import {
+    notification,
+    notificationType,
+    userPreference,
+} from "../db/schema.js";
 import { NOTIFICATION_TYPES } from "../utils/constants/notificationTypes.js";
 
 /**
@@ -35,16 +39,17 @@ const _insertNotification = async (
  * Private help to get notification type ID by key
  */
 const _getNotificationTypeId = async (key: string): Promise<string> => {
-    const result = await db.query.notificationType.findFirst({
-        where: (notificationType, { eq }) => eq(notificationType.key, key),
-        columns: { id: true },
-    });
+    const result = await db
+        .select({ id: notificationType.id })
+        .from(notificationType)
+        .where(eq(notificationType.key, key))
+        .limit(1);
 
-    if (!result) {
+    if (!result[0]) {
         throw new Error(`Notification type with key ${key} not found`);
     }
 
-    return result.id;
+    return result[0].id;
 };
 
 /**
@@ -58,6 +63,18 @@ export const createProductLowInventoryNotification = async (
     productName: string,
     remainingQuantity: number,
 ) => {
+    const preferences = await db
+        .select({
+            lowInventoryAlertForGoods: userPreference.lowInventoryAlertForGoods,
+        })
+        .from(userPreference)
+        .where(eq(userPreference.userId, userId))
+        .limit(1);
+
+    if (preferences[0] && !preferences[0].lowInventoryAlertForGoods) {
+        return; // Off - Don't send product notification
+    }
+
     const typeId = await _getNotificationTypeId(
         NOTIFICATION_TYPES.PRODUCT_LOW_INVENTORY,
     );
@@ -83,6 +100,19 @@ export const createMaterialLowInventoryNotification = async (
     minimumStockLevel: number,
     unitAbv: string,
 ) => {
+    const preferences = await db
+        .select({
+            lowInventoryAlertForMaterials:
+                userPreference.lowInventoryAlertForMaterials,
+        })
+        .from(userPreference)
+        .where(eq(userPreference.userId, userId))
+        .limit(1);
+
+    if (preferences[0] && !preferences[0].lowInventoryAlertForMaterials) {
+        return; // Off - Don't send material notification
+    }
+
     const typeId = await _getNotificationTypeId(
         NOTIFICATION_TYPES.MATERIAL_LOW_INVENTORY,
     );
