@@ -1,4 +1,11 @@
-import { useState, type ReactNode } from "react";
+import React, { useMemo, useState, type ReactNode } from "react";
+import TableSort from "./TableSort";
+
+export type SortOption<T> = {
+    key: keyof T;
+    label: string;
+    order?: "asc" | "desc";
+};
 
 type Column<T> = {
     key: keyof T;
@@ -11,6 +18,7 @@ type DataTableProps<T> = {
     columns: Column<T>[];
     detailRender?: (row: T) => ReactNode;
     mobileVisibleKeys?: (keyof T)[];
+    sortOptions?: SortOption<T>[];
 };
 
 const DataTable = <T extends { id: number | string }>({
@@ -18,8 +26,12 @@ const DataTable = <T extends { id: number | string }>({
     columns,
     detailRender,
     mobileVisibleKeys,
+    sortOptions,
 }: DataTableProps<T>) => {
     const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
+    const [selectedSort, setSelectedSort] = useState<SortOption<T> | null>(
+        null,
+    );
 
     const toggleRow = (id: string | number) => {
         const key = String(id);
@@ -37,102 +49,170 @@ const DataTable = <T extends { id: number | string }>({
         mobileVisibleKeys || Array.from(defaultMobileSet),
     );
 
+    const sortedData = useMemo(() => {
+        if (!selectedSort) return data;
+        const key = selectedSort.key;
+        const factor = selectedSort.order === "desc" ? -1 : 1;
+
+        const compareValues = (av: T[keyof T], bv: T[keyof T]): number => {
+            // null
+            if (av == null && bv == null) return 0;
+            if (av == null) return 1;
+            if (bv == null) return -1;
+
+            // Date
+            if (av instanceof Date && bv instanceof Date) {
+                return av.getTime() - bv.getTime();
+            }
+
+            // boolean
+            if (typeof av === "boolean" || typeof bv === "boolean") {
+                return Number(Boolean(av)) - Number(Boolean(bv));
+            }
+
+            // number
+            if (typeof av === "number" && typeof bv === "number") {
+                return av - bv;
+            }
+
+            // string fallback
+            return String(av).localeCompare(String(bv), undefined, {
+                numeric: true,
+                sensitivity: "base",
+            });
+        };
+
+        return [...data]
+            .map((item, idx) => ({ item, idx }))
+            .sort((a, b) => {
+                const av = a.item[key];
+                const bv = b.item[key];
+                const cmp = compareValues(av, bv);
+                if (cmp !== 0) return cmp * factor;
+                return a.idx - b.idx;
+            })
+            .map((x) => x.item);
+    }, [data, selectedSort]);
+
     return (
         <>
-            <div className="rounded-2xl border border-arvo-black-5 overflow-clip">
-                <table className="w-full">
-                    <thead className="bg-arvo-white-100 border-b border-arvo-black-5">
-                        <tr>
-                            {hasDetails && <th className="px-4 py-3" />}
-                            {columns.map((column) => {
-                                const isHiddenOnMobile = !mobileSet.has(
-                                    column.key,
-                                );
-                                const hideClass = isHiddenOnMobile
-                                    ? "hidden sm:table-cell"
-                                    : "";
+            <div>
+                <TableSort
+                    options={
+                        sortOptions
+                            ? sortOptions.map((opt) => ({
+                                  key: String(opt.key),
+                                  label: opt.label,
+                                  order: opt.order,
+                              }))
+                            : []
+                    }
+                    onSelect={(option) => {
+                        const found = sortOptions?.find(
+                            (opt) =>
+                                String(opt.key) === option.key &&
+                                (opt.order ?? undefined) === option.order,
+                        );
+                        setSelectedSort(found ?? null);
+                    }}
+                />
+                <div className="rounded-2xl border border-arvo-black-5 overflow-clip">
+                    <table className="w-full">
+                        <thead className="bg-arvo-white-100 border-b border-arvo-black-5">
+                            <tr>
+                                {hasDetails && <th className="px-4 py-3" />}
+                                {columns.map((column) => {
+                                    const isHiddenOnMobile = !mobileSet.has(
+                                        column.key,
+                                    );
+                                    const hideClass = isHiddenOnMobile
+                                        ? "hidden sm:table-cell"
+                                        : "";
+                                    return (
+                                        <th
+                                            key={String(column.key)}
+                                            className={`text-left px-4 py-3 ${hideClass}`}
+                                        >
+                                            {column.header}
+                                        </th>
+                                    );
+                                })}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sortedData.map((element, index) => {
+                                const rowKey = String(element.id);
+                                const isOpen = !!openRows[rowKey];
+                                const isEvenRow = index % 2 === 0;
+                                const bgRow = isEvenRow
+                                    ? "bg-arvo-white-0"
+                                    : "bg-arvo-white-100";
                                 return (
-                                    <th
-                                        key={String(column.key)}
-                                        className={`text-left px-4 py-3 ${hideClass}`}
-                                    >
-                                        {column.header}
-                                    </th>
+                                    <React.Fragment key={rowKey}>
+                                        <tr
+                                            className={`border-b border-gray-200 ${bgRow}`}
+                                            key={rowKey}
+                                            data-id={element.id}
+                                        >
+                                            {hasDetails && (
+                                                <td className="px-4 py-3">
+                                                    <button
+                                                        onClick={() =>
+                                                            toggleRow(
+                                                                element.id,
+                                                            )
+                                                        }
+                                                    >
+                                                        <img
+                                                            src="/icon/arrow-down.svg"
+                                                            alt="Expand/Collapse"
+                                                            className={`w-6 min-w-6 transition-transform ${isOpen ? "rotate-0" : "-rotate-90"}`}
+                                                        />
+                                                    </button>
+                                                </td>
+                                            )}
+                                            {columns.map((column) => {
+                                                const isHiddenOnMobile =
+                                                    !mobileSet.has(column.key);
+                                                const hideClass =
+                                                    isHiddenOnMobile
+                                                        ? "hidden sm:table-cell"
+                                                        : "";
+                                                return (
+                                                    <td
+                                                        key={String(column.key)}
+                                                        className={`px-4 py-3 ${hideClass}`}
+                                                    >
+                                                        {column.render
+                                                            ? column.render(
+                                                                  element[
+                                                                      column.key
+                                                                  ],
+                                                                  element,
+                                                              )
+                                                            : String(
+                                                                  element[
+                                                                      column.key
+                                                                  ],
+                                                              )}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                        {isOpen && detailRender && (
+                                            <tr
+                                                key={rowKey + "_detail"}
+                                                className="border-b border-gray-200"
+                                            >
+                                                {detailRender(element)}
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 );
                             })}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((element, index) => {
-                            const rowKey = String(element.id);
-                            const isOpen = !!openRows[rowKey];
-                            const isEvenRow = index % 2 === 0;
-                            const bgRow = isEvenRow
-                                ? "bg-arvo-white-0"
-                                : "bg-arvo-white-100";
-                            return (
-                                <>
-                                    <tr
-                                        className={`border-b border-gray-200 ${bgRow}`}
-                                        key={rowKey}
-                                        data-id={element.id}
-                                    >
-                                        {hasDetails && (
-                                            <td className="px-4 py-3">
-                                                <button
-                                                    onClick={() =>
-                                                        toggleRow(element.id)
-                                                    }
-                                                    className="flex items-center justify-center"
-                                                >
-                                                    <img
-                                                        src="/icon/arrow-down.svg"
-                                                        alt="Expand/Collapse"
-                                                        className={`w-6 min-w-6 transition-transform ${isOpen ? "rotate-0" : "-rotate-90"}`}
-                                                    />
-                                                </button>
-                                            </td>
-                                        )}
-                                        {columns.map((column) => {
-                                            const isHiddenOnMobile =
-                                                !mobileSet.has(column.key);
-                                            const hideClass = isHiddenOnMobile
-                                                ? "hidden sm:table-cell"
-                                                : "";
-                                            return (
-                                                <td
-                                                    key={String(column.key)}
-                                                    className={`px-4 py-3 ${hideClass}`}
-                                                >
-                                                    {column.render
-                                                        ? column.render(
-                                                              element[
-                                                                  column.key
-                                                              ],
-                                                              element,
-                                                          )
-                                                        : String(
-                                                              element[
-                                                                  column.key
-                                                              ],
-                                                          )}
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                    {isOpen && detailRender && (
-                                        <tr
-                                            key={rowKey + "_detail"}
-                                            className="border-b border-gray-200"
-                                        >
-                                            {detailRender(element)}
-                                        </tr>
-                                    )}
-                                </>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </>
     );

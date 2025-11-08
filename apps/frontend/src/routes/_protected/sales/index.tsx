@@ -66,17 +66,13 @@ function SalesList() {
     const isSmUp = useIsSmUp();
 
     const detailsRender = (row: Sales) => {
-        // replicate DataTable's default mobile-visible logic so counts match
         const defaultMobileSet = new Set<keyof Sales>();
         if (columns[0]) defaultMobileSet.add(columns[0].key);
         if (columns[1]) defaultMobileSet.add(columns[1].key);
         const actionsCol = columns.find((c) => String(c.key) === "actions");
         if (actionsCol) defaultMobileSet.add(actionsCol.key);
 
-        const mobileSet = new Set<keyof Sales>(
-            /* if you pass mobileVisibleKeys to DataTable, replace `undefined` below */
-            undefined || Array.from(defaultMobileSet),
-        );
+        const mobileSet = new Set<keyof Sales>(Array.from(defaultMobileSet));
 
         const visibleMobileColumnsCount = columns.filter((c) =>
             mobileSet.has(c.key),
@@ -466,6 +462,28 @@ function SalesList() {
                     data={tabledData || []}
                     detailRender={detailsRender}
                     mobileVisibleKeys={["salesNumber", "totalPrice", "actions"]}
+                    sortOptions={[
+                        {
+                            key: "salesNumber",
+                            label: "Sales Number (Newest → Oldest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "salesNumber",
+                            label: "Sales Number (Oldest → Newest)",
+                            order: "asc",
+                        },
+                        {
+                            key: "date",
+                            label: "Date (Newest → Oldest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "date",
+                            label: "Date (Oldest → Newest)",
+                            order: "asc",
+                        },
+                    ]}
                 />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
