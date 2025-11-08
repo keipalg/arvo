@@ -97,7 +97,10 @@ function BusinessExpense() {
     const [toggleOpen, setToggleOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [visibleToast, setVisibleToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
     const [selectedItemForDeletion, setSelectedItemForDeletion] = useState<{
         id: string;
         expense_category: string;
@@ -214,9 +217,17 @@ function BusinessExpense() {
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
                 closeDrawer();
-                setToastMessage(
-                    `${businessExpenseFormData.name} added successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${businessExpenseFormData.name} added successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error adding expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
@@ -229,9 +240,17 @@ function BusinessExpense() {
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
                 closeDrawer();
-                setToastMessage(
-                    `${businessExpenseFormData.name} updated successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${businessExpenseFormData.name} updated successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updating expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
@@ -243,9 +262,17 @@ function BusinessExpense() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.operationalExpense.list.queryKey(),
                 });
-                setToastMessage(
-                    `${selectedItemForDeletion.name} deleted successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${selectedItemForDeletion.name} deleted successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error deleting expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
@@ -258,9 +285,17 @@ function BusinessExpense() {
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
                 closeDrawer();
-                setToastMessage(
-                    `${businessExpenseFormData.name} updated successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${businessExpenseFormData.name} updated successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error adding expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
@@ -273,9 +308,17 @@ function BusinessExpense() {
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
                 closeDrawer();
-                setToastMessage(
-                    `${businessExpenseFormData.name} updated successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${businessExpenseFormData.name} updated successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updating expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
@@ -287,9 +330,17 @@ function BusinessExpense() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.studioOverheadExpense.list.queryKey(),
                 });
-                setToastMessage(
-                    `${selectedItemForDeletion.name} deleted successfully!`,
-                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${selectedItemForDeletion.name} deleted successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error deleting expense: ${error.message}`,
+                });
                 setVisibleToast(true);
             },
         }),
