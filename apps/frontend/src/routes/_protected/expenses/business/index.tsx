@@ -95,7 +95,8 @@ function BusinessExpense() {
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [toggleOpen, setToggleOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+        useState(false);
     const [visibleToast, setVisibleToast] = useState(false);
     const [toastMessage, setToastMessage] = useState<{
         kind: "INFO" | "SUCCESS" | "WARN";
@@ -611,7 +612,7 @@ function BusinessExpense() {
                             }
                         }}
                         onDeleteModal={() => {
-                            setIsDeleteModalOpen(true);
+                            setIsConfirmationModalOpen(true);
                             setSelectedItemForDeletion({
                                 expense_category: row.expense_category,
                                 id: row.id,
@@ -640,8 +641,8 @@ function BusinessExpense() {
             />
             <ConfirmationModal
                 confirmationMessage={`Are you sure you want to delete "${selectedItemForDeletion.name}"?`}
-                isDeleteModalOpen={isDeleteModalOpen}
-                setIsDeleteModalOpen={setIsDeleteModalOpen}
+                isConfirmationModalOpen={isConfirmationModalOpen}
+                setIsConfirmationModalOpen={setIsConfirmationModalOpen}
                 onConfirm={() =>
                     handleDelete(
                         selectedItemForDeletion.expense_category,
