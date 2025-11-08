@@ -1,19 +1,19 @@
 const ConfirmationModal = ({
     confirmationMessage,
-    isDeleteModalOpen,
-    setIsDeleteModalOpen,
+    isConfirmationModalOpen,
+    setIsConfirmationModalOpen,
     onConfirm,
 }: {
     confirmationMessage: string;
-    isDeleteModalOpen: boolean;
-    setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    isConfirmationModalOpen: boolean;
+    setIsConfirmationModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     onConfirm: () => void;
 }) => {
     return (
         <>
             <div
                 id="confirmation-overlay"
-                className={`fixed inset-0 bg-arvo-black-100/50 z-50 ${isDeleteModalOpen ? "block" : "hidden"}`}
+                className={`fixed inset-0 bg-arvo-black-100/50 z-50 ${isConfirmationModalOpen ? "block" : "hidden"}`}
             >
                 <div className="flex items-center justify-center min-h-screen px-4">
                     <div className="bg-arvo-red-50 border-2 border-arvo-red-100 rounded-2xl shadow-lg w-full max-w-md">
@@ -24,7 +24,9 @@ const ConfirmationModal = ({
                             <div className="flex justify-center space-x-4">
                                 <button
                                     className="px-4 py-2 bg-white rounded-2xl border border-arvo-blue-100 w-30"
-                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    onClick={() =>
+                                        setIsConfirmationModalOpen(false)
+                                    }
                                 >
                                     Cancel
                                 </button>
@@ -32,7 +34,7 @@ const ConfirmationModal = ({
                                     className="px-4 py-2 bg-arvo-blue-100 text-arvo-black-5 rounded-2xl border border-arvo-blue-100 w-30"
                                     onClick={() => {
                                         onConfirm();
-                                        setIsDeleteModalOpen(false);
+                                        setIsConfirmationModalOpen(false);
                                     }}
                                 >
                                     Confirm
