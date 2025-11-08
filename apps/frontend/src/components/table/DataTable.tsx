@@ -1,5 +1,15 @@
 import React, { useMemo, useState, type ReactNode } from "react";
 import TableSort from "./TableSort";
+import TableFilter from "./TableFilter";
+
+export type FilterOption<T> = {
+    key: keyof T;
+    label: string;
+    values: {
+        key: string;
+        label: string;
+    }[];
+};
 
 export type SortOption<T> = {
     key: keyof T;
@@ -19,6 +29,7 @@ type DataTableProps<T> = {
     detailRender?: (row: T) => ReactNode;
     mobileVisibleKeys?: (keyof T)[];
     sortOptions?: SortOption<T>[];
+    filterOptions?: FilterOption<T>[];
 };
 
 const DataTable = <T extends { id: number | string }>({
@@ -27,11 +38,17 @@ const DataTable = <T extends { id: number | string }>({
     detailRender,
     mobileVisibleKeys,
     sortOptions,
+    filterOptions,
 }: DataTableProps<T>) => {
     const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
     const [selectedSort, setSelectedSort] = useState<SortOption<T> | null>(
         null,
     );
+
+    const [selectedFilter, setSelectedFilter] = useState<{
+        columnKey: keyof T;
+        value: string;
+    } | null>(null);
 
     const toggleRow = (id: string | number) => {
         const key = String(id);
@@ -49,8 +66,31 @@ const DataTable = <T extends { id: number | string }>({
         mobileVisibleKeys || Array.from(defaultMobileSet),
     );
 
+    const tableFilterOptions =
+        (filterOptions ?? []).map((opt) => ({
+            key: String(opt.key),
+            label: opt.label,
+            values:
+                (opt.values ?? []).map((v) => ({
+                    key: `${String(opt.key)}:${String(v.key)}`,
+                    label: String(v.label),
+                })) ?? [],
+        })) ?? [];
+
     const sortedData = useMemo(() => {
-        if (!selectedSort) return data;
+        // Apply filter
+        let filtered = data;
+        if (selectedFilter) {
+            const col = selectedFilter.columnKey;
+            const val = selectedFilter.value;
+            filtered = data.filter((item) => {
+                const itemVal = item[col];
+                return String(itemVal) === val;
+            });
+        }
+
+        // Apply sorting
+        if (!selectedSort) return filtered;
         const key = selectedSort.key;
         const factor = selectedSort.order === "desc" ? -1 : 1;
 
@@ -82,7 +122,7 @@ const DataTable = <T extends { id: number | string }>({
             });
         };
 
-        return [...data]
+        return [...filtered]
             .map((item, idx) => ({ item, idx }))
             .sort((a, b) => {
                 const av = a.item[key];
@@ -92,30 +132,46 @@ const DataTable = <T extends { id: number | string }>({
                 return a.idx - b.idx;
             })
             .map((x) => x.item);
-    }, [data, selectedSort]);
+    }, [data, selectedSort, selectedFilter]);
 
     return (
         <>
             <div>
-                <TableSort
-                    options={
-                        sortOptions
-                            ? sortOptions.map((opt) => ({
-                                  key: String(opt.key),
-                                  label: opt.label,
-                                  order: opt.order,
-                              }))
-                            : []
-                    }
-                    onSelect={(option) => {
-                        const found = sortOptions?.find(
-                            (opt) =>
-                                String(opt.key) === option.key &&
-                                (opt.order ?? undefined) === option.order,
-                        );
-                        setSelectedSort(found ?? null);
-                    }}
-                />
+                <div className="flex gap-2">
+                    <TableSort
+                        options={
+                            sortOptions
+                                ? sortOptions.map((opt) => ({
+                                      key: String(opt.key),
+                                      label: opt.label,
+                                      order: opt.order,
+                                  }))
+                                : []
+                        }
+                        onSelect={(option) => {
+                            const found = sortOptions?.find(
+                                (opt) =>
+                                    String(opt.key) === option.key &&
+                                    (opt.order ?? undefined) === option.order,
+                            );
+                            setSelectedSort(found ?? null);
+                        }}
+                    />
+                    <TableFilter
+                        options={tableFilterOptions}
+                        onSelect={(option) => {
+                            const parts = option.key.split(":", 2);
+                            if (parts.length === 2) {
+                                setSelectedFilter({
+                                    columnKey: parts[0] as keyof T,
+                                    value: parts[1],
+                                });
+                            } else {
+                                setSelectedFilter(null);
+                            }
+                        }}
+                    />
+                </div>
                 <div className="rounded-2xl border border-arvo-black-5 overflow-clip">
                     <table className="w-full">
                         <thead className="bg-arvo-white-100 border-b border-arvo-black-5">

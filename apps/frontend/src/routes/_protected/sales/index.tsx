@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
 import BaseLayout from "../../../components/BaseLayout";
 import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
-import DataTable from "../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 
 import type { inferRouterOutputs } from "@trpc/server";
 
@@ -430,6 +432,27 @@ function SalesList() {
         setTotalPrice(Number(calculatedTotalPrice.toFixed(2)));
     }, [products, discount, shippingFee, tax]);
 
+    const tableFilterOptions: FilterOption<Sales>[] = [
+        {
+            key: "status",
+            label: "Status",
+            values:
+                statusList?.map((s) => ({
+                    key: String(s.key),
+                    label: String(s.name),
+                })) ?? [],
+        },
+        {
+            key: "channel",
+            label: "Channel",
+            values:
+                channels?.map((c) => ({
+                    key: String(c.name),
+                    label: String(c.name),
+                })) ?? [],
+        },
+    ];
+
     return (
         <BaseLayout title="Sales List">
             <div className="flex justify-between">
@@ -484,6 +507,7 @@ function SalesList() {
                             order: "asc",
                         },
                     ]}
+                    filterOptions={tableFilterOptions}
                 />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
