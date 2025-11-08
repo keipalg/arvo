@@ -31,9 +31,11 @@ const WeightWithUnit = ({
     onBlur,
 }: WeightWithUnit) => {
     return (
-        <div className="flex flex-col gap-1 pb-2">
+        <div className="flex flex-col pb-2">
             <FormLabel label={label} required={required} />
-            <div className="relative flex flex-row border rounded-xl items-center bg-arvo-white-0 border-arvo-black-5 has-disabled:bg-arvo-black-5 focus-within:outline-2 focus-within:outline-arvo-blue-100">
+            <div
+                className={`relative flex flex-row border rounded-xl items-center border-arvo-black-5 focus-within:outline-2 focus-within:outline-arvo-blue-100 ${!disabled ? "bg-arvo-white-0" : "bg-arvo-blue-20 border-0"}`}
+            >
                 <input
                     type="number"
                     name={name}
@@ -46,10 +48,12 @@ const WeightWithUnit = ({
                     max={max}
                     disabled={disabled}
                     required // Enforce non-empty input
-                    className="px-2.5 py-2.5 grow disabled:cursor-not-allowed outline-none"
+                    className="px-2.5 py-2.5 grow outline-none disabled:py-0.5 disabled:px-0"
                 />
                 {unit && (
-                    <span className="absolute w-8 text-base right-11 font-normal  text-center text-arvo-black-10 border-l border-arvo-black-10">
+                    <span
+                        className={`absolute  text-base  font-normal text-center ${!disabled ? "border-arvo-black-10 border-l text-arvo-black-10 w-8 right-11" : "border-0 left-10"}`}
+                    >
                         {unit}
                     </span>
                 )}

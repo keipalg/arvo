@@ -15,6 +15,7 @@ import PageTitle from "../../../components/layout/PageTitle.tsx";
 import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
 import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
 import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
+import Metric from "../../../components/metric/Metric.tsx";
 
 import {
     getOverheadCostPerUnit,
@@ -532,19 +533,44 @@ function GoodsList() {
     return (
         <BaseLayout title="Product List">
             <div className="flex justify-between">
-                <PageTitle title="Product Inventory" />
+                <PageTitle
+                    title="Product Inventory"
+                    info="This is your product inventory page. You can manage and see all your products details, price, stock level, and material used all at once"
+                />
                 <Button
                     value="Add Product"
                     icon="/icon/plus.svg"
                     onClick={() => handleAddGood()}
                 ></Button>
             </div>
+            <div className="flex gap-6 py-2">
+                <Metric
+                    value={`${String(7)} items`}
+                    changePercent={-5}
+                    topText="Most sold item"
+                    bottomText="than last month"
+                ></Metric>
+                <Metric
+                    value={`${String(7)} items`}
+                    changePercent={-5}
+                    topText="Least sold item"
+                    bottomText="than last month"
+                ></Metric>
+            </div>
+
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
-            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+            <RightDrawer
+                narrower={true}
+                title={
+                    !editingGoodId ? "Add New Product" : "Edit Product Detail"
+                }
+                isOpen={drawerOpen}
+                onClose={() => closeDrawer()}
+            >
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -560,6 +586,7 @@ function GoodsList() {
                     <div className="grid grid-cols-2 gap-2">
                         <TextInput
                             label="Product Name"
+                            required={true}
                             name="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -567,6 +594,7 @@ function GoodsList() {
                         ></TextInput>
                         <ProductTypeSelector
                             label="Product Type"
+                            required={true}
                             value={productType}
                             onChange={setProductType}
                             error={formErrors.productType}
@@ -576,7 +604,6 @@ function GoodsList() {
                             value={inventoryQuantity}
                             min="0"
                             step="1"
-                            required={true}
                             onChange={(e) =>
                                 setInventoryQuantity(Number(e.target.value))
                             }
@@ -593,7 +620,12 @@ function GoodsList() {
                             error={formErrors.minimumStockLevel}
                         ></NumberInput>
                         <div className="col-span-2 grid gap-2">
-                            <FormLabel label="Material per Item" />
+                            <FormLabel
+                                label="Material per Item"
+                                required={true}
+                                info="Enter the materials used to make this product. The system will automatically calculate costs and suggest an appropriate product unit price."
+                            />
+
                             {materials.map((row, index) => (
                                 <div
                                     key={index}
@@ -623,7 +655,7 @@ function GoodsList() {
                                     <div className=" grid grid-cols-[85%_15%] gap-2">
                                         <WeightWithUnit
                                             value={row.amount}
-                                            step="0.50"
+                                            step="0.01"
                                             min="0.00"
                                             unit={row.unitAbbreviation}
                                             disabled={
@@ -670,12 +702,12 @@ function GoodsList() {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <NumberInput
-                            label="Unit Price"
+                            label="Unit Price*"
                             value={retailPrice}
                             onChange={(e) =>
                                 setRetailPrice(Number(e.target.value))
                             }
-                            step="0.50"
+                            step="0.01"
                             unit="$"
                             error={formErrors.retailPrice}
                             min="0"

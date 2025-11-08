@@ -14,6 +14,7 @@ interface TypeSelectorProps extends BaseInputProps {
     canDelete?: boolean;
     canAdd?: boolean;
     placeholder?: string;
+    requireid?: boolean;
 }
 
 const TypeSelector = ({
@@ -23,6 +24,7 @@ const TypeSelector = ({
     onDelete,
     value,
     onChange,
+    required,
     error,
     canDelete = true,
     canAdd = true,
@@ -114,9 +116,9 @@ const TypeSelector = ({
     }, [selectedType, isOpen, inputValue]);
 
     return (
-        <div className="pt-3">
-            <FormLabel label={label} />
-            <div ref={selectorRef} className="relative pt-1.5">
+        <div>
+            <FormLabel label={label} required={required} />
+            <div ref={selectorRef} className="relative">
                 <input
                     type="text"
                     value={
