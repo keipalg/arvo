@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { usePriceSuggestion } from "../../utils/usePriceSuggestion";
 import WhiteRoundButton from "../button/WhiteRoundButton.tsx";
+import ToolTip from "../toolTip/ToolTip.tsx";
 
 interface PriceSuggestion {
     suggestedPrice: number;
@@ -74,6 +75,11 @@ export const PriceSuggestionWidget: React.FC<Props> = ({
                     }
                 />
             </div>
+
+            <ToolTip
+                iconStyle="w-[11px]"
+                info="The suggested price is calculated based on the material cost along with overhead, labor cost, operating costs, and the target profit margin set in your profile."
+            />
 
             {suggestion && (
                 <div className=" text-arvo-black-100">

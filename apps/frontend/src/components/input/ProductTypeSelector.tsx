@@ -7,6 +7,7 @@ interface ProductTypeSelectorProps extends BaseInputProps {
     value: string;
     onChange: (value: string) => void;
     error?: string;
+    required?: boolean;
 }
 
 const ProductTypeSelector = (props: ProductTypeSelectorProps) => {

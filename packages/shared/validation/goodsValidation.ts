@@ -10,7 +10,7 @@ export const goodsInputValidation = z.object({
     minimumStockLevel: z
         .number()
         .min(0, "Minimum stock level must be at least 0"),
-    materialCost: z.number(),
+    materialCost: z.number().min(0.01, "Material per Item must be filled."),
     laborCost: z.number(),
     overheadCost: z.number(),
     operatingCost: z.number(),

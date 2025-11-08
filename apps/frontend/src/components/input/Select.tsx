@@ -31,20 +31,40 @@ const Select = ({
     onChange,
     error,
     style,
+    required,
 }: SelectProps) => {
+    const getSelectedLabel = () => {
+        if (options) {
+            const selected = options.find((opt) => opt.value === value);
+            return selected?.label || "";
+        }
+        if (optgroup) {
+            for (const group of optgroup) {
+                const selected = group.optGroupValues.find(
+                    (opt) => opt.value === value,
+                );
+                if (selected) return selected.label;
+            }
+        }
+        return "";
+    };
+
+    const selectedLabel = getSelectedLabel();
     return (
         <div className="relative flex flex-col">
-            <FormLabel label={label} />
+            <FormLabel label={label} required={required} />
             <select
-                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 disabled:bg-arvo-black-5 disabled:cursor-not-allowed outline-none appearance-none`}
+                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 pr-10 outline-none appearance-none disabled:border-0 disabled:py-0.5  disabled:bg-arvo-blue-20 ... truncate`}
                 name={name}
                 value={value}
                 onChange={onChange}
                 disabled={disabled}
+                title={selectedLabel}
             >
                 {options
                     ? options.map((option, index) => (
                           <option
+                              title={option.label}
                               key={option.value}
                               value={option.value}
                               disabled={index === 0 && option.value === ""}
@@ -70,12 +90,14 @@ const Select = ({
                       ))}
             </select>
             <div
-                className={`absolute right-3  ${style ? style : "top-4/6"} pointer-events-none`}
+                className={`absolute right-3 ${style ? style : "top-4/6"} pointer-events-none bg-arvo-white-0`}
             >
-                <img
-                    src="../../../../public/icon/alt-arrow-down.svg "
-                    className="w-4 h-4 text-gray-500"
-                />
+                {!disabled && (
+                    <img
+                        src="../../../../public/icon/alt-arrow-down.svg "
+                        className="w-4 h-4"
+                    />
+                )}
             </div>
             {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
