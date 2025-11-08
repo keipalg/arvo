@@ -35,6 +35,7 @@ export const materialsRouter = router({
                 purchasePrice: input.purchasePrice,
                 lastPurchaseDate: input.lastPurchaseDate,
                 supplier: input.supplierName,
+                supplierUrl: input.supplierUrl,
                 notes: input.notes,
                 threshold: input.minStockLevel,
                 id: "",
@@ -60,8 +61,17 @@ export const materialsRouter = router({
             };
 
             // Optional fields - only set if provided
+            if (input.purchasePrice !== undefined) {
+                updateData.purchasePrice = input.purchasePrice;
+            }
+            if (input.purchaseQuantity !== undefined) {
+                updateData.purchaseQuantity = input.purchaseQuantity;
+            }
             if (input.supplierName !== undefined) {
                 updateData.supplier = input.supplierName;
+            }
+            if (input.supplierUrl !== undefined) {
+                updateData.supplierUrl = input.supplierUrl;
             }
             if (input.notes !== undefined) {
                 updateData.notes = input.notes;

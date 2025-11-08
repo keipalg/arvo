@@ -43,12 +43,21 @@ function MaterialsList() {
     const [unitAbbreviation, setUnitAbbreviation] = useState("");
     const [lastPurchaseDate, setLastPurchaseDate] = useState("");
     const [supplier, setSupplier] = useState("");
+    const [supplierUrl, setSupplierUrl] = useState("");
     const [notes, setNotes] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [editingMaterialId, setEditingMaterialId] = useState<string | null>(
         null,
     );
+
+    // For edit mode - Update Material Pricing section
+    const [showUpdatePricing, setShowUpdatePricing] = useState(false);
+    const [bulkPurchasePrice, setBulkPurchasePrice] = useState(0);
+    const [bulkPurchaseQuantity, setBulkPurchaseQuantity] = useState(0);
+    const [newCostPerUnit, setNewCostPerUnit] = useState(0);
+    const [originalCostPerUnit, setOriginalCostPerUnit] = useState(0);
+    const [pricingUpdated, setPricingUpdated] = useState(false);
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
     const { data, isLoading, error } = useQuery(
@@ -110,9 +119,16 @@ function MaterialsList() {
         setUnitAbbreviation("");
         setLastPurchaseDate("");
         setSupplier("");
+        setSupplierUrl("");
         setNotes("");
         setFormErrors({});
         setEditingMaterialId(null);
+        setShowUpdatePricing(false);
+        setBulkPurchasePrice(0);
+        setBulkPurchaseQuantity(0);
+        setNewCostPerUnit(0);
+        setOriginalCostPerUnit(0);
+        setPricingUpdated(false);
     };
 
     const closeDrawer = () => {
@@ -129,6 +145,11 @@ function MaterialsList() {
 
         const currentCostPerUnit = Number(material.costPerUnit) || 0;
         setCostPerUnit(currentCostPerUnit);
+        setOriginalCostPerUnit(currentCostPerUnit);
+
+        setPurchasePrice(Number(material.purchasePrice) || 0);
+        setBulkPurchasePrice(Number(material.purchasePrice) || 0);
+        setBulkPurchaseQuantity(Number(material.purchaseQuantity) || 0);
 
         setUnit(material.unitName);
         setUnitAbbreviation(material.unitAbbreviation);
@@ -140,6 +161,7 @@ function MaterialsList() {
                 : "",
         );
         setSupplier(material.supplier || "");
+        setSupplierUrl(String(material.supplierUrl || ""));
         setNotes(material.notes || "");
         setDrawerOpen(true);
     };
@@ -223,7 +245,7 @@ function MaterialsList() {
         e.preventDefault();
 
         if (editingMaterialId) {
-            // Update existing material - no pricing fields sent
+            // Update existing material
             const updatePayload = {
                 id: editingMaterialId,
                 name: itemName,
@@ -233,7 +255,13 @@ function MaterialsList() {
                 minStockLevel,
                 lastPurchaseDate,
                 supplierName: supplier,
+                supplierUrl: supplierUrl,
                 notes,
+                // Only include purchasePrice and purchaseQuantity if pricing was updated
+                ...(pricingUpdated && {
+                    purchasePrice: bulkPurchasePrice,
+                    purchaseQuantity: bulkPurchaseQuantity,
+                }),
             };
 
             const result = updateMaterialsValidation.safeParse(updatePayload);
@@ -262,6 +290,7 @@ function MaterialsList() {
                 minStockLevel,
                 lastPurchaseDate,
                 supplierName: supplier,
+                supplierUrl: supplierUrl,
                 notes,
             });
 
@@ -290,6 +319,30 @@ function MaterialsList() {
         }
     };
 
+    // Handle Save New Pricing button click
+    const handleSaveNewPricing = () => {
+        if (bulkPurchaseQuantity > 0) {
+            const computed = bulkPurchasePrice / bulkPurchaseQuantity;
+            setNewCostPerUnit(computed);
+            setCostPerUnit(computed);
+            setPricingUpdated(true);
+            setShowUpdatePricing(false);
+        }
+    };
+
+    // Handle Cancel Update Pricing button click
+    const handleCancelUpdatePricing = () => {
+        // Reset to original values
+        setBulkPurchasePrice(purchasePrice);
+        setBulkPurchaseQuantity(
+            Number(
+                data?.find((m) => m.id === editingMaterialId)?.purchaseQuantity,
+            ) || 0,
+        );
+        setNewCostPerUnit(0);
+        setShowUpdatePricing(false);
+    };
+
     // Auto-compute Cost Per Unit for Add mode
     useEffect(() => {
         if (!editingMaterialId && quantity > 0) {
@@ -297,6 +350,14 @@ function MaterialsList() {
             setCostPerUnit(computed);
         }
     }, [purchasePrice, quantity, editingMaterialId]);
+
+    // Auto-compute New Cost Per Unit when bulk pricing values change
+    useEffect(() => {
+        if (bulkPurchaseQuantity > 0) {
+            const computed = bulkPurchasePrice / bulkPurchaseQuantity;
+            setNewCostPerUnit(computed);
+        }
+    }, [bulkPurchasePrice, bulkPurchaseQuantity]);
 
     useEffect(() => {
         if (unitsList && unitsList.length > 0 && !unit) {
@@ -393,10 +454,83 @@ function MaterialsList() {
                     ></Select>
                     {/* Pricing Fields - Different for Add vs Edit mode */}
                     {editingMaterialId ? (
-                        // Edit Mode - Show Inventory Value (dynamically computed)
-                        <DisplayValue label="Inventory Value" unit="$">
-                            {(costPerUnit * quantity).toFixed(2)}
-                        </DisplayValue>
+                        // Edit Mode
+                        <>
+                            <DisplayValue label="Inventory Value" unit="$">
+                                {(costPerUnit * quantity).toFixed(2)}
+                            </DisplayValue>
+                            <DisplayValue label="Cost Per Unit" unit="$">
+                                {costPerUnit.toFixed(2)}
+                                {pricingUpdated && (
+                                    <span className="text-sm text-gray-500 ml-2">
+                                        (updated from $
+                                        {originalCostPerUnit.toFixed(2)})
+                                    </span>
+                                )}
+                            </DisplayValue>
+
+                            {!showUpdatePricing ? (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowUpdatePricing(true)}
+                                    className="text-left text-blue-600 hover:text-blue-800 underline mb-4"
+                                >
+                                    Update Material Pricing
+                                </button>
+                            ) : (
+                                <>
+                                    <NumberInput
+                                        label="Updated Purchase Price"
+                                        name="bulkPurchasePrice"
+                                        value={bulkPurchasePrice}
+                                        onChange={(e) =>
+                                            setBulkPurchasePrice(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                        min="0"
+                                        step="0.01"
+                                        unit="$"
+                                    />
+                                    <NumberInput
+                                        label="Updated Quantity Per Purchase"
+                                        name="bulkPurchaseQuantity"
+                                        value={bulkPurchaseQuantity}
+                                        onChange={(e) =>
+                                            setBulkPurchaseQuantity(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                        min="0"
+                                        step="0.01"
+                                        unit={unitAbbreviation}
+                                    />
+                                    <DisplayValue
+                                        label="New Cost Per Unit"
+                                        unit="$"
+                                    >
+                                        {newCostPerUnit.toFixed(2)}
+                                    </DisplayValue>
+
+                                    <div className="flex gap-4 mb-4">
+                                        <button
+                                            type="button"
+                                            onClick={handleSaveNewPricing}
+                                            className="text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            Save New Pricing
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelUpdatePricing}
+                                            className="text-gray-600 hover:text-gray-800 underline"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </>
                     ) : (
                         // Add Mode
                         <>
@@ -412,11 +546,11 @@ function MaterialsList() {
                                 step="0.01"
                                 unit="$"
                             />
+                            <DisplayValue label="Cost Per Unit" unit="$">
+                                {costPerUnit.toFixed(2)}
+                            </DisplayValue>
                         </>
                     )}
-                    <DisplayValue label="Cost Per Unit" unit={unitAbbreviation}>
-                        {costPerUnit.toFixed(2)}
-                    </DisplayValue>
                     <TextInput
                         label="Last Purchase Date"
                         type="date"
@@ -441,6 +575,15 @@ function MaterialsList() {
                         value={supplier}
                         onChange={(e) => setSupplier(e.target.value)}
                         error={formErrors.supplier}
+                    ></TextInput>
+                    <TextInput
+                        label="Supplier URL"
+                        name="supplierUrl"
+                        type="url"
+                        value={supplierUrl}
+                        onChange={(e) => setSupplierUrl(e.target.value)}
+                        error={formErrors.supplierUrl}
+                        placeholder="https://example.com"
                     ></TextInput>
                     <TextArea
                         label="Additional Notes"

@@ -17,6 +17,11 @@ export const addMaterialsValidation = z.object({
         .nonnegative("Minimum stock level should be positive"),
     lastPurchaseDate: z.string().nonempty("Purchase date is required"),
     supplierName: z.string().optional(),
+    supplierUrl: z
+        .string()
+        .url("Must be a valid URL")
+        .optional()
+        .or(z.literal("")),
     notes: z.string().optional(),
 });
 
@@ -42,6 +47,11 @@ export const updateMaterialsValidation = z.object({
         .nonnegative("Minimum stock level should be positive"),
     lastPurchaseDate: z.string().nonempty("Purchase date is required"),
     supplierName: z.string().optional(),
+    supplierUrl: z
+        .string()
+        .url("Must be a valid URL")
+        .optional()
+        .or(z.literal("")),
     notes: z.string().optional(),
 });
 

@@ -47,6 +47,7 @@ export const getMaterialsList = async (userId: string) => {
             purchaseQuantity: materialAndSupply.purchaseQuantity,
             lastPurchaseDate: materialAndSupply.lastPurchaseDate,
             supplier: materialAndSupply.supplier,
+            supplierUrl: materialAndSupply.supplierUrl,
             notes: materialAndSupply.notes,
             threshold: materialAndSupply.threshold,
             lastUpdatedDate: materialAndSupply.updatedAt,
@@ -100,13 +101,13 @@ export const deleteMaterial = async (materialId: string) => {
         .where(eq(materialAndSupply.id, materialId));
 };
 
-// Exclude costPerUnit and purchaseQuantity from insert type since they're auto-computed
+// Exclude auto-computed fields from insert type:
+// - costPerUnit: computed as purchasePrice / quantity
+// - purchaseQuantity: set equal to quantity on initial insert
 export type MaterialInsert = Omit<
     InferInsertModel<typeof materialAndSupply>,
     "costPerUnit" | "purchaseQuantity"
-> & {
-    purchasePrice: number; // Make purchasePrice required for inserts (needed to compute costPerUnit)
-};
+>;
 /**
  * Add a new material to the database
  * For Materials page
@@ -124,6 +125,7 @@ export const addMaterial = async (data: MaterialInsert) => {
         return await db.transaction(async (tx) => {
             const materialId = uuidv7();
 
+            // Insert material
             const [insertedMaterial] = await tx
                 .insert(materialAndSupply)
                 .values({
@@ -140,6 +142,7 @@ export const addMaterial = async (data: MaterialInsert) => {
                     costPerUnit: costPerUnit,
                     lastPurchaseDate: data.lastPurchaseDate,
                     supplier: data.supplier,
+                    supplierUrl: data.supplierUrl,
                     notes: data.notes,
                     threshold: data.threshold,
                 })
@@ -165,7 +168,9 @@ export const addMaterial = async (data: MaterialInsert) => {
 
 export type MaterialUpdate = Partial<
     Omit<MaterialInsert, "id" | "userId" | "createdAt" | "updatedAt">
->;
+> & {
+    purchaseQuantity?: number; // Override mandatory field with optional during update
+};
 /**
  * To be used by Materials page when updating material information
  * For Materials page
@@ -195,10 +200,27 @@ export const updateMaterial = async (
             throw new Error("Material not found");
         }
 
-        // Current limitaiton: no pricing updates allowed in edit mode
+        // Compute costPerUnit if purchasePrice and purchaseQuantity are both provided (from Update Material Pricing)
+        const updateData: MaterialUpdate & { costPerUnit?: number } = {
+            ...data,
+        };
+
+        // Recalculate costPerUnit if BOTH purchasePrice and purchaseQuantity are provided (for Update Material Pricing)
+        if (
+            data.purchasePrice !== undefined &&
+            data.purchaseQuantity !== undefined &&
+            data.purchaseQuantity !== null
+        ) {
+            updateData.costPerUnit = computeCostPerUnit(
+                data.purchasePrice,
+                data.purchaseQuantity,
+            );
+        }
+
+        // Update material
         const result = await tx
             .update(materialAndSupply)
-            .set(data)
+            .set(updateData)
             .where(
                 and(
                     eq(materialAndSupply.id, materialId),
