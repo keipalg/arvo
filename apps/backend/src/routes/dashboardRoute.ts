@@ -7,6 +7,8 @@ import {
     getLeastSellingProducts,
     getMonthlyReveneueLast6Months,
     getTopSellingProducts,
+    getMostSellingProductWithComparison,
+    getLeastSellingProductWithComparison,
     getTotalProductsSold as getMonthlyProductsSold,
     getMonthlyBusinessExpenseWithType as getTotalMonthlyBusinessExpenses,
     getMonthlyTotalBusinessExpenses,
@@ -102,6 +104,16 @@ export const dashboardRouter = router({
                 popularityPercentage: product.goodsSold / totalProductsSold,
             }));
         }),
+
+    mostSellingProductWithComparison: protectedProcedure
+        .input(dashboardTimezoneValidation)
+        .query(async ({ ctx, input }) => {
+            return await getMostSellingProductWithComparison(
+                ctx.user.id,
+                input.timezone,
+            );
+        }),
+
     lowSellingProducts: protectedProcedure
         .input(dashboardTimezoneValidation)
         .query(async ({ ctx, input }) => {
@@ -114,6 +126,16 @@ export const dashboardRouter = router({
                 popularityPercentage: product.goodsSold / totalProductsSold,
             }));
         }),
+
+    leastSellingProductWithComparison: protectedProcedure
+        .input(dashboardTimezoneValidation)
+        .query(async ({ ctx, input }) => {
+            return await getLeastSellingProductWithComparison(
+                ctx.user.id,
+                input.timezone,
+            );
+        }),
+
     expenseBreakdown: protectedProcedure
         .input(dashboardTimezoneValidation)
         .query(async ({ ctx, input }) => {

@@ -58,21 +58,23 @@ const Metric = ({
     return (
         <>
             <div
-                className={`${style.bgColor} border ${style.borderColor} rounded-xl px-4 py-3.5 flex flex-col gap-0.5 text-m`}
+                className={`${style.bgColor} border ${style.borderColor} rounded-2xl min-w-fit px-4 py-3.5`}
             >
                 <div>{topText}</div>
-                <div className={`${style.textColor} font-semibold text-3xl`}>
+                <div
+                    className={`${style.textColor} pb-1 font-semibold text-2xl`}
+                >
                     {value}
                 </div>
                 <div className="flex gap-1 items-center">
                     {showPercentage && (
                         <div
-                            className={`${style.badgeBgColor} text-arvo-white-0 px-1 rounded-sm flex gap-1.5`}
+                            className={`${style.badgeBgColor} text-arvo-white-0 px-1.5 rounded-[5px] flex gap-1.5`}
                         >
                             <img
                                 src={style.trendIconSrc}
                                 alt=""
-                                className="w-3.5 icon-white"
+                                className="w-3 icon-white"
                             />
                             <div>{changePercent.toFixed(2)}%</div>
                         </div>

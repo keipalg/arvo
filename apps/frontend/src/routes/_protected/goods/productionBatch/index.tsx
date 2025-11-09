@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
+import AddButton from "../../../../components/button/AddButton";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
 import TextInput from "../../../../components/input/TextInput";
 import PageTitle from "../../../../components/layout/PageTitle";
@@ -376,11 +377,11 @@ function ProductionBatchList() {
         <BaseLayout title="Batch Production">
             <div className="flex justify-between">
                 <PageTitle title="Batch Production" />
-                <Button
+                <AddButton
                     value="Add Batch Production"
                     icon="/icon/plus.svg"
                     onClick={() => setDrawerOpen(true)}
-                ></Button>
+                ></AddButton>
             </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
