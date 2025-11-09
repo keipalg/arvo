@@ -2,17 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../../components/BaseLayout";
 import { trpc, type AppRouter } from "../../../../utils/trpcClient";
 import { useQuery } from "@tanstack/react-query";
-import DataTable from "../../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../../components/table/DataTable";
 import type { inferRouterOutputs } from "@trpc/server";
 import PageTitle from "../../../../components/layout/PageTitle";
 import Metric from "../../../../components/metric/Metric";
 import { useEffect, useState } from "react";
+import { useIsSmUp } from "../../../../utils/screenWidth";
+import MaterialExpenseDetails from "../../../../components/table/DataTableDetailMaterialExpense";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
 });
 
-type UsedMaterialPerSales =
+export type UsedMaterialPerSales =
     inferRouterOutputs<AppRouter>["sales"]["usedMaterialPerSales"][number] & {
         actions: string;
     };
@@ -29,6 +33,55 @@ function UsedMaterials() {
         trpc.sales.usedMaterialPerSales.queryOptions(),
     );
     console.log("usedMaterialPerSales:", usedMaterialPerSales);
+
+    const tableFilterOptions: FilterOption<UsedMaterialPerSales>[] =
+        usedMaterialPerSales && usedMaterialPerSales.length > 0
+            ? [
+                  {
+                      key: "materialName",
+                      label: "Material Name",
+                      values: Array.from(
+                          new Set(
+                              usedMaterialPerSales.map(
+                                  (item) => item.materialName,
+                              ),
+                          ),
+                      ).map((name) => ({
+                          key: name,
+                          label: name
+                              .replace(/_/g, " ")
+                              .toLowerCase()
+                              .replace(/^\w/, (c) => c.toUpperCase()),
+                      })),
+                  },
+              ]
+            : [];
+    const isSmUp = useIsSmUp();
+    const detailsRender = (row: UsedMaterialPerSales) => {
+        const defaultMobileSet = new Set<keyof UsedMaterialPerSales>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        if (columns[2]) defaultMobileSet.add(columns[2].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof UsedMaterialPerSales>(
+            Array.from(defaultMobileSet),
+        );
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <MaterialExpenseDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
+    };
 
     useEffect(() => {
         /*****
@@ -198,8 +251,8 @@ function UsedMaterials() {
         { key: "goodName", header: "Goods Name" },
     ];
 
-    const tabledData = (usedMaterialPerSales ?? []).map((element) => ({
-        id: element.materialID + "_" + element.salesId,
+    const tabledData = (usedMaterialPerSales ?? []).map((element, index) => ({
+        id: index,
         ...element,
         actions: "",
     }));
@@ -232,7 +285,49 @@ function UsedMaterials() {
                     bottomText="compared to last month"
                 />
             </div>
-            <DataTable columns={columns} data={tabledData} />
+            <DataTable
+                columns={columns}
+                data={tabledData}
+                detailRender={detailsRender}
+                mobileVisibleKeys={[
+                    "materialName",
+                    "usedMaterialCost",
+                    "soldDate",
+                ]}
+                sortOptions={[
+                    {
+                        key: "materialName",
+                        label: "Name (A → Z)",
+                        order: "asc",
+                    },
+                    {
+                        key: "materialName",
+                        label: "Name (Z → A)",
+                        order: "desc",
+                    },
+                    {
+                        key: "soldDate",
+                        label: "Date (Newest → Oldest)",
+                        order: "desc",
+                    },
+                    {
+                        key: "soldDate",
+                        label: "Date (Oldest → Newest)",
+                        order: "asc",
+                    },
+                    {
+                        key: "usedMaterialCost",
+                        label: "Cost (High → Low)",
+                        order: "desc",
+                    },
+                    {
+                        key: "usedMaterialCost",
+                        label: "Cost (Low → High)",
+                        order: "asc",
+                    },
+                ]}
+                filterOptions={tableFilterOptions}
+            />
         </BaseLayout>
     );
 }
