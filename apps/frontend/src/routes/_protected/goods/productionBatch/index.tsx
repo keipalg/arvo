@@ -14,14 +14,16 @@ import Button from "../../../../components/button/Button";
 import AddButton from "../../../../components/button/AddButton";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
 import TextInput from "../../../../components/input/TextInput";
+import TextArea from "../../../../components/input/TextArea";
 import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
+import MaterialCostTable from "../../../../components/pricing/MaterialCostTable";
+import NumberInput from "../../../../components/input/NumberInput";
 
 import {
     productionBatchInputValidation,
     productionBatchUpdateValidation,
 } from "@arvo/shared";
-import NumberInput from "../../../../components/input/NumberInput";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -57,6 +59,7 @@ function ProductionBatchList() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [productionDate, setProductionDate] = useState("");
     const [goodId, setGoodId] = useState("");
+    const [note, setNote] = useState("");
     const [quantity, setQuantity] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -151,6 +154,7 @@ function ProductionBatchList() {
         setMaterials([]);
         setMaterialOutputRatios([]);
         setEditingBatchId("");
+        setNote("");
     };
 
     const closeDrawer = () => {
@@ -229,6 +233,7 @@ function ProductionBatchList() {
                 quantity,
                 productionCost,
                 materials,
+                notes: note,
             });
 
             console.log(result.data);
@@ -256,6 +261,7 @@ function ProductionBatchList() {
                 quantity,
                 productionCost,
                 materials,
+                notes: note,
             });
 
             if (!result.success) {
@@ -289,6 +295,7 @@ function ProductionBatchList() {
                 : "",
         );
         setQuantity(productionBatch.quantity || 0);
+        setNote(productionBatch.notes);
     };
 
     const handleDelete = (id: string) => {
@@ -297,14 +304,6 @@ function ProductionBatchList() {
             closeDrawer();
         }
     };
-
-    console.log("Submitting data:", {
-        goodId,
-        productionDate,
-        quantity,
-        productionCost,
-        materials,
-    });
 
     // find material output ratio by selected good id
     useEffect(() => {
@@ -346,7 +345,7 @@ function ProductionBatchList() {
                 return ratio.currentQuantity / ratio.input;
             });
 
-            setMaxQuantity(Math.floor(Math.max(...maxQuantityForEach)));
+            setMaxQuantity(Math.floor(Math.min(...maxQuantityForEach)));
         }
     }, [materialOutputRatios]);
 
@@ -404,7 +403,16 @@ function ProductionBatchList() {
                     ]}
                 />
             )}
-            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+            <RightDrawer
+                title={
+                    !editingBatchId
+                        ? "Add New Batch Production"
+                        : "Edit Batch Production"
+                }
+                narrower={true}
+                isOpen={drawerOpen}
+                onClose={() => closeDrawer()}
+            >
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -413,13 +421,15 @@ function ProductionBatchList() {
                     <TextInput
                         label="Production Date"
                         name="productionDate"
+                        required={true}
                         type="date"
                         value={productionDate}
                         onChange={(e) => setProductionDate(e.target.value)}
                         error={formErrors.productionDate}
                     ></TextInput>
                     <Select
-                        label="Product"
+                        label="Product Made"
+                        required={true}
                         name="product"
                         value={goodId}
                         disabled={!!editingBatchId}
@@ -434,7 +444,8 @@ function ProductionBatchList() {
                     ></Select>
 
                     <NumberInput
-                        label="Quantity"
+                        label="Produced Quantity"
+                        required={true}
                         min="0"
                         step="1"
                         value={quantity}
@@ -442,31 +453,29 @@ function ProductionBatchList() {
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
                     ></NumberInput>
+                    <MaterialCostTable
+                        materials={materialOutputRatios.map((ratio) => ({
+                            materialName: ratio.materialName,
+                            unitAbbreviation: ratio.abbreviation,
+                            usedAmount: ratio.input * quantity,
+                            inventoryQuantity: ratio.currentQuantity,
+                            cost: ratio.costPerUnit * ratio.input * quantity,
+                            errorCondition:
+                                ratio.input * quantity > ratio.currentQuantity,
+                        }))}
+                        totalCost={`$${Number(productionCost).toFixed(2)}`}
+                    />
 
-                    <ul>
-                        {" "}
-                        Recipe:
-                        {materialOutputRatios?.map((ratio) => (
-                            <li key={ratio.id}>
-                                {ratio.materialName} : {ratio.input}{" "}
-                                {ratio.abbreviation} | Used Amount{" "}
-                                {Number(ratio.input * quantity).toFixed(2)}{" "}
-                                {ratio.abbreviation} | Inventory{" "}
-                                {ratio.currentQuantity} {ratio.abbreviation}
-                                {ratio.input * quantity >
-                                    ratio.currentQuantity && (
-                                    <p className="text-red-500">
-                                        Error: Your inventory is insufficient.
-                                    </p>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                    <p>
-                        Total Material Cost: {Number(productionCost).toFixed(2)}
-                    </p>
+                    <TextArea
+                        label="Notes"
+                        name="notes"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                    ></TextArea>
 
-                    <div className="flex gap-2">
+                    <div
+                        className={`mt-3 grid ${editingBatchId && "grid-cols-2 gap-2"}`}
+                    >
                         {editingBatchId && (
                             <Button
                                 type="button"
