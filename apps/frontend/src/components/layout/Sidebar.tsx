@@ -12,7 +12,7 @@ type SideBarProps = {
 const Sidebar = ({ isOpen, onToggleSidebar }: SideBarProps) => {
     return (
         <aside
-            className={`flex flex-col justify-between min-h-screen text-lg max-sm:text-xl max-sm:fixed max-sm:top-0 max-sm:left-0 min-w-full sm:min-w-78 z-10 bg-arvo-blue-20 p-4 transform transition-transform
+            className={`flex flex-col justify-between min-h-screen text-lg max-sm:text-xl max-sm:fixed max-sm:top-0 max-sm:left-0 min-w-full sm:min-w-78 z-[10000] bg-arvo-blue-20 p-4 transform transition-transform
             ${isOpen ? "max-sm:translate-0" : "max-sm:-translate-x-full"}`}
         >
             <div>
