@@ -22,6 +22,7 @@ import { FileInput } from "../../../../components/input/FileInput";
 import { uploadFile } from "../../../../utils/fileUpload";
 import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 import ToastNotification from "../../../../components/modal/ToastNotification";
+import Metric from "../../../../components/metric/Metric";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -68,6 +69,12 @@ type BusinessExpense = {
 type BusinessExpenseWithActions = BusinessExpense & { actions: string };
 
 function BusinessExpense() {
+    const [topExpense, setTopExpense] = useState<
+        Record<string, number | string> | undefined
+    >(undefined);
+    const [totalExpensesThisMonth, setTotalExpensesThisMonth] = useState<
+        Record<string, number | string> | undefined
+    >(undefined);
     const initialBusinessExpense: BusinessExpense = {
         id: "",
         expense_category: "Operational Expenses",
@@ -145,7 +152,13 @@ function BusinessExpense() {
     const combinedExpensesList = [
         ...(operationalExpensesList ?? []),
         ...(studioOverheadExpensesList ?? []),
-    ];
+    ].sort((a, b) => {
+        const dateA =
+            a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+        const dateB =
+            b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+    });
     console.log("combinedExpensesList", combinedExpensesList);
 
     useEffect(() => {
@@ -204,6 +217,130 @@ function BusinessExpense() {
         businessExpenseFormData.start_date,
         businessExpenseFormData.repeat_every,
     ]);
+
+    useEffect(() => {
+        /*****
+         * Calculate total business expense for current and previous month
+         */
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const previousMonthDate = new Date(currentYear, currentMonth - 1, 1);
+        const previousMonth = previousMonthDate.getMonth();
+        const previousYear = previousMonthDate.getFullYear();
+
+        const calcTotalBusinessExpenseByMonth = (year: number, month: number) =>
+            combinedExpensesList?.reduce(
+                (accumulator, currentValue) => {
+                    const soldMonth = new Date(
+                        currentValue.createdAt,
+                    ).getMonth();
+                    const soldYear = new Date(
+                        currentValue.createdAt,
+                    ).getFullYear();
+
+                    const cost =
+                        typeof currentValue.cost === "string"
+                            ? parseFloat(currentValue.cost)
+                            : currentValue.cost;
+
+                    if (soldYear === year && soldMonth === month) {
+                        accumulator[currentValue.name] =
+                            (accumulator[currentValue.name] || 0) + cost;
+                    }
+                    return accumulator;
+                },
+                {} as Record<string, number>,
+            );
+
+        const totalCurrentByBusinessExpense = calcTotalBusinessExpenseByMonth(
+            currentYear,
+            currentMonth,
+        );
+        const totalPreviousByBusinessExpense = calcTotalBusinessExpenseByMonth(
+            previousYear,
+            previousMonth,
+        );
+
+        console.log("Total Current Month:", totalCurrentByBusinessExpense);
+        console.log("Total Previous Month:", totalPreviousByBusinessExpense);
+
+        /*****
+         * Calculate top business expense and its change percent compared to previous month
+         */
+        const calcTopCurrentBusinessExpenseName = () => {
+            if (!totalCurrentByBusinessExpense) return undefined;
+
+            return Object.entries(totalCurrentByBusinessExpense).reduce(
+                (max, [key, value]) =>
+                    value > max.value ? { key, value } : max,
+                { key: "", value: -Infinity },
+            ).key;
+        };
+
+        const topCurrentName = calcTopCurrentBusinessExpenseName();
+        console.log("Top Business Expense Name This Month:", topCurrentName);
+
+        const prevBusinessCost =
+            totalPreviousByBusinessExpense?.[topCurrentName ?? ""] ?? 0;
+        const currentBusinessCost =
+            totalCurrentByBusinessExpense?.[topCurrentName ?? ""] ?? 0;
+        const changePercentForTopBusiness =
+            prevBusinessCost === 0
+                ? currentBusinessCost === 0
+                    ? 0
+                    : 100
+                : ((currentBusinessCost - prevBusinessCost) /
+                      prevBusinessCost) *
+                  100;
+        setTopExpense({
+            name: topCurrentName ?? "-",
+            cost: currentBusinessCost,
+            changePercent: changePercentForTopBusiness,
+        });
+
+        /*****
+         * Calculate total business expense for current month and its change percent compared to previous month
+         */
+        const calculateTotalThisMonth = () => {
+            if (!totalCurrentByBusinessExpense) return 0;
+
+            return Object.values(totalCurrentByBusinessExpense).reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0,
+            );
+        };
+        const calculatedTotalPreviousMonth = () => {
+            if (!totalPreviousByBusinessExpense) return 0;
+
+            return Object.values(totalPreviousByBusinessExpense).reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0,
+            );
+        };
+        const totalThisMonth = calculateTotalThisMonth();
+        const totalPreviousMonth = calculatedTotalPreviousMonth();
+        console.log("Total Business Expense This Month:", totalThisMonth);
+        console.log(
+            "Total Business Expense Previous Month:",
+            totalPreviousMonth,
+        );
+
+        const changePercentForTotal =
+            totalPreviousMonth === 0
+                ? totalThisMonth === 0
+                    ? 0
+                    : 100
+                : ((totalThisMonth - totalPreviousMonth) / totalPreviousMonth) *
+                  100;
+
+        setTotalExpensesThisMonth({
+            total: totalThisMonth,
+            changePercent: changePercentForTotal,
+        });
+        console.log("totalExpensesThisMonth", totalExpensesThisMonth);
+    }, [rowDataOperationalExpensesList, rowDataStudioOverheadExpensesList]);
 
     const closeDrawer = () => {
         setDrawerOpen(false);
@@ -664,6 +801,26 @@ function BusinessExpense() {
                     }}
                     icon="/icon/plus.svg"
                 ></Button>
+            </div>
+            <div className="flex gap-6 py-2">
+                <Metric
+                    value={`${topExpense?.name ?? "-"}`}
+                    changePercent={Number(topExpense?.changePercent) ?? 0}
+                    topText="Top Expense"
+                    bottomText="since last month"
+                />
+                <Metric
+                    value={`${totalExpensesThisMonth?.total ? `$${Number(totalExpensesThisMonth.total).toFixed(2)}` : "-"}`}
+                    changePercent={
+                        totalExpensesThisMonth?.changePercent != null
+                            ? Math.round(
+                                  Number(totalExpensesThisMonth.changePercent),
+                              )
+                            : 0
+                    }
+                    topText="Total Expense"
+                    bottomText="compared to last month"
+                />
             </div>
             {isLoadingOperational && isLoadingStudio && <div>Loading...</div>}
             {errorOperational && errorStudio && (
