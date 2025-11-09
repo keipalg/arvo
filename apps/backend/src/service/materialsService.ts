@@ -248,7 +248,23 @@ export const updateMaterial = async (
 
         // Check inventory and notify if needed when quantity or threshold changed
         if (data.quantity !== undefined || data.threshold !== undefined) {
-            await _checkAndNotifyLowInventory(materialId, userId);
+            // Use the updated values from the transaction
+            const finalQuantity =
+                data.quantity !== undefined
+                    ? data.quantity
+                    : currentMaterial.quantity;
+            const finalThreshold =
+                data.threshold !== undefined
+                    ? data.threshold
+                    : currentMaterial.threshold;
+
+            await _checkAndNotifyLowInventory(
+                materialId,
+                userId,
+                tx,
+                finalQuantity,
+                finalThreshold,
+            );
         }
 
         return result;
@@ -259,49 +275,114 @@ export const updateMaterial = async (
  * Private helper to check material inventory and create notification if below threshold
  * @param materialId material ID
  * @param userId user ID
+ * @param tx database transaction context (defaults to db if not provided)
+ * @param quantity quantity value (optional - if provided, skips quantity query)
+ * @param threshold threshold value (optional - if provided, skips threshold query)
  */
 const _checkAndNotifyLowInventory = async (
     materialId: string,
     userId: string,
+    tx: NeonDbTx = db,
+    quantity?: number,
+    threshold?: number | null,
 ) => {
-    const material = await db
-        .select({
-            name: materialAndSupply.name,
-            materialTypeName: materialType.name,
-            quantity: materialAndSupply.quantity,
-            threshold: materialAndSupply.threshold,
-            unitAbbreviation: unit.abbreviation,
-        })
-        .from(materialAndSupply)
-        .where(
-            and(
-                eq(materialAndSupply.id, materialId),
-                eq(materialAndSupply.userId, userId),
-            ),
-        )
-        .innerJoin(
-            materialType,
-            eq(materialAndSupply.materialTypeId, materialType.id),
-        )
-        .innerJoin(unit, eq(materialAndSupply.unitId, unit.id))
-        .limit(1)
-        .then((result) => result[0]);
+    // If quantity and threshold are provided, use them directly
+    // Otherwise, fetch from database
+    let materialData: {
+        name: string;
+        materialTypeName: string;
+        quantity: number;
+        threshold: number | null;
+        unitAbbreviation: string;
+    };
 
-    if (!material) {
-        return;
+    if (quantity !== undefined && threshold !== undefined) {
+        // Get other notification info using the transaction context
+        const material = await tx
+            .select({
+                name: materialAndSupply.name,
+                materialTypeName: materialType.name,
+                unitAbbreviation: unit.abbreviation,
+            })
+            .from(materialAndSupply)
+            .where(
+                and(
+                    eq(materialAndSupply.id, materialId),
+                    eq(materialAndSupply.userId, userId),
+                ),
+            )
+            .innerJoin(
+                materialType,
+                eq(materialAndSupply.materialTypeId, materialType.id),
+            )
+            .innerJoin(unit, eq(materialAndSupply.unitId, unit.id))
+            .limit(1)
+            .then((result) => result[0]);
+
+        if (!material) {
+            return;
+        }
+
+        materialData = {
+            ...material,
+            quantity,
+            threshold,
+        };
+    } else {
+        // Fetch all data including quantity and threshold
+        const material = await tx
+            .select({
+                name: materialAndSupply.name,
+                materialTypeName: materialType.name,
+                quantity: materialAndSupply.quantity,
+                threshold: materialAndSupply.threshold,
+                unitAbbreviation: unit.abbreviation,
+            })
+            .from(materialAndSupply)
+            .where(
+                and(
+                    eq(materialAndSupply.id, materialId),
+                    eq(materialAndSupply.userId, userId),
+                ),
+            )
+            .innerJoin(
+                materialType,
+                eq(materialAndSupply.materialTypeId, materialType.id),
+            )
+            .innerJoin(unit, eq(materialAndSupply.unitId, unit.id))
+            .limit(1)
+            .then((result) => result[0]);
+
+        if (!material) {
+            return;
+        }
+
+        materialData = material;
     }
 
-    // Check if quantity is at or below threshold, then create notification
+    // Debug logging
+    console.log("Checking inventory notification:", {
+        materialName: materialData.name,
+        quantity: materialData.quantity,
+        threshold: materialData.threshold,
+        shouldAlert: materialData.quantity < (materialData.threshold as number),
+    });
+
+    // Check if quantity is below threshold (low stock), then create notification
     if (
-        material.threshold !== null &&
-        material.quantity <= (material.threshold as number)
+        materialData.threshold !== null &&
+        materialData.quantity < (materialData.threshold as number)
     ) {
+        console.log(
+            "Creating low inventory notification for:",
+            materialData.name,
+        );
         await createMaterialLowInventoryNotification(
             userId,
-            material.materialTypeName,
-            material.name,
-            material.threshold as number,
-            material.unitAbbreviation,
+            materialData.materialTypeName,
+            materialData.name,
+            materialData.threshold as number,
+            materialData.unitAbbreviation,
         );
     }
 };

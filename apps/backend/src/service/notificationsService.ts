@@ -100,6 +100,11 @@ export const createMaterialLowInventoryNotification = async (
     minimumStockLevel: number,
     unitAbv: string,
 ) => {
+    console.log("createMaterialLowInventoryNotification called:", {
+        userId,
+        materialName,
+    });
+
     const preferences = await db
         .select({
             lowInventoryAlertForMaterials:
@@ -109,7 +114,10 @@ export const createMaterialLowInventoryNotification = async (
         .where(eq(userPreference.userId, userId))
         .limit(1);
 
+    console.log("User preferences:", preferences[0]);
+
     if (preferences[0] && !preferences[0].lowInventoryAlertForMaterials) {
+        console.log("Material notifications disabled for user");
         return; // Off - Don't send material notification
     }
 
@@ -120,7 +128,9 @@ export const createMaterialLowInventoryNotification = async (
     const title = `Low Material: ${materialType}`;
     const message = `Time to restock! Your ${materialName} has reached ${minimumStockLevel} ${unitAbv}.`;
 
+    console.log("Inserting notification:", { title, message });
     await _insertNotification(userId, typeId, title, message);
+    console.log("Notification inserted successfully");
 };
 
 /**
