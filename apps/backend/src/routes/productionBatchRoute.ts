@@ -1,10 +1,14 @@
 import {
     productionBatchInputValidation,
     productionBatchUpdateValidation,
+    batchTimezoneValidation,
 } from "@arvo/shared";
+
 import { z } from "zod";
 import {
     deleteProductionBatch,
+    getMostProducedProductWithComparison,
+    getLeastProducedProductWithComparison,
     getProductionBatch,
     processProductionBatch,
     processProductionBatchUpdate,
@@ -51,5 +55,22 @@ export const productionBatchRouter = router({
         .mutation(async ({ input, ctx }) => {
             await deleteProductionBatch(input.id, ctx.user.id);
             return { success: true };
+        }),
+    mostProducedProductWithComparison: protectedProcedure
+        .input(batchTimezoneValidation)
+        .query(async ({ ctx, input }) => {
+            return await getMostProducedProductWithComparison(
+                ctx.user.id,
+                input.timezone,
+            );
+        }),
+
+    leastProducedProductWithComparison: protectedProcedure
+        .input(batchTimezoneValidation)
+        .query(async ({ ctx, input }) => {
+            return await getLeastProducedProductWithComparison(
+                ctx.user.id,
+                input.timezone,
+            );
         }),
 });

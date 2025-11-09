@@ -37,3 +37,16 @@ export const productionBatchUpdateValidation = z.object({
 export type ProductionBatchUpdateInput = z.infer<
     typeof productionBatchUpdateValidation
 >;
+
+export const batchTimezoneValidation = z.object({
+    timezone: z.string().refine((tz) => {
+        try {
+            Intl.DateTimeFormat(undefined, { timeZone: tz });
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }),
+});
+
+export type BatchTimezoneInput = z.infer<typeof batchTimezoneValidation>;

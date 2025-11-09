@@ -76,7 +76,7 @@ const Metric = ({
                                 alt=""
                                 className="w-3 icon-white"
                             />
-                            <div>{changePercent.toFixed(2)}%</div>
+                            <div>{changePercent.toFixed(1)}%</div>
                         </div>
                     )}
                     <div>{bottomText}</div>

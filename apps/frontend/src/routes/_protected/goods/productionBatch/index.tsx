@@ -7,7 +7,7 @@ import DataTable, {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../../utils/trpcClient";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
@@ -19,11 +19,15 @@ import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
 import MaterialCostTable from "../../../../components/pricing/MaterialCostTable";
 import NumberInput from "../../../../components/input/NumberInput";
+import Metric from "../../../../components/metric/Metric";
+import BatchDetails from "../../../../components/table/DataTableDetailProductionBatch";
 
 import {
     productionBatchInputValidation,
     productionBatchUpdateValidation,
 } from "@arvo/shared";
+import type React from "react";
+import { useIsSmUp } from "../../../../utils/screenWidth";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -79,6 +83,19 @@ function ProductionBatchList() {
     const { data: materialList } = useQuery(
         trpc.materials.materialList.queryOptions(),
     );
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const { data: topProducedMetrics } = useQuery(
+        trpc.productionBatch.mostProducedProductWithComparison.queryOptions({
+            timezone,
+        }),
+    );
+    const { data: leastProducedMetrics } = useQuery(
+        trpc.productionBatch.leastProducedProductWithComparison.queryOptions({
+            timezone,
+        }),
+    );
+
+    const isSmUp = useIsSmUp();
 
     const calculateProductionCost = (
         ratios: MaterialOutputRatio[],
@@ -87,6 +104,31 @@ function ProductionBatchList() {
         return ratios.reduce((total, ratio) => {
             return total + ratio.input * ratio.costPerUnit * quantity;
         }, 0);
+    };
+
+    const detailsRender = (row: ProductionBatch) => {
+        const defaultMobileSet = new Set<keyof ProductionBatch>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof ProductionBatch>(
+            Array.from(defaultMobileSet),
+        );
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <BatchDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
     };
 
     const columns: Array<{
@@ -114,7 +156,7 @@ function ProductionBatchList() {
         },
         {
             key: "productionCost",
-            header: "Production Cost",
+            header: "Material Cost",
             render: (value) => <>${Number(value).toFixed(2)}</>,
         },
         {
@@ -375,12 +417,33 @@ function ProductionBatchList() {
     return (
         <BaseLayout title="Batch Production">
             <div className="flex justify-between">
-                <PageTitle title="Batch Production" />
+                <PageTitle
+                    title="Batch Production"
+                    info="Batch Production helps you with recording and managing your product batches to keep all production details organized in one place."
+                />
                 <AddButton
                     value="Add Batch Production"
                     icon="/icon/plus.svg"
                     onClick={() => setDrawerOpen(true)}
                 ></AddButton>
+            </div>
+            <div className="flex gap-6 py-2 overflow-x-aut">
+                {topProducedMetrics && (
+                    <Metric
+                        value={topProducedMetrics.productName}
+                        changePercent={topProducedMetrics.percentageChange}
+                        topText="Most produced item"
+                        bottomText="than last month"
+                    />
+                )}
+                {leastProducedMetrics && (
+                    <Metric
+                        value={leastProducedMetrics.productName}
+                        changePercent={leastProducedMetrics.percentageChange}
+                        topText="Least produced item"
+                        bottomText="than last month"
+                    />
+                )}
             </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
@@ -389,6 +452,7 @@ function ProductionBatchList() {
                     columns={columns}
                     data={tabledData || []}
                     filterOptions={tableFilterOptions}
+                    detailRender={detailsRender}
                     sortOptions={[
                         {
                             key: "productionDate",

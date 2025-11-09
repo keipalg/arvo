@@ -22,8 +22,6 @@ export const goodsInputValidation = z.object({
             amount: z.number().min(0.01, "amount must be at least 1"),
         }),
     ),
-
-    // TODO: how to do for image?
 });
 
 export type GoodsInput = z.infer<typeof goodsInputValidation>;
@@ -51,8 +49,6 @@ export const goodsUpdateValidation = z.object({
             amount: z.number().min(0.01, "amount must be at least 1"),
         }),
     ),
-
-    // TODO: how to do for image?
 });
 
 export type GoodsUpdateInput = z.infer<typeof goodsUpdateValidation>;
