@@ -172,7 +172,7 @@ const GoodDetails = ({
                                             !showMaterialsPopup,
                                         )
                                     }
-                                    className="text-arvo-blue-100 underline cursor-pointer font-semibold"
+                                    className="text-arvo-blue-100 underline cursor-pointer font-semibold ml-1.5"
                                 >
                                     View ({filteredMaterials.length})
                                 </button>
@@ -204,7 +204,7 @@ const GoodDetails = ({
                             filteredMaterials.map((material) => (
                                 <div
                                     key={material.materialId}
-                                    className="grid grid-cols-[85%_10%_5%] max-w-60"
+                                    className="grid grid-cols-[85%_10%_5%] max-w-60 gap-2"
                                 >
                                     <div>{material.name}</div>
                                     <div>{material.amount}</div>
@@ -212,6 +212,18 @@ const GoodDetails = ({
                                 </div>
                             ))
                         )}
+                    </div>
+                    <div
+                        className="flex px-4 py-3 font-semibold"
+                        style={cellLabelStyle}
+                    >
+                        Notes
+                    </div>
+                    <div
+                        className="px-4 py-3 break-words"
+                        style={cellValueStyle}
+                    >
+                        {row.note}
                     </div>
                 </div>
             </td>

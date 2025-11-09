@@ -26,6 +26,7 @@ export const getProductionBatch = async (userId: string) => {
             quantity: productionBatch.quantity,
             productionCost: productionBatch.productionCost,
             createdAt: productionBatch.createdAt,
+            notes: productionBatch.notes,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
@@ -44,6 +45,7 @@ export const getProductionBatchById = async (
             productionDate: productionBatch.productionDate,
             quantity: productionBatch.quantity,
             productionCost: productionBatch.productionCost,
+            notes: productionBatch.notes,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
@@ -65,6 +67,7 @@ export const addProductionBatch = async (data: ProductionBatchInsert) => {
             productionDate: data.productionDate,
             quantity: data.quantity,
             productionCost: data.productionCost,
+            notes: data.notes,
         })
         .returning({ id: productionBatch.id });
 };
@@ -81,6 +84,7 @@ export const processProductionBatch = async (
                 input.productionDate || new Date().toISOString().split("T")[0],
             quantity: input.quantity,
             productionCost: input.productionCost,
+            notes: input.notes,
         });
 
         for (const material of input.materials) {
