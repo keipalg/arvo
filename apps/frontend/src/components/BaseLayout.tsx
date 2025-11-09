@@ -19,18 +19,18 @@ const BaseLayout = ({ title, children }: BaseLayoutProps) => {
     };
 
     return (
-        <>
+        <div className="mx-auto max-w-[1920px] w-full flex">
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggleSidebar={() => handleToggleSidebar()}
             />
-            <div className="h-screen min-h-screen flex flex-col w-full relative overflow-x-hidden">
+            <div className="h-screen min-h-screen flex flex-col flex-1 relative overflow-x-hidden">
                 <main className="flex-1 overflow-auto py-4 pl-4 pr-4 md:pr-12">
                     <Header onToggleSidebar={() => handleToggleSidebar()} />
                     {children}
                 </main>
             </div>
-        </>
+        </div>
     );
 };
 
