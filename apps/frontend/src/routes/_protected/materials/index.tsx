@@ -58,6 +58,8 @@ function MaterialsList() {
     const [newCostPerUnit, setNewCostPerUnit] = useState(0);
     const [originalCostPerUnit, setOriginalCostPerUnit] = useState(0);
     const [pricingUpdated, setPricingUpdated] = useState(false);
+    const [createdAt, setCreatedAt] = useState("N/A");
+    const [updatedAt, setUpdatedAt] = useState("N/A");
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
     const { data, isLoading, error } = useQuery(
@@ -140,6 +142,8 @@ function MaterialsList() {
         setNewCostPerUnit(0);
         setOriginalCostPerUnit(0);
         setPricingUpdated(false);
+        setCreatedAt("N/A");
+        setUpdatedAt("N/A");
     };
 
     const closeDrawer = () => {
@@ -174,6 +178,19 @@ function MaterialsList() {
         setSupplier(material.supplier || "");
         setSupplierUrl(String(material.supplierUrl || ""));
         setNotes(material.notes || "");
+
+        const materialCreatedAt = (material as Record<string, unknown>)
+            .createdAt;
+        setCreatedAt(
+            materialCreatedAt !== undefined
+                ? new Date(materialCreatedAt as string | Date).toLocaleString()
+                : "N/A",
+        );
+        setUpdatedAt(
+            material.lastUpdatedDate
+                ? new Date(material.lastUpdatedDate).toLocaleString()
+                : "N/A",
+        );
         setDrawerOpen(true);
     };
 
@@ -500,8 +517,12 @@ function MaterialsList() {
             {!isLoading && !error && (
                 <DataTable columns={columns} data={tabledData || []} />
             )}
-            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
-                <h2 className="text-xl font-bold mb-4">
+            <RightDrawer
+                isOpen={drawerOpen}
+                onClose={() => closeDrawer()}
+                narrower={true}
+            >
+                <h2 className="text-2xl font-bold mb-4">
                     {editingMaterialId ? "Edit a Material" : "Add a Material"}
                 </h2>
                 <form
@@ -510,105 +531,115 @@ function MaterialsList() {
                     }}
                 >
                     <TextInput
-                        label="Material Item"
+                        label="Material Item*"
                         name="name"
                         value={itemName}
                         onChange={(e) => setItemName(e.target.value)}
                         error={formErrors.name}
+                        placeholder="Item"
                     ></TextInput>
                     <MaterialTypeSelector
-                        label="Material Type"
+                        label="Material Type*"
                         value={materialType}
                         onChange={setMaterialType}
                         error={formErrors.materialType}
                     />
-                    <NumberInput
-                        label="Quantity"
-                        name="quantity"
-                        value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value))}
-                        error={formErrors.quantity}
-                        min="0"
-                        step="0.01"
-                    ></NumberInput>
-                    <Select
-                        label="Unit"
-                        name="unit"
-                        value={unit}
-                        options={
-                            unitsList
-                                ? unitsList.map((unitsOption) => ({
-                                      value: unitsOption.name,
-                                      label: `${unitsOption.name} (${unitsOption.abv})`,
-                                  }))
-                                : []
-                        }
-                        onChange={(e) => {
-                            const selectedUnitName = e.target.value;
-                            setUnit(selectedUnitName);
-                            const selectedUnit = unitsList?.find(
-                                (u) => u.name === selectedUnitName,
-                            );
-                            if (selectedUnit) {
-                                setUnitAbbreviation(selectedUnit.abv);
+                    <div className="grid grid-cols-2 gap-2">
+                        <NumberInput
+                            label="Quantity*"
+                            name="quantity"
+                            value={quantity}
+                            onChange={(e) =>
+                                setQuantity(Number(e.target.value))
                             }
-                        }}
-                    ></Select>
+                            error={formErrors.quantity}
+                            min="0"
+                            step="0.01"
+                        ></NumberInput>
+                        <Select
+                            label="Unit*"
+                            name="unit"
+                            style="top-3/5"
+                            value={unit}
+                            options={
+                                unitsList
+                                    ? unitsList.map((unitsOption) => ({
+                                          value: unitsOption.name,
+                                          label: `${unitsOption.name} (${unitsOption.abv})`,
+                                      }))
+                                    : []
+                            }
+                            onChange={(e) => {
+                                const selectedUnitName = e.target.value;
+                                setUnit(selectedUnitName);
+                                const selectedUnit = unitsList?.find(
+                                    (u) => u.name === selectedUnitName,
+                                );
+                                if (selectedUnit) {
+                                    setUnitAbbreviation(selectedUnit.abv);
+                                }
+                            }}
+                        ></Select>
+                    </div>
                     {/* Pricing Fields - Different for Add vs Edit mode */}
                     {editingMaterialId ? (
                         // Edit Mode
                         <>
-                            <DisplayValue label="Inventory Value" unit="$">
-                                {(costPerUnit * quantity).toFixed(2)}
-                            </DisplayValue>
-                            <DisplayValue label="Cost Per Unit" unit="$">
-                                {costPerUnit.toFixed(2)}
-                                {pricingUpdated && (
-                                    <span className="text-sm text-gray-500 ml-2">
-                                        (updated from $
-                                        {originalCostPerUnit.toFixed(2)})
-                                    </span>
-                                )}
-                            </DisplayValue>
-
+                            <div className="grid grid-cols-2 gap-2">
+                                <DisplayValue label="Unit Price" unit="$">
+                                    {costPerUnit.toFixed(2)}
+                                    {pricingUpdated && (
+                                        <span className="text-sm text-arvo-black-50 ml-2">
+                                            <br /> (updated from $
+                                            {originalCostPerUnit.toFixed(2)})
+                                        </span>
+                                    )}
+                                </DisplayValue>
+                                <DisplayValue label="Inventory Value" unit="$">
+                                    {(costPerUnit * quantity).toFixed(2)}
+                                </DisplayValue>
+                            </div>
                             {!showUpdatePricing ? (
                                 <button
                                     type="button"
                                     onClick={() => setShowUpdatePricing(true)}
-                                    className="text-left text-blue-600 hover:text-blue-800 underline mb-4"
+                                    className="text-left text-arvo-blue-100 hover:text-arvo-blue-80 underline mb-4"
                                 >
                                     Update Material Pricing
                                 </button>
                             ) : (
                                 <>
-                                    <NumberInput
-                                        label="Updated Purchase Price"
-                                        name="bulkPurchasePrice"
-                                        value={bulkPurchasePrice}
-                                        onChange={(e) =>
-                                            setBulkPurchasePrice(
-                                                Number(e.target.value),
-                                            )
-                                        }
-                                        min="0"
-                                        step="0.01"
-                                        unit="$"
-                                    />
-                                    <NumberInput
-                                        label="Updated Quantity Per Purchase"
-                                        name="bulkPurchaseQuantity"
-                                        value={bulkPurchaseQuantity}
-                                        onChange={(e) =>
-                                            setBulkPurchaseQuantity(
-                                                Number(e.target.value),
-                                            )
-                                        }
-                                        min="0"
-                                        step="0.01"
-                                        unit={unitAbbreviation}
-                                    />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <NumberInput
+                                            label="New Purchase Price"
+                                            name="bulkPurchasePrice"
+                                            value={bulkPurchasePrice}
+                                            onChange={(e) =>
+                                                setBulkPurchasePrice(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                            min="0"
+                                            step="0.01"
+                                            unit="$"
+                                        />
+                                        <NumberInput
+                                            label="New Quantity Per Purchase"
+                                            name="bulkPurchaseQuantity"
+                                            value={bulkPurchaseQuantity}
+                                            onChange={(e) =>
+                                                setBulkPurchaseQuantity(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                            min="0"
+                                            step="0.01"
+                                            unit={unitAbbreviation}
+                                        />
+                                    </div>
                                     <DisplayValue
-                                        label="New Cost Per Unit"
+                                        additionalStyle="text-arvo-green-80"
+                                        label="New Unit Price"
                                         unit="$"
                                     >
                                         {newCostPerUnit.toFixed(2)}
@@ -618,14 +649,14 @@ function MaterialsList() {
                                         <button
                                             type="button"
                                             onClick={handleSaveNewPricing}
-                                            className="text-blue-600 hover:text-blue-800 underline"
+                                            className="text-arvo-blue-100 hover:text-arvo-blue-80 underline cursor-pointer"
                                         >
                                             Save New Pricing
                                         </button>
                                         <button
                                             type="button"
                                             onClick={handleCancelUpdatePricing}
-                                            className="text-gray-600 hover:text-gray-800 underline"
+                                            className="text-arvo-black-100 hover:text-arvo-black-50 underline cursor-pointer"
                                         >
                                             Cancel
                                         </button>
@@ -635,9 +666,9 @@ function MaterialsList() {
                         </>
                     ) : (
                         // Add Mode
-                        <>
+                        <div className="grid grid-cols-2 gap-2">
                             <NumberInput
-                                label="Purchase Price"
+                                label="Purchase Price*"
                                 name="purchasePrice"
                                 value={purchasePrice}
                                 onChange={(e) =>
@@ -648,52 +679,67 @@ function MaterialsList() {
                                 step="0.01"
                                 unit="$"
                             />
-                            <DisplayValue label="Cost Per Unit" unit="$">
+                            <DisplayValue label="Unit Price" unit="$">
                                 {costPerUnit.toFixed(2)}
                             </DisplayValue>
-                        </>
+                        </div>
                     )}
-                    <TextInput
-                        label="Last Purchase Date"
-                        type="date"
-                        name="lastPurchaseDate"
-                        value={lastPurchaseDate}
-                        onChange={(e) => setLastPurchaseDate(e.target.value)}
-                        error={formErrors.lastPurchaseDate}
-                    ></TextInput>
-                    <NumberInput
-                        label="Min. Stock Level"
-                        name="minStockLevel"
-                        value={minStockLevel}
-                        onChange={(e) =>
-                            setMinStockLevel(Number(e.target.value))
-                        }
-                        error={formErrors.minStockLevel}
-                        min="0"
-                    ></NumberInput>
-                    <TextInput
-                        label="Supplier"
-                        name="supplier"
-                        value={supplier}
-                        onChange={(e) => setSupplier(e.target.value)}
-                        error={formErrors.supplier}
-                    ></TextInput>
-                    <TextInput
-                        label="Supplier URL"
-                        name="supplierUrl"
-                        type="url"
-                        value={supplierUrl}
-                        onChange={(e) => setSupplierUrl(e.target.value)}
-                        error={formErrors.supplierUrl}
-                        placeholder="https://example.com"
-                    ></TextInput>
+                    <div className="grid grid-cols-2 gap-2">
+                        <TextInput
+                            label="Last Purchase Date*"
+                            type="date"
+                            name="lastPurchaseDate"
+                            value={lastPurchaseDate}
+                            onChange={(e) =>
+                                setLastPurchaseDate(e.target.value)
+                            }
+                            error={formErrors.lastPurchaseDate}
+                        ></TextInput>
+                        <NumberInput
+                            label="Min. Stock Level"
+                            name="minStockLevel"
+                            value={minStockLevel}
+                            onChange={(e) =>
+                                setMinStockLevel(Number(e.target.value))
+                            }
+                            error={formErrors.minStockLevel}
+                            min="0"
+                        ></NumberInput>
+                        <TextInput
+                            label="Supplier"
+                            name="supplier"
+                            value={supplier}
+                            onChange={(e) => setSupplier(e.target.value)}
+                            error={formErrors.supplier}
+                            placeholder="Supplier Name"
+                        ></TextInput>
+                        <TextInput
+                            label="Supplier URL"
+                            name="supplierUrl"
+                            type="url"
+                            value={supplierUrl}
+                            onChange={(e) => setSupplierUrl(e.target.value)}
+                            error={formErrors.supplierUrl}
+                            placeholder="https://example.com"
+                        ></TextInput>
+                    </div>
                     <TextArea
                         label="Additional Notes"
                         name="notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                     ></TextArea>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2">
+                        <DisplayValue label="Updated at">
+                            {updatedAt}
+                        </DisplayValue>
+                        <DisplayValue label="Created at">
+                            {createdAt}
+                        </DisplayValue>
+                    </div>
+                    <div
+                        className={`mt-4 grid ${editingMaterialId && "grid-cols-2 gap-2"}`}
+                    >
                         {editingMaterialId && (
                             <Button
                                 type="button"
