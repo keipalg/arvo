@@ -1,45 +1,42 @@
-import { createFileRoute } from "@tanstack/react-router";
-import BaseLayout from "../../../components/BaseLayout";
-import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
-import DataTable, {
-    type FilterOption,
-} from "../../../components/table/DataTable";
-import DataTable, {
-    type FilterOption,
-} from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
-import React, { useState, useEffect } from "react";
-import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
-import Select from "../../../components/input/Select";
-import Button from "../../../components/button/Button";
+import React, { useEffect, useState } from "react";
+import BaseLayout from "../../../components/BaseLayout";
 import AddButton from "../../../components/button/AddButton";
+import Button from "../../../components/button/Button";
+import { MoreButton } from "../../../components/button/MoreButton.tsx";
+import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
 import RightDrawer from "../../../components/drawer/RightDrawer";
+import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
-import PageTitle from "../../../components/layout/PageTitle.tsx";
-import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
 import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
-import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
+import PageTitle from "../../../components/layout/PageTitle.tsx";
 import Metric from "../../../components/metric/Metric.tsx";
-import { useIsSmUp } from "../../../utils/screenWidth";
+import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
+import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 import GoodDetails from "../../../components/table/DataTableDetailGood";
-import { MoreButton } from "../../../components/button/MoreButton.tsx";
+import { useIsSmUp } from "../../../utils/screenWidth";
+import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
 
 import {
-    getOverheadCostPerUnit,
-    getCOGS,
-    getNetProfitMargin,
     calculateMaterialCost,
     calculateTotalMaterialCost,
+    getCOGS,
+    getNetProfitMargin,
+    getOverheadCostPerUnit,
 } from "../../../utils/pricing.ts";
 
 import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
+import { FileInput } from "../../../components/input/FileInput.tsx";
+import FormLabel from "../../../components/input/FormLabel.tsx";
 import NumberInput from "../../../components/input/NumberInput.tsx";
 import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
-import { FileInput } from "../../../components/input/FileInput.tsx";
 import { uploadFile } from "../../../utils/fileUpload.ts";
-import FormLabel from "../../../components/input/FormLabel.tsx";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
