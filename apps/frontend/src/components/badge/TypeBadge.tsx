@@ -68,7 +68,7 @@ const TypeBadge = ({
 
     return (
         <div
-            className={`flex items-center gap-2 p-2 hover:bg-arvo-blue-80 cursor-pointer ${isSelected ? "bg-arvo-blue-20" : ""}`}
+            className={`flex items-center gap-2 p-2 hover:bg-arvo-blue-50 cursor-pointer ${isSelected ? "bg-arvo-blue-20" : ""}`}
         >
             <div onClick={() => onSelect(id)} className="flex-1">
                 <Badge
@@ -88,7 +88,7 @@ const TypeBadge = ({
                     <img
                         src="/icon/delete.svg"
                         alt="Delete"
-                        className="w-4 h-4 cursor-pointer"
+                        className="w-6 cursor-pointer"
                     />
                 </button>
             )}

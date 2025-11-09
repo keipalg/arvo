@@ -44,7 +44,7 @@ const TableFilter = ({ options, onSelect }: TableFilterProps) => {
     }, []);
 
     return (
-        <div className="relative inline-block" ref={filterRef}>
+        <div className="relative inline-block z-20" ref={filterRef}>
             <button
                 type="button"
                 className={`border border-arvo-black-5 my-2 px-2 py-1 rounded-md cursor-pointer flex gap-1.5 ${open && "bg-arvo-blue-50"}`}

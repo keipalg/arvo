@@ -35,7 +35,7 @@ const ToolTip = ({ info, iconStyle, boxStyle }: ToolTipProps) => {
     return (
         <div className="group relative" ref={tooltipRef}>
             <img
-                src="../../../public/icon/info.svg"
+                src="/icon/info.svg"
                 alt="Info"
                 className={`min-w-5 cursor-help p-0 ${iconStyle ? iconStyle : ""}`}
                 onClick={() => setIsOpen(!isOpen)}

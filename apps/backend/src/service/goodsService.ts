@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql, type InferInsertModel } from "drizzle-orm";
+import { and, asc, eq, inArray, type InferInsertModel } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
 import {
@@ -28,8 +28,10 @@ export const getGoodsList = async (userId: string) => {
             collectionTag: collectionTag.name,
             materialCost: good.materialCost,
             minimumStockLevel: good.minimumStockLevel,
+            createdAt: good.createdAt,
         })
         .from(good)
+        .orderBy(asc(good.createdAt))
         .where(eq(good.userId, userId))
         .leftJoin(productType, eq(productType.id, good.productTypeId))
         .leftJoin(goodToCollectionTag, eq(goodToCollectionTag.goodId, good.id))

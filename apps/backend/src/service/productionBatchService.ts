@@ -1,4 +1,4 @@
-import { and, eq, type InferInsertModel } from "drizzle-orm";
+import { and, asc, eq, type InferInsertModel } from "drizzle-orm";
 import type {
     ProductionBatchInput,
     ProductionBatchUpdateInput,
@@ -25,6 +25,7 @@ export const getProductionBatch = async (userId: string) => {
             productionDate: productionBatch.productionDate,
             quantity: productionBatch.quantity,
             productionCost: productionBatch.productionCost,
+            createdAt: productionBatch.createdAt,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))

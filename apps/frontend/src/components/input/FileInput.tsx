@@ -79,10 +79,7 @@ export const FileInput = ({
                         onChange={onChange}
                     />
                     <div className="flex items-center gap-5">
-                        <img
-                            src="../../../public/icon/icon-Photo.svg"
-                            className="w-25 h-25"
-                        />
+                        <img src="/icon/icon-photo.svg" className="w-25 h-25" />
                         <div className="font-semibold flex flex-col items-center">
                             <div className="text-arvo-black-25">
                                 Drag and Drop here

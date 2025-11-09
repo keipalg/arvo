@@ -69,9 +69,7 @@ export const PriceSuggestionWidget: React.FC<Props> = ({
                     }
                     disabled={!canSuggest}
                     icon={
-                        !canSuggest
-                            ? "../../../public/icon/ai-black.svg"
-                            : "../../../public/icon/ai-blue.svg"
+                        !canSuggest ? "/icon/ai-black.svg" : "/icon/ai-blue.svg"
                     }
                 />
             </div>
