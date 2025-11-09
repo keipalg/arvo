@@ -50,6 +50,7 @@ export const getMaterialsList = async (userId: string) => {
             supplierUrl: materialAndSupply.supplierUrl,
             notes: materialAndSupply.notes,
             threshold: materialAndSupply.threshold,
+            createdAt: materialAndSupply.createdAt,
             lastUpdatedDate: materialAndSupply.updatedAt,
         })
         .from(materialAndSupply)

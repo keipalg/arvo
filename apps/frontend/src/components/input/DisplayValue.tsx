@@ -4,9 +4,15 @@ type DisplayValueProps = {
     label: string;
     unit?: string;
     children: React.ReactNode;
+    additionalStyle?: string;
 };
 
-const DisplayValue = ({ label, children, unit }: DisplayValueProps) => {
+const DisplayValue = ({
+    label,
+    children,
+    unit,
+    additionalStyle,
+}: DisplayValueProps) => {
     return (
         <div className="flex flex-col gap-1">
             <FormLabel label={label} />
@@ -16,7 +22,11 @@ const DisplayValue = ({ label, children, unit }: DisplayValueProps) => {
                         {unit}
                     </span>
                 )}
-                <span className="px-2.5 py-2.5">{children}</span>
+                <span
+                    className={`${unit ? "px-2.5" : ""} py-2.5 ${additionalStyle || ""}`}
+                >
+                    {children}
+                </span>
             </div>
         </div>
     );
