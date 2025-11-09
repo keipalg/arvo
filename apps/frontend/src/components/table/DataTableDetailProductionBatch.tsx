@@ -5,39 +5,30 @@ import { trpc } from "../../utils/trpcClient";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 
-type Goods = inferRouterOutputs<AppRouter>["goods"]["list"][number] & {
-    actions: string;
-};
+type ProductionBatch =
+    inferRouterOutputs<AppRouter>["productionBatch"]["list"][number] & {
+        actions: string;
+    };
 
-type DataTableDetailGoodProps = {
-    row: Goods;
+type DataTableDetailBatchProps = {
+    row: ProductionBatch;
     columnsLength: number;
     visibleMobileColumnsCount: number;
     isSmUp: boolean;
 };
 
-const GoodDetails = ({
+const BatchDetails = ({
     row,
     columnsLength,
     visibleMobileColumnsCount,
     isSmUp,
-}: DataTableDetailGoodProps) => {
+}: DataTableDetailBatchProps) => {
     const [showMaterialsPopup, setShowMaterialsPopup] = useState(false);
-    const [isNarrowScreen, setIsNarrowScreen] = useState(
-        window.innerWidth < 1000,
-    );
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
     );
-
-    // Handle window resize
-    useEffect(() => {
-        const handleResize = () => setIsNarrowScreen(window.innerWidth < 1000);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     // Handle click outside to close tooltip
     useEffect(() => {
@@ -112,106 +103,38 @@ const GoodDetails = ({
                         className="flex px-4 py-3 font-semibold"
                         style={cellLabelStyle}
                     >
-                        Name
+                        Production Date
                     </div>
                     <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.name}
+                        {row.productionDate}
                     </div>
                     <div
                         className="flex px-4 py-3 font-semibold"
                         style={cellLabelStyle}
                     >
-                        Type
+                        Product Name
                     </div>
                     <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.type}
+                        {row.goodName}
                     </div>
                     <div
                         className="flex px-4 py-3 font-semibold items-center"
                         style={cellLabelStyle}
                     >
-                        Stock
+                        Quantity
                     </div>
                     <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.inventoryQuantity}
+                        {row.quantity}
                     </div>
 
                     <div
                         className="flex px-4 py-3 font-semibold"
                         style={cellLabelStyle}
                     >
-                        Unit Price
+                        Material Cost
                     </div>
                     <div className="px-4 py-3" style={cellValueStyle}>
-                        ${Number(row.retailPrice).toFixed(2)}
-                    </div>
-
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Min. Stock
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.minimumStockLevel}
-                    </div>
-
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Materials
-                    </div>
-
-                    <div className="px-4 py-3 relative" style={cellValueStyle}>
-                        {isNarrowScreen ? (
-                            <div className="relative" ref={tooltipRef}>
-                                <button
-                                    onClick={() =>
-                                        setShowMaterialsPopup(
-                                            !showMaterialsPopup,
-                                        )
-                                    }
-                                    className="text-arvo-blue-100 underline cursor-pointer font-semibold ml-1.5"
-                                >
-                                    View ({filteredMaterials.length})
-                                </button>
-                                <div
-                                    className={`
-                                        ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
-                                        absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base p-4 z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full mb-2 -left-32
-                                    `}
-                                >
-                                    <div className="space-y-2">
-                                        {filteredMaterials.map((material) => (
-                                            <div
-                                                key={material.materialId}
-                                                className="grid grid-cols-[1fr_auto_auto] gap-2 py-1"
-                                            >
-                                                <div className="font-medium">
-                                                    {material.name}
-                                                </div>
-                                                <div>{material.amount}</div>
-                                                <div>
-                                                    {material.unitAbbreviation}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            filteredMaterials.map((material) => (
-                                <div
-                                    key={material.materialId}
-                                    className="grid grid-cols-[85%_10%_5%] max-w-60 gap-2"
-                                >
-                                    <div>{material.name}</div>
-                                    <div>{material.amount}</div>
-                                    <div>{material.unitAbbreviation}</div>
-                                </div>
-                            ))
-                        )}
+                        ${Number(row.productionCost).toFixed(2)}
                     </div>
                     <div
                         className="flex px-4 py-3 font-semibold"
@@ -223,7 +146,7 @@ const GoodDetails = ({
                         className="px-4 py-3 break-words"
                         style={cellValueStyle}
                     >
-                        {row.note}
+                        {row.notes}
                     </div>
                 </div>
             </td>
@@ -232,4 +155,4 @@ const GoodDetails = ({
     );
 };
 
-export default GoodDetails;
+export default BatchDetails;

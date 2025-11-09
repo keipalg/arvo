@@ -1,11 +1,11 @@
-import { and, asc, eq, type InferInsertModel } from "drizzle-orm";
+import { and, asc, between, eq, sql, type InferInsertModel } from "drizzle-orm";
 import type {
     ProductionBatchInput,
     ProductionBatchUpdateInput,
 } from "@arvo/shared";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { good, productionBatch } from "../db/schema.js";
+import { good, productionBatch, sale, saleDetail } from "../db/schema.js";
 import {
     addGoodQuantity,
     reduceGoodQuantity,
@@ -15,6 +15,7 @@ import {
     reduceMaterialQuantity,
     addMaterialQuantity,
 } from "./materialsService.js";
+import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
 
 export const getProductionBatch = async (userId: string) => {
     return await db
@@ -184,4 +185,151 @@ export const deleteProductionBatch = async (
     await db
         .delete(productionBatch)
         .where(eq(productionBatch.id, productionBatchId));
+};
+
+const getProducedItemByMonth = async (
+    userId: string,
+    timezone: string,
+    order: "ASC" | "DESC" = "DESC",
+    limit: number = 1,
+) => {
+    const targetMonth = getMonthRangeInTimezone(timezone, 0);
+
+    const orderSql =
+        order === "DESC"
+            ? sql`cast(sum(${productionBatch.quantity}) as int) DESC`
+            : sql`cast(sum(${productionBatch.quantity}) as int) ASC`;
+
+    const results = await db
+        .select({
+            goodName: good.name,
+            goodId: good.id,
+            totalQuantity: sql<number>`cast(sum(${productionBatch.quantity}) as int)`,
+        })
+        .from(good)
+        .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
+        .where(
+            and(
+                eq(good.userId, userId),
+                between(
+                    productionBatch.productionDate,
+                    targetMonth.start,
+                    targetMonth.end,
+                ),
+            ),
+        )
+        .groupBy(good.name, good.id)
+        .orderBy(orderSql)
+        .limit(limit);
+    return results;
+};
+
+export const getMostProducedProductWithComparison = async (
+    userId: string,
+    timezone: string,
+) => {
+    const currentMonth = await getProducedItemByMonth(
+        userId,
+        timezone,
+        "DESC",
+        1,
+    );
+
+    if (currentMonth.length === 0) {
+        return {
+            productName: "No Production",
+            currentProduction: 0,
+            percentageChange: 0,
+        };
+    }
+
+    const topProduct = currentMonth[0];
+    const lastMonth = getMonthRangeInTimezone(timezone, -1);
+
+    const lastMonthProduction = await db
+        .select({
+            goodsProduced: sql<number>`cast(sum(${productionBatch.quantity}) as int)`,
+        })
+        .from(good)
+        .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
+        .where(
+            and(
+                eq(good.userId, userId),
+                eq(good.id, topProduct.goodId),
+                between(
+                    productionBatch.productionDate,
+                    lastMonth.start,
+                    lastMonth.end,
+                ),
+            ),
+        );
+
+    const lastMonthQuantity = lastMonthProduction[0]?.goodsProduced ?? 0;
+    const percentageChange =
+        lastMonthQuantity === 0
+            ? 100
+            : ((topProduct.totalQuantity - lastMonthQuantity) /
+                  lastMonthQuantity) *
+              100;
+
+    return {
+        productName: topProduct.goodName,
+        currentProduction: topProduct.totalQuantity,
+        percentageChange: Math.round(percentageChange * 100) / 100,
+    };
+};
+
+export const getLeastProducedProductWithComparison = async (
+    userId: string,
+    timezone: string,
+) => {
+    const currentMonth = await getProducedItemByMonth(
+        userId,
+        timezone,
+        "ASC",
+        1,
+    );
+
+    if (currentMonth.length === 0) {
+        return {
+            productName: "No Production",
+            currentProduction: 0,
+            percentageChange: 0,
+        };
+    }
+
+    const leastProduct = currentMonth[0];
+    const lastMonth = getMonthRangeInTimezone(timezone, -1);
+
+    const lastMonthProduction = await db
+        .select({
+            goodsProduced: sql<number>`cast(sum(${productionBatch.quantity}) as int)`,
+        })
+        .from(good)
+        .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
+        .where(
+            and(
+                eq(good.userId, userId),
+                eq(good.id, leastProduct.goodId),
+                between(
+                    productionBatch.productionDate,
+                    lastMonth.start,
+                    lastMonth.end,
+                ),
+            ),
+        );
+
+    const lastMonthQuantity = lastMonthProduction[0]?.goodsProduced ?? 0;
+    const percentageChange =
+        lastMonthQuantity === 0
+            ? 100
+            : ((leastProduct.totalQuantity - lastMonthQuantity) /
+                  lastMonthQuantity) *
+              100;
+
+    return {
+        productName: leastProduct.goodName,
+        currentProduction: leastProduct.totalQuantity,
+        percentageChange: Math.round(percentageChange * 100) / 100,
+    };
 };

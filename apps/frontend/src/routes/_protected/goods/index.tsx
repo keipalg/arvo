@@ -126,8 +126,6 @@ function GoodsList() {
         }),
     );
 
-    console.log(topProductMetrics);
-
     const isSmUp = useIsSmUp();
 
     const getUnusedProductTypes = () => {
