@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../../components/BaseLayout";
 import { queryClient, trpc } from "../../../../utils/trpcClient";
-import DataTable from "../../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../../components/table/DataTable";
 import {
     operationalExpenseValidation,
     studioOverheadExpenseValidation,
@@ -23,11 +25,28 @@ import { uploadFile } from "../../../../utils/fileUpload";
 import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 import ToastNotification from "../../../../components/modal/ToastNotification";
 import Metric from "../../../../components/metric/Metric";
+import { useIsSmUp } from "../../../../utils/screenWidth";
+import BusinessExpenseDetails from "../../../../components/table/DataTableDetailBusinessExpense";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
 });
 
+type OperationalExpense =
+    | "marketing"
+    | "business_fee"
+    | "utilities"
+    | "office_supplies"
+    | "studio_rent"
+    | "labor"
+    | "storage_fee"
+    | "inventory_loss"
+    | "miscellaneous";
+type OverheadExpense =
+    | "space_rent"
+    | "tools_equipment"
+    | "packaging_supplies"
+    | "miscellaneous";
 type BusinessExpense = {
     id: string;
     expense_category: "Operational Expenses" | "Overhead Expenses";
@@ -66,9 +85,78 @@ type BusinessExpense = {
     start_date: Date | null;
     due_date: Date | null;
 };
-type BusinessExpenseWithActions = BusinessExpense & { actions: string };
+export type BusinessExpenseWithActions = BusinessExpense & { actions: string };
 
 function BusinessExpense() {
+    const OperationalExpenseList: OperationalExpense[] = [
+        "marketing",
+        "business_fee",
+        "utilities",
+        "office_supplies",
+        "studio_rent",
+        "labor",
+        "storage_fee",
+        "inventory_loss",
+        "miscellaneous",
+    ];
+    const OverheadExpenseList: OverheadExpense[] = [
+        "space_rent",
+        "tools_equipment",
+        "packaging_supplies",
+        "miscellaneous",
+    ];
+    const isSmUp = useIsSmUp();
+    const detailsRender = (row: BusinessExpenseWithActions) => {
+        const defaultMobileSet = new Set<keyof BusinessExpenseWithActions>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof BusinessExpenseWithActions>(
+            Array.from(defaultMobileSet),
+        );
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <BusinessExpenseDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
+    };
+    const tableFilterOptions: FilterOption<BusinessExpenseWithActions>[] = [
+        {
+            key: "expense_type",
+            label: "Operational Expense",
+            values:
+                OperationalExpenseList?.map((s) => ({
+                    key: s,
+                    label: s
+                        .replace("_", " ")
+                        .toLowerCase()
+                        .replace(/^\w/, (c) => c.toUpperCase()),
+                })) ?? [],
+        },
+        {
+            key: "expense_type",
+            label: "Overhead Expense",
+            values:
+                OverheadExpenseList?.map((s) => ({
+                    key: s,
+                    label: s
+                        .replace("_", " ")
+                        .toLowerCase()
+                        .replace(/^\w/, (c) => c.toUpperCase()),
+                })) ?? [],
+        },
+    ];
+
     const [topExpense, setTopExpense] = useState<
         Record<string, number | string> | undefined
     >(undefined);
@@ -738,6 +826,11 @@ function BusinessExpense() {
                                 cost: Number(row.cost),
                             });
                             setDrawerOpen(true);
+                            setSelectedItemForDeletion({
+                                id: row.id,
+                                name: row.name,
+                                expense_category: row.expense_category,
+                            });
                             if (
                                 row.due_date &&
                                 row.start_date &&
@@ -780,12 +873,18 @@ function BusinessExpense() {
                 confirmationMessage={`Are you sure you want to delete "${selectedItemForDeletion.name}"?`}
                 isConfirmationModalOpen={isConfirmationModalOpen}
                 setIsConfirmationModalOpen={setIsConfirmationModalOpen}
-                onConfirm={() =>
+                onConfirm={() => {
                     handleDelete(
                         selectedItemForDeletion.expense_category,
                         selectedItemForDeletion.id,
-                    )
-                }
+                    );
+                    setSelectedItemForDeletion({
+                        id: "",
+                        expense_category: "",
+                        name: "",
+                    });
+                    setDrawerOpen(false);
+                }}
             />
             <div className="flex justify-between">
                 <PageTitle
@@ -830,6 +929,41 @@ function BusinessExpense() {
                 <DataTable<BusinessExpenseWithActions>
                     columns={columns}
                     data={tabledData}
+                    detailRender={detailsRender}
+                    mobileVisibleKeys={["name", "cost", "actions"]}
+                    sortOptions={[
+                        {
+                            key: "name",
+                            label: "Name (A → Z)",
+                            order: "asc",
+                        },
+                        {
+                            key: "name",
+                            label: "Name (Z → A)",
+                            order: "desc",
+                        },
+                        {
+                            key: "createdAt",
+                            label: "Date (Newest → Oldest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "createdAt",
+                            label: "Date (Oldest → Newest)",
+                            order: "asc",
+                        },
+                        {
+                            key: "cost",
+                            label: "Cost (High → Low)",
+                            order: "desc",
+                        },
+                        {
+                            key: "cost",
+                            label: "Cost (Low → High)",
+                            order: "asc",
+                        },
+                    ]}
+                    filterOptions={tableFilterOptions}
                 />
             )}
 
@@ -1293,14 +1427,28 @@ function BusinessExpense() {
                         </Switcher>
                     )}
 
-                    <Button
-                        type="submit"
-                        value="Add Operational Expense"
-                    ></Button>
-                    <Button
-                        value="Cancel"
-                        onClick={() => setDrawerOpen(false)}
-                    ></Button>
+                    {/* <Button
+						type="submit"
+						value="Add Operational Expense"
+					></Button>
+					<Button
+						value="Cancel"
+						onClick={() => setDrawerOpen(false)}
+					></Button> */}
+                    <div
+                        className={`mt-4 grid ${selectedItemForDeletion.id !== "" && "grid-cols-2 gap-2"}`}
+                    >
+                        {selectedItemForDeletion.id && (
+                            <Button
+                                type="button"
+                                value="Delete"
+                                onClick={() => {
+                                    setIsConfirmationModalOpen(true);
+                                }}
+                            ></Button>
+                        )}
+                        <Button type="submit" value="Save"></Button>
+                    </div>
                 </form>
             </RightDrawer>
         </BaseLayout>
