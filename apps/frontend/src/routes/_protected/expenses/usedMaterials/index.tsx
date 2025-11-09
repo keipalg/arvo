@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import DataTable from "../../../../components/table/DataTable";
 import type { inferRouterOutputs } from "@trpc/server";
 import PageTitle from "../../../../components/layout/PageTitle";
+import Metric from "../../../../components/metric/Metric";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
@@ -16,10 +18,138 @@ type UsedMaterialPerSales =
     };
 
 function UsedMaterials() {
+    const [topExpense, setTopExpense] = useState<
+        Record<string, number | string> | undefined
+    >(undefined);
+    const [totalExpensesThisMonth, setTotalExpensesThisMonth] = useState<
+        Record<string, number | string> | undefined
+    >(undefined);
+
     const { data: usedMaterialPerSales } = useQuery(
         trpc.sales.usedMaterialPerSales.queryOptions(),
     );
     console.log("usedMaterialPerSales:", usedMaterialPerSales);
+
+    useEffect(() => {
+        /*****
+         * Calculate total used material cost per material for current and previous month
+         */
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const previousMonthDate = new Date(currentYear, currentMonth - 1, 1);
+        const previousMonth = previousMonthDate.getMonth();
+        const previousYear = previousMonthDate.getFullYear();
+
+        const calcTotalByMaterialByMonth = (year: number, month: number) =>
+            usedMaterialPerSales?.reduce(
+                (accumulator, currentValue) => {
+                    const soldMonth = new Date(
+                        currentValue.soldDate,
+                    ).getMonth();
+                    const soldYear = new Date(
+                        currentValue.soldDate,
+                    ).getFullYear();
+
+                    const cost =
+                        typeof currentValue.usedMaterialCost === "string"
+                            ? parseFloat(currentValue.usedMaterialCost)
+                            : currentValue.usedMaterialCost;
+
+                    if (soldYear === year && soldMonth === month) {
+                        accumulator[currentValue.materialName] =
+                            (accumulator[currentValue.materialName] || 0) +
+                            cost;
+                    }
+                    return accumulator;
+                },
+                {} as Record<string, number>,
+            );
+
+        const totalCurrentByMaterial = calcTotalByMaterialByMonth(
+            currentYear,
+            currentMonth,
+        );
+        const totalPreviousByMaterial = calcTotalByMaterialByMonth(
+            previousYear,
+            previousMonth,
+        );
+        console.log("Total Current Month:", totalCurrentByMaterial);
+        console.log("Total Previous Month:", totalPreviousByMaterial);
+
+        /*****
+         * Calculate top expense material and its change percent compared to previous month
+         */
+        const calcTopCurrentMaterialName = () => {
+            if (!totalCurrentByMaterial) return undefined;
+
+            return Object.entries(totalCurrentByMaterial).reduce(
+                (max, [key, value]) =>
+                    value > max.value ? { key, value } : max,
+                { key: "", value: -Infinity },
+            ).key;
+        };
+
+        const topCurrentName = calcTopCurrentMaterialName();
+        console.log("Top Material Name This Month:", topCurrentName);
+
+        const prevMaterialCost =
+            totalPreviousByMaterial?.[topCurrentName ?? ""] ?? 0;
+        const currentMaterialCost =
+            totalCurrentByMaterial?.[topCurrentName ?? ""] ?? 0;
+        const changePercentForTopMaterial =
+            prevMaterialCost === 0
+                ? currentMaterialCost === 0
+                    ? 0
+                    : 100
+                : ((currentMaterialCost - prevMaterialCost) /
+                      prevMaterialCost) *
+                  100;
+
+        setTopExpense({
+            name: topCurrentName ?? "-",
+            cost: currentMaterialCost,
+            changePercent: changePercentForTopMaterial,
+        });
+
+        /*****
+         * Calculate total material cost for current month and its change percent compared to previous month
+         */
+        const calculateTotalThisMonth = () => {
+            if (!totalCurrentByMaterial) return 0;
+
+            return Object.values(totalCurrentByMaterial).reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0,
+            );
+        };
+        const calculatedTotalPreviousMonth = () => {
+            if (!totalPreviousByMaterial) return 0;
+
+            return Object.values(totalPreviousByMaterial).reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0,
+            );
+        };
+        const totalThisMonth = calculateTotalThisMonth();
+        const totalPreviousMonth = calculatedTotalPreviousMonth();
+        console.log("Total Material Cost This Month:", totalThisMonth);
+        console.log("Total Material Cost Previous Month:", totalPreviousMonth);
+
+        const changePercentForTotal =
+            totalPreviousMonth === 0
+                ? totalThisMonth === 0
+                    ? 0
+                    : 100
+                : ((totalThisMonth - totalPreviousMonth) / totalPreviousMonth) *
+                  100;
+
+        setTotalExpensesThisMonth({
+            total: totalThisMonth,
+            changePercent: changePercentForTotal,
+        });
+    }, [usedMaterialPerSales]);
 
     const columns: Array<{
         key: keyof UsedMaterialPerSales;
@@ -44,10 +174,17 @@ function UsedMaterials() {
             render: (value) => {
                 if (typeof value === "string" || value instanceof Date) {
                     const dateObj = new Date(value);
+
                     return isNaN(dateObj.getTime()) ? (
                         <></>
                     ) : (
-                        <>{dateObj.toLocaleDateString()}</>
+                        <>
+                            {dateObj.toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })}
+                        </>
                     );
                 }
                 return <></>;
@@ -73,6 +210,26 @@ function UsedMaterials() {
                 <PageTitle
                     title="Material Expense"
                     info="Material Expense automatically tracks how much you’ve spent on materials used in your products."
+                />
+            </div>
+            <div className="flex gap-6 py-2">
+                <Metric
+                    value={`${topExpense?.name ?? "-"}`}
+                    changePercent={Number(topExpense?.changePercent) ?? 0}
+                    topText="Top Expense"
+                    bottomText="since last month"
+                />
+                <Metric
+                    value={`${totalExpensesThisMonth?.total ? `$${Number(totalExpensesThisMonth.total).toFixed(2)}` : "-"}`}
+                    changePercent={
+                        totalExpensesThisMonth?.changePercent != null
+                            ? Math.round(
+                                  Number(totalExpensesThisMonth.changePercent),
+                              )
+                            : 0
+                    }
+                    topText="Total Expense"
+                    bottomText="compared to last month"
                 />
             </div>
             <DataTable columns={columns} data={tabledData} />

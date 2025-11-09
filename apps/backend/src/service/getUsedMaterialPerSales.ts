@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
     good,
@@ -43,5 +43,6 @@ export const getUsedMaterialPerSales = async (userId: string) => {
             materialAndSupply,
             eq(materialAndSupply.id, materialOutputRatio.materialId),
         )
-        .where(and(eq(good.userId, userId)));
+        .where(and(eq(good.userId, userId)))
+        .orderBy(desc(sale.date));
 };
