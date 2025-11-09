@@ -4,12 +4,16 @@ import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
 import DataTable, {
     type FilterOption,
 } from "../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import React, { useState, useEffect } from "react";
 import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
 import Select from "../../../components/input/Select";
 import Button from "../../../components/button/Button";
+import AddButton from "../../../components/button/AddButton";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
@@ -112,6 +116,20 @@ function GoodsList() {
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
     );
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const { data: topProductMetrics } = useQuery(
+        trpc.dashboard.mostSellingProductWithComparison.queryOptions({
+            timezone,
+        }),
+    );
+    const { data: leastProductMetrics } = useQuery(
+        trpc.dashboard.leastSellingProductWithComparison.queryOptions({
+            timezone,
+        }),
+    );
+
+    console.log(topProductMetrics);
 
     const isSmUp = useIsSmUp();
 
@@ -572,30 +590,39 @@ function GoodsList() {
 
     return (
         <BaseLayout title="Product List">
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
                 <PageTitle
                     title="Product Inventory"
                     info="This is your product inventory page. You can manage and see all your products details, price, stock level, and material used all at once"
                 />
-                <Button
+                <AddButton
                     value="Add Product"
                     icon="/icon/plus.svg"
                     onClick={() => handleAddGood()}
-                ></Button>
+                ></AddButton>
             </div>
-            <div className="flex gap-6 py-2">
-                <Metric
-                    value={`${String(7)} items`}
-                    changePercent={-5}
-                    topText="Most sold item"
-                    bottomText="than last month"
-                ></Metric>
-                <Metric
-                    value={`${String(7)} items`}
-                    changePercent={-5}
-                    topText="Least sold item"
-                    bottomText="than last month"
-                ></Metric>
+
+            <div className="flex gap-6 py-2  overflow-x-auto">
+                {topProductMetrics ? (
+                    <Metric
+                        value={topProductMetrics.productName}
+                        changePercent={topProductMetrics.percentageChange}
+                        topText="Most sold item"
+                        bottomText="than last month"
+                    ></Metric>
+                ) : (
+                    ""
+                )}
+                {leastProductMetrics ? (
+                    <Metric
+                        value={leastProductMetrics.productName}
+                        changePercent={leastProductMetrics.percentageChange}
+                        topText="Least sold item"
+                        bottomText="than last month"
+                    ></Metric>
+                ) : (
+                    ""
+                )}
             </div>
 
             {isLoading && <div>Loading...</div>}

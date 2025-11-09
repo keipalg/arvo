@@ -98,11 +98,102 @@ export const getTopSellingProducts = async (
     return await getSellingProducts(userId, timezone, "DESC", 5);
 };
 
+export const getMostSellingProductWithComparison = async (
+    userId: string,
+    timezone: string,
+) => {
+    const currentMonth = await getSellingProducts(userId, timezone, "DESC", 1);
+
+    if (currentMonth.length === 0) {
+        return {
+            productName: "No sales",
+            currentSales: 0,
+            percentageChange: 0,
+        };
+    }
+
+    const topProduct = currentMonth[0];
+    const lastMonth = getMonthRangeInTimezone(timezone, -1);
+
+    const lastMonthSales = await db
+        .select({
+            goodsSold: sql<number>`cast(sum(${saleDetail.quantity}) as int)`,
+        })
+        .from(sale)
+        .innerJoin(saleDetail, eq(sale.id, saleDetail.saleId))
+        .where(
+            and(
+                eq(sale.userId, userId),
+                eq(saleDetail.goodId, topProduct.goodId),
+                between(sale.date, lastMonth.start, lastMonth.end),
+            ),
+        );
+
+    const lastMonthQuantity = lastMonthSales[0]?.goodsSold ?? 0;
+    const percentageChange =
+        lastMonthQuantity === 0
+            ? 100
+            : ((topProduct.goodsSold - lastMonthQuantity) / lastMonthQuantity) *
+              100;
+
+    return {
+        productName: topProduct.goodName,
+        currentSales: topProduct.goodsSold,
+        percentageChange: Math.round(percentageChange * 100) / 100,
+    };
+};
+
 export const getLeastSellingProducts = async (
     userId: string,
     timezone: string,
 ) => {
     return await getSellingProducts(userId, timezone, "ASC", 5);
+};
+
+export const getLeastSellingProductWithComparison = async (
+    userId: string,
+    timezone: string,
+) => {
+    const currentMonth = await getSellingProducts(userId, timezone, "ASC", 1);
+
+    if (currentMonth.length === 0) {
+        return {
+            productName: "No sales",
+            currentSales: 0,
+            percentageChange: 0,
+        };
+    }
+
+    const leastProduct = currentMonth[0];
+    const lastMonth = getMonthRangeInTimezone(timezone, -1);
+
+    const lastMonthSales = await db
+        .select({
+            goodsSold: sql<number>`cast(sum(${saleDetail.quantity}) as int)`,
+        })
+        .from(sale)
+        .innerJoin(saleDetail, eq(sale.id, saleDetail.saleId))
+        .where(
+            and(
+                eq(sale.userId, userId),
+                eq(saleDetail.goodId, leastProduct.goodId),
+                between(sale.date, lastMonth.start, lastMonth.end),
+            ),
+        );
+
+    const lastMonthQuantity = lastMonthSales[0]?.goodsSold ?? 0;
+    const percentageChange =
+        lastMonthQuantity === 0
+            ? 100
+            : ((leastProduct.goodsSold - lastMonthQuantity) /
+                  lastMonthQuantity) *
+              100;
+
+    return {
+        productName: leastProduct.goodName,
+        currentSales: leastProduct.goodsSold,
+        percentageChange: Math.round(percentageChange * 100) / 100,
+    };
 };
 
 export const getMonthlyMaterialExpense = async (
