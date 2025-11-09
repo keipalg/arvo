@@ -1,4 +1,4 @@
-import { and, eq, type InferInsertModel } from "drizzle-orm";
+import { and, eq, type InferInsertModel, sql, lt, desc } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import {
@@ -552,4 +552,193 @@ export const addMaterialQuantity = async (
     });
 
     return result;
+};
+
+/**
+ * Get the most used material for the current month and compare with same material last month
+ * Used for: Materials page insights
+ * @param userId user ID
+ * @returns Material name and percentage change (or null with 0% if no data)
+ */
+export const getMostUsedMaterial = async (userId: string) => {
+    const now = new Date();
+    const firstDayOfCurrentMonth = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1,
+    );
+    const firstDayOfNextMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        1,
+    );
+    const firstDayOfLastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1,
+    );
+
+    // Query: Get most used materjial of the month
+    // Get total negative quantity changes (usage) (absolute value)
+    // GROUP BY material (with name & unit for getting info)
+    const currentMonthData = await db
+        .select({
+            materialId: materialAndSupply.id,
+            materialName: materialAndSupply.name,
+            totalUsed: sql<number>`SUM(ABS(${materialInventoryTransaction.quantityChange}))`,
+        })
+        .from(materialInventoryTransaction)
+        .innerJoin(
+            materialAndSupply,
+            eq(materialInventoryTransaction.materialId, materialAndSupply.id),
+        )
+        .where(
+            and(
+                eq(materialInventoryTransaction.userId, userId),
+                lt(materialInventoryTransaction.quantityChange, 0), // Only negative changes (usage/reduction)
+                sql`${materialInventoryTransaction.createdAt} >= ${firstDayOfCurrentMonth}`, // Current month start
+                sql`${materialInventoryTransaction.createdAt} < ${firstDayOfNextMonth}`, // Current month end
+            ),
+        )
+        .groupBy(materialAndSupply.id, materialAndSupply.name)
+        .orderBy(
+            // Highest usage first
+            desc(sql`SUM(ABS(${materialInventoryTransaction.quantityChange}))`),
+        )
+        .limit(1);
+
+    // Scenario 1: No data for this month - return null with 0% change
+    if (currentMonthData.length === 0) {
+        return {
+            materialName: null,
+            percentageChange: 0,
+        };
+    }
+
+    // Query: Get previous month usage for same material for comparison
+    const lastMonthUsageData = await db
+        .select({
+            totalUsed: sql<number>`SUM(ABS(${materialInventoryTransaction.quantityChange}))`,
+        })
+        .from(materialInventoryTransaction)
+        .where(
+            and(
+                eq(materialInventoryTransaction.userId, userId),
+                eq(
+                    materialInventoryTransaction.materialId,
+                    currentMonthData[0].materialId,
+                ), // Same material as current month's top
+                lt(materialInventoryTransaction.quantityChange, 0),
+                // use sql for type purposes
+                sql`${materialInventoryTransaction.createdAt} >= ${firstDayOfLastMonth}`,
+                sql`${materialInventoryTransaction.createdAt} < ${firstDayOfCurrentMonth}`,
+            ),
+        );
+
+    const lastMonthUsage = lastMonthUsageData[0]?.totalUsed || 0;
+
+    // Scenario 2: No data for same material last month - assume 0%
+    // Scenario 3: Data exists for same material last month - compute percent change
+    let percentageChange = 0;
+    if (lastMonthUsage > 0) {
+        percentageChange =
+            ((currentMonthData[0].totalUsed - lastMonthUsage) /
+                lastMonthUsage) *
+            100;
+    }
+
+    console.log(`Most Used Material:
+        Name: ${currentMonthData[0].materialName}
+        Current Usage: ${currentMonthData[0].totalUsed}
+        Last Month Usage: ${lastMonthUsage}
+        Percentage Change: ${percentageChange}
+        `);
+
+    return {
+        materialName: currentMonthData[0].materialName,
+        percentageChange,
+    };
+};
+
+/**
+ * Get count of materials that are low on stock (quantity < threshold)
+ * Used for: Materials page insights
+ * @param userId user ID
+ * @returns Count of materials below threshold
+ */
+export const getMaterialsLowOnStock = async (userId: string) => {
+    const result = await db
+        .select({
+            count: sql<number>`COUNT(*)`,
+        })
+        .from(materialAndSupply)
+        .where(
+            and(
+                eq(materialAndSupply.userId, userId),
+                sql`${materialAndSupply.threshold} IS NOT NULL`, // only for materials with treshold
+                sql`${materialAndSupply.quantity} < ${materialAndSupply.threshold}`,
+            ),
+        );
+
+    return {
+        count: result[0]?.count || 0,
+    };
+};
+
+/**
+ * Get total inventory value with comparison to last month
+ * Used for: Materials page insights
+ * @param userId user ID
+ * @returns Current and last month total inventory value with percentage change
+ */
+export const getTotalInventoryValue = async (userId: string) => {
+    // Query: Get current total inventory value
+    const currentValueResult = await db
+        .select({
+            totalValue: sql<number>`SUM(${materialAndSupply.costPerUnit} * ${materialAndSupply.quantity})`, // Sum of (cost per unit × quantity)
+        })
+        .from(materialAndSupply)
+        .where(eq(materialAndSupply.userId, userId));
+
+    const currentValue = currentValueResult[0]?.totalValue || 0;
+
+    const now = new Date();
+    const firstDayOfCurrentMonth = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1,
+    );
+
+    // Query: Get last month's inventory
+
+    const lastMonthValueResult = await db.execute(sql`
+        SELECT SUM(m.cost_per_unit * mit.quantity_after) AS last_month_value
+        FROM (
+            SELECT DISTINCT ON (mit.material_id)
+                mit.material_id,
+                mit.quantity_after
+            FROM material_inventory_transaction mit
+            WHERE mit.user_id = ${userId}
+            AND mit.created_at < ${firstDayOfCurrentMonth}
+            ORDER BY mit.material_id, mit.created_at DESC
+        ) mit
+        JOIN material_and_supply m ON mit.material_id = m.id
+`);
+
+    const lastMonthValue =
+        Number(lastMonthValueResult.rows[0]?.last_month_value) || 0;
+
+    let percentageChange = 0;
+    if (lastMonthValue > 0) {
+        percentageChange =
+            ((currentValue - lastMonthValue) / lastMonthValue) * 100;
+    }
+
+    console.log(currentValue);
+
+    return {
+        currentValue,
+        lastMonthValue,
+        percentageChange,
+    };
 };

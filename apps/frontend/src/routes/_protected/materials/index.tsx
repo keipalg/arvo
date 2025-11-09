@@ -63,6 +63,17 @@ function MaterialsList() {
     const { data, isLoading, error } = useQuery(
         trpc.materials.list.queryOptions(),
     );
+
+    // Insights queries
+    const { data: mostUsedMaterialData } = useQuery(
+        trpc.materials.mostUsedMaterial.queryOptions(),
+    );
+    const { data: lowStockData } = useQuery(
+        trpc.materials.lowStockCount.queryOptions(),
+    );
+    const { data: totalInventoryValueData } = useQuery(
+        trpc.materials.totalInventoryValue.queryOptions(),
+    );
     const columns: Array<{
         key: keyof Materials;
         header: string;
@@ -211,6 +222,15 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materialTypes.list.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.lowStockCount.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.totalInventoryValue.queryKey(),
+                });
             },
         }),
     );
@@ -227,6 +247,15 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.notification.unreadCount.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.lowStockCount.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.totalInventoryValue.queryKey(),
+                });
             },
         }),
     );
@@ -236,6 +265,15 @@ function MaterialsList() {
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.lowStockCount.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.totalInventoryValue.queryKey(),
                 });
             },
         }),
@@ -387,11 +425,75 @@ function MaterialsList() {
             </div>
             <div className="flex gap-6 py-2">
                 <Metric
-                    value={`$ 348`}
-                    changePercent={-5}
-                    topText="Total Inventory Cost (to be implemented)"
-                    bottomText="compared to last month"
-                ></Metric>
+                    value={
+                        mostUsedMaterialData &&
+                        "materialName" in mostUsedMaterialData &&
+                        mostUsedMaterialData.materialName
+                            ? mostUsedMaterialData.materialName
+                            : "No material usage yet"
+                    }
+                    changePercent={
+                        mostUsedMaterialData &&
+                        "percentageChange" in mostUsedMaterialData
+                            ? Number(mostUsedMaterialData.percentageChange)
+                            : 0
+                    }
+                    topText="Most Used Material"
+                    bottomText={
+                        mostUsedMaterialData &&
+                        "materialName" in mostUsedMaterialData &&
+                        mostUsedMaterialData.materialName
+                            ? "Compared to last month"
+                            : "No existing data"
+                    }
+                    showPercentage={mostUsedMaterialData?.materialName !== null}
+                />
+
+                <Metric
+                    value={String(
+                        lowStockData && "count" in lowStockData
+                            ? lowStockData.count
+                            : 0,
+                    )}
+                    changePercent={0}
+                    topText="Materials Low on Stock"
+                    bottomText="material/s need to be restocked"
+                    showPercentage={false}
+                    styleOverride={
+                        lowStockData &&
+                        "count" in lowStockData &&
+                        lowStockData.count >= 1
+                            ? "negative"
+                            : "positive"
+                    }
+                />
+                <Metric
+                    value={
+                        totalInventoryValueData &&
+                        "currentValue" in totalInventoryValueData
+                            ? `$${Number(totalInventoryValueData.currentValue).toFixed(2)}`
+                            : "$0.00"
+                    }
+                    changePercent={
+                        totalInventoryValueData &&
+                        "percentageChange" in totalInventoryValueData
+                            ? Number(totalInventoryValueData.percentageChange)
+                            : 0
+                    }
+                    topText="Total Inventory Value"
+                    bottomText={
+                        totalInventoryValueData &&
+                        "lastMonthValue" in totalInventoryValueData &&
+                        totalInventoryValueData.lastMonthValue > 0
+                            ? "Compared to last month"
+                            : "No data for previous month"
+                    }
+                    showPercentage={
+                        totalInventoryValueData &&
+                        "lastMonthValue" in totalInventoryValueData &&
+                        totalInventoryValueData.lastMonthValue > 0
+                    }
+                />
             </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}

@@ -5,6 +5,9 @@ import {
     getMaterialsList,
     updateMaterial,
     getMaterialListForRecipe,
+    getMostUsedMaterial,
+    getMaterialsLowOnStock,
+    getTotalInventoryValue,
     type MaterialInsert,
     type MaterialUpdate,
 } from "../service/materialsService.js";
@@ -89,5 +92,16 @@ export const materialsRouter = router({
 
     materialList: protectedProcedure.query(async ({ ctx }) => {
         return await getMaterialListForRecipe(ctx.user.id);
+    }),
+
+    // Insights endpoints for Materials page
+    mostUsedMaterial: protectedProcedure.query(async ({ ctx }) => {
+        return await getMostUsedMaterial(ctx.user.id);
+    }),
+    lowStockCount: protectedProcedure.query(async ({ ctx }) => {
+        return await getMaterialsLowOnStock(ctx.user.id);
+    }),
+    totalInventoryValue: protectedProcedure.query(async ({ ctx }) => {
+        return await getTotalInventoryValue(ctx.user.id);
     }),
 });
