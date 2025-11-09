@@ -4,6 +4,9 @@ import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
 import DataTable, {
     type FilterOption,
 } from "../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import React, { useState, useEffect } from "react";
