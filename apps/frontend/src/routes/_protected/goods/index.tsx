@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
 import { trpc, queryClient, type AppRouter } from "../../../utils/trpcClient";
-import DataTable from "../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import React, { useState, useEffect } from "react";
@@ -16,6 +18,9 @@ import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
 import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
 import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
 import Metric from "../../../components/metric/Metric.tsx";
+import { useIsSmUp } from "../../../utils/screenWidth";
+import GoodDetails from "../../../components/table/DataTableDetailGood";
+import { MoreButton } from "../../../components/button/MoreButton.tsx";
 
 import {
     getOverheadCostPerUnit,
@@ -108,6 +113,8 @@ function GoodsList() {
         trpc.goods.materialOutputRatio.queryOptions(),
     );
 
+    const isSmUp = useIsSmUp();
+
     const getUnusedProductTypes = () => {
         if (!productTypesList || !data) return [];
 
@@ -117,6 +124,8 @@ function GoodsList() {
         );
     };
 
+    console.log("goods", data);
+
     const columns: Array<{
         key: keyof Goods;
         header: string;
@@ -124,10 +133,10 @@ function GoodsList() {
     }> = [
         {
             key: "image",
-            header: "Image",
+            header: "Product Photo",
             render: (value) => {
                 return (
-                    <div className="h-16 flex justify-center items-center rounded">
+                    <div className="h-14 flex justify-center  rounded">
                         {value ? (
                             <img
                                 src={value as string}
@@ -135,11 +144,11 @@ function GoodsList() {
                                 className="h-14 object-cover rounded"
                             />
                         ) : (
-                            <div className="w-full h-14 bg-arvo-black-5 flex items-center justify-center rounded">
-                                <span className="text-arvo-black-50 text-sm">
-                                    No Image
-                                </span>
-                            </div>
+                            <img
+                                src="/icon/icon-photo.svg"
+                                alt="No Image"
+                                className="h-14"
+                            />
                         )}
                     </div>
                 );
@@ -165,19 +174,50 @@ function GoodsList() {
         },
         {
             key: "actions",
-            header: "Edit",
+            header: "",
             render: (_value, row) => (
                 <>
-                    <div className="flex gap-2">
-                        <button
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(row)}
-                        >
-                            <img src="/icon/edit.svg"></img>
-                        </button>
-                    </div>
+                    <MoreButton
+                        onEdit={() => handleEdit(row)}
+                        onDeleteModal={() => handleDelete(row.id)}
+                    />
                 </>
             ),
+        },
+    ];
+
+    const detailsRender = (row: Goods) => {
+        const defaultMobileSet = new Set<keyof Goods>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof Goods>(Array.from(defaultMobileSet));
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <GoodDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
+    };
+
+    const tableFilterOptions: FilterOption<Goods>[] = [
+        {
+            key: "type",
+            label: "Product Type",
+            values:
+                productTypesList?.map((t) => ({
+                    key: String(t.name),
+                    label: String(t.name),
+                })) ?? [],
         },
     ];
 
@@ -561,7 +601,34 @@ function GoodsList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable columns={columns} data={tabledData || []} />
+                <DataTable
+                    columns={columns}
+                    data={tabledData || []}
+                    filterOptions={tableFilterOptions}
+                    detailRender={detailsRender}
+                    sortOptions={[
+                        {
+                            key: "createdAt",
+                            label: "Date Created (Oldest → Newest)",
+                            order: "asc",
+                        },
+                        {
+                            key: "createdAt",
+                            label: "Date Created (Newest → Oldest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "inventoryQuantity",
+                            label: "Quantity (Highest → Lowest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "inventoryQuantity",
+                            label: "Quantity (Lowest → Highest)",
+                            order: "asc",
+                        },
+                    ]}
+                />
             )}
             <RightDrawer
                 narrower={true}
@@ -692,7 +759,7 @@ function GoodsList() {
                                 <UnderLinedButton
                                     type="button"
                                     value="Add Material"
-                                    icon="../../../../public/icon/plus-blue.svg"
+                                    icon="/icon/plus-blue.svg"
                                     onClick={addMaterialRow}
                                 ></UnderLinedButton>
                             ) : (

@@ -93,10 +93,7 @@ const Select = ({
                 className={`absolute right-3 ${style ? style : "top-4/6"} pointer-events-none bg-arvo-white-0`}
             >
                 {!disabled && (
-                    <img
-                        src="../../../../public/icon/alt-arrow-down.svg "
-                        className="w-4 h-4"
-                    />
+                    <img src="/icon/alt-arrow-down.svg " className="w-4 h-4" />
                 )}
             </div>
             {error && <div className="text-red-500 text-sm">{error}</div>}

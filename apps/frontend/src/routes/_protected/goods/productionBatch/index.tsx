@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../../components/BaseLayout";
 import { trpc, queryClient } from "../../../../utils/trpcClient";
-import DataTable from "../../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../../components/table/DataTable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../../utils/trpcClient";
@@ -12,6 +14,7 @@ import Button from "../../../../components/button/Button";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
 import TextInput from "../../../../components/input/TextInput";
 import PageTitle from "../../../../components/layout/PageTitle";
+import { MoreButton } from "../../../../components/button/MoreButton";
 
 import {
     productionBatchInputValidation,
@@ -112,19 +115,30 @@ function ProductionBatchList() {
         },
         {
             key: "actions",
-            header: "Actions",
+            header: "",
             render: (_value, row) => (
                 <>
-                    <div className="flex gap-2">
-                        <button
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(row)}
-                        >
-                            <img src="/icon/edit.svg"></img>
-                        </button>
-                    </div>
+                    <MoreButton
+                        onEdit={() => handleEdit(row)}
+                        onDeleteModal={() => handleDelete(row.id)}
+                    />
                 </>
             ),
+        },
+    ];
+
+    const tableFilterOptions: FilterOption<ProductionBatch>[] = [
+        {
+            key: "productionDate",
+            label: "Production Date",
+            values: data
+                ? [...new Set(data.map((batch) => batch.productionDate))].map(
+                      (date) => ({
+                          key: date,
+                          label: new Date(date).toLocaleDateString(),
+                      }),
+                  )
+                : [],
         },
     ];
 
@@ -371,7 +385,23 @@ function ProductionBatchList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable columns={columns} data={tabledData || []} />
+                <DataTable
+                    columns={columns}
+                    data={tabledData || []}
+                    filterOptions={tableFilterOptions}
+                    sortOptions={[
+                        {
+                            key: "productionDate",
+                            label: "Production Date (Oldest → Newest)",
+                            order: "asc",
+                        },
+                        {
+                            key: "productionDate",
+                            label: "Production Date (Newest → Oldest)",
+                            order: "desc",
+                        },
+                    ]}
+                />
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
                 <form

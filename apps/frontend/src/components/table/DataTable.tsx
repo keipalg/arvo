@@ -42,7 +42,7 @@ const DataTable = <T extends { id: number | string }>({
 }: DataTableProps<T>) => {
     const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
     const [selectedSort, setSelectedSort] = useState<SortOption<T> | null>(
-        null,
+        sortOptions?.[0] || null,
     );
 
     const [selectedFilter, setSelectedFilter] = useState<{
@@ -172,9 +172,9 @@ const DataTable = <T extends { id: number | string }>({
                         }}
                     />
                 </div>
-                <div className="rounded-2xl border border-arvo-black-5 overflow-clip">
+                <div className="overflow-x-auto overflow-y-auto max-h-[800px] max-w-full rounded-2xl border border-arvo-black-5 overflow-clip">
                     <table className="w-full">
-                        <thead className="bg-arvo-white-100 border-b border-arvo-black-5">
+                        <thead className="bg-arvo-white-100 border-b border-arvo-black-5 sticky top-0 z-10 shadow-md">
                             <tr>
                                 {hasDetails && <th className="px-4 py-3" />}
                                 {columns.map((column) => {
