@@ -4,6 +4,7 @@ type MetricProps = {
     topText: string;
     bottomText: string;
     showPercentage?: boolean;
+    styleOverride?: "positive" | "negative" | "neutral";
 };
 
 type MetricStyleType = {
@@ -44,13 +45,15 @@ const Metric = ({
     topText,
     bottomText,
     showPercentage = true,
+    styleOverride,
 }: MetricProps) => {
-    const posneg =
-        changePercent > 0
-            ? "positive"
-            : changePercent < 0
-              ? "negative"
-              : "neutral";
+    const posneg = styleOverride
+        ? styleOverride
+        : changePercent > 0
+          ? "positive"
+          : changePercent < 0
+            ? "negative"
+            : "neutral";
     const style = metricStyles[posneg];
     return (
         <>
@@ -71,7 +74,7 @@ const Metric = ({
                                 alt=""
                                 className="w-3.5 icon-white"
                             />
-                            <div>{changePercent}%</div>
+                            <div>{changePercent.toFixed(2)}%</div>
                         </div>
                     )}
                     <div>{bottomText}</div>
