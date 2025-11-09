@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import BaseLayout from "../../../components/BaseLayout";
-import DataTable from "../../../components/table/DataTable";
+import DataTable, {
+    type FilterOption,
+} from "../../../components/table/DataTable";
 import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
 
 import {
@@ -12,6 +14,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { useEffect, useState } from "react";
 import InventoryStatus from "../../../components/badge/InventoryStatus";
 import Button from "../../../components/button/Button";
+import { MoreButton } from "../../../components/button/MoreButton";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import DisplayValue from "../../../components/input/DisplayValue";
 import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
@@ -21,6 +24,8 @@ import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
+import { useIsSmUp } from "../../../utils/screenWidth";
+import MaterialDetails from "../../../components/table/DataTableDetailMaterial";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -62,6 +67,9 @@ function MaterialsList() {
     const [updatedAt, setUpdatedAt] = useState("N/A");
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
+    const { data: materialTypesList } = useQuery(
+        trpc.materialTypes.list.queryOptions(),
+    );
     const { data, isLoading, error } = useQuery(
         trpc.materials.list.queryOptions(),
     );
@@ -76,6 +84,34 @@ function MaterialsList() {
     const { data: totalInventoryValueData } = useQuery(
         trpc.materials.totalInventoryValue.queryOptions(),
     );
+
+    const isSmUp = useIsSmUp();
+
+    const detailsRender = (row: Materials) => {
+        const defaultMobileSet = new Set<keyof Materials>();
+        if (columns[0]) defaultMobileSet.add(columns[0].key);
+        if (columns[1]) defaultMobileSet.add(columns[1].key);
+        const actionsCol = columns.find((c) => String(c.key) === "actions");
+        if (actionsCol) defaultMobileSet.add(actionsCol.key);
+
+        const mobileSet = new Set<keyof Materials>(
+            Array.from(defaultMobileSet),
+        );
+
+        const visibleMobileColumnsCount = columns.filter((c) =>
+            mobileSet.has(c.key),
+        ).length;
+
+        return (
+            <MaterialDetails
+                row={row}
+                columnsLength={columns.length}
+                visibleMobileColumnsCount={visibleMobileColumnsCount}
+                isSmUp={isSmUp}
+            />
+        );
+    };
+
     const columns: Array<{
         key: keyof Materials;
         header: string;
@@ -105,17 +141,13 @@ function MaterialsList() {
         },
         {
             key: "actions",
-            header: "Action",
+            header: "Edit",
             render: (_value, row) => (
                 <>
-                    <div className="flex gap-2">
-                        <button
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(row)}
-                        >
-                            <img src="/icon/edit.svg"></img>
-                        </button>
-                    </div>
+                    <MoreButton
+                        onEdit={() => handleEdit(row)}
+                        onDelete={() => handleDelete(row.id)}
+                    />
                 </>
             ),
         },
@@ -194,41 +226,39 @@ function MaterialsList() {
         setDrawerOpen(true);
     };
 
-    const sortByStockStatus = (
-        materials: typeof data,
-        sortOrder: "asc" | "desc" = "asc",
-    ) => {
-        if (!materials) return materials;
-
-        const statusOrder = {
-            outOfStock: 0,
-            lowStock: 1,
-            sufficient: 2,
-        };
-
-        return materials.slice().sort((a, b) => {
-            let statusA = statusOrder[a.status as keyof typeof statusOrder];
-            if (statusA === undefined) {
-                console.log(`Status not found: "${a.status}", assigning 3`);
-                statusA = 3;
-            }
-
-            let statusB = statusOrder[b.status as keyof typeof statusOrder];
-            if (statusB === undefined) {
-                console.log(`Status not found: "${b.status}", assigning 3`);
-                statusB = 3;
-            }
-
-            return sortOrder === "asc" ? statusA - statusB : statusB - statusA;
-        });
+    const statusOrder = {
+        outOfStock: 0,
+        lowStock: 1,
+        sufficient: 2,
     };
 
-    const sortedData = sortByStockStatus(data, "asc");
-
-    const tabledData = sortedData?.map((element) => ({
+    const tabledData = data?.map((element) => ({
         ...element,
         actions: "",
+        statusPriority:
+            statusOrder[element.status as keyof typeof statusOrder] ?? 3,
     }));
+
+    const tableFilterOptions: FilterOption<Materials>[] = [
+        {
+            key: "status",
+            label: "Status",
+            values: [
+                { key: "outOfStock", label: "Out of Stock" },
+                { key: "lowStock", label: "Low Stock" },
+                { key: "sufficient", label: "Sufficient" },
+            ],
+        },
+        {
+            key: "materialType",
+            label: "Material Type",
+            values:
+                materialTypesList?.map((mt) => ({
+                    key: String(mt.name),
+                    label: String(mt.name),
+                })) ?? [],
+        },
+    ];
 
     const addMaterialMutation = useMutation(
         trpc.materials.add.mutationOptions({
@@ -515,7 +545,45 @@ function MaterialsList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable columns={columns} data={tabledData || []} />
+                <DataTable
+                    columns={columns}
+                    data={tabledData || []}
+                    detailRender={detailsRender}
+                    mobileVisibleKeys={["name", "materialType", "actions"]}
+                    sortOptions={[
+                        {
+                            key: "statusPriority",
+                            label: "Status (Out of Stock → Sufficient)",
+                            order: "asc",
+                        },
+                        {
+                            key: "statusPriority",
+                            label: "Status (Sufficient → Out of Stock)",
+                            order: "desc",
+                        },
+                        {
+                            key: "name",
+                            label: "Material Item (A → Z)",
+                            order: "asc",
+                        },
+                        {
+                            key: "name",
+                            label: "Material Item (Z → A)",
+                            order: "desc",
+                        },
+                        {
+                            key: "materialType",
+                            label: "Material Type (A → Z)",
+                            order: "asc",
+                        },
+                        {
+                            key: "materialType",
+                            label: "Material Type (Z → A)",
+                            order: "desc",
+                        },
+                    ]}
+                    filterOptions={tableFilterOptions}
+                />
             )}
             <RightDrawer
                 isOpen={drawerOpen}
