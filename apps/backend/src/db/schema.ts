@@ -644,3 +644,15 @@ export const materialAndSupplyToInventoryLoss = relations(
         operational_expense: many(operational_expense),
     }),
 );
+
+export const dashboardOverviewCache = pgTable("dashboard_overview_cache", {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id"),
+    inputHash: text("input_hash").notNull().unique(),
+    overview: text("overview").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+});

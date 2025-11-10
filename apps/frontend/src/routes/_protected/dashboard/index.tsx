@@ -114,6 +114,19 @@ function RouteComponent() {
     const { data: revenueProfitSummaryData } = useQuery(
         trpc.dashboard.revenueProfitSummary.queryOptions({ timezone }),
     );
+    const { data: revenueProfitSummaryOverview } = useQuery(
+        trpc.dashboard.revenueProfitSummaryOverview.queryOptions(
+            {
+                totalRevenue: revenueProfitSummaryData?.totalRevenue ?? 0,
+                totalExpenses: revenueProfitSummaryData?.totalExpenses ?? 0,
+                totalProfit:
+                    (revenueProfitSummaryData?.totalRevenue ?? 0) -
+                    (revenueProfitSummaryData?.totalExpenses ?? 0),
+            },
+            { enabled: !!revenueProfitSummaryData },
+        ),
+    );
+
     const { data: revenueProfitSummary6MonthsData } = useQuery(
         trpc.dashboard.revenueProfitSummary6Months.queryOptions({ timezone }),
     );
@@ -267,8 +280,11 @@ function RouteComponent() {
                 <DashboardCard
                     title="Your Monthly Sales, Costs & Earnings"
                     description="Your finances at a glance — earnings, costs, and profit all in one place."
-                    overview="Great month! Sales have grown by 23% and expenses held steady at $ 2,340.
-                        Your overall profit margins remain at 57%, which is within industry average for pottery / ceramics."
+                    overview={
+                        revenueProfitSummaryOverview
+                            ? String(revenueProfitSummaryOverview.overview)
+                            : ""
+                    }
                 >
                     <ChartContainer>
                         <Bar
