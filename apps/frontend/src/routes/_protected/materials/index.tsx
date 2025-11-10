@@ -18,6 +18,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import { useEffect, useState } from "react";
 import InventoryStatus from "../../../components/badge/InventoryStatus";
+import AddButton from "../../../components/button/AddButton";
 import Button from "../../../components/button/Button";
 import { MoreButton } from "../../../components/button/MoreButton";
 import RightDrawer from "../../../components/drawer/RightDrawer";
@@ -80,6 +81,7 @@ function MaterialsList() {
         id: string;
         name: string;
     } | null>(null);
+    const [isPriceUpdateModalOpen, setIsPriceUpdateModalOpen] = useState(false);
     const [visibleToast, setVisibleToast] = useState(false);
     const [toastMessage, setToastMessage] = useState({
         kind: "",
@@ -298,6 +300,12 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.totalInventoryValue.queryKey(),
                 });
+
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Success! Material has been added.",
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -323,6 +331,12 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.totalInventoryValue.queryKey(),
                 });
+
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Success! Material has been updated.",
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -382,8 +396,14 @@ function MaterialsList() {
                 setFormErrors(errors);
                 return;
             }
-            updateMaterialMutation.mutate(result.data);
-            closeDrawer();
+
+            // Check if pricing was updated and show confirmation modal
+            if (pricingUpdated) {
+                setIsPriceUpdateModalOpen(true);
+            } else {
+                updateMaterialMutation.mutate(result.data);
+                closeDrawer();
+            }
         } else {
             // Add new material
             const result = addMaterialsValidation.safeParse({
@@ -455,13 +475,46 @@ function MaterialsList() {
             });
     };
 
+    const handleConfirmPriceUpdate = () => {
+        if (!editingMaterialId) return;
+
+        const updatePayload = {
+            id: editingMaterialId,
+            name: itemName,
+            typeId: materialType,
+            unit,
+            quantity,
+            minStockLevel,
+            lastPurchaseDate,
+            supplierName: supplier,
+            supplierUrl: supplierUrl,
+            notes,
+            ...(pricingUpdated && {
+                purchasePrice: bulkPurchasePrice,
+                purchaseQuantity: bulkPurchaseQuantity,
+            }),
+        };
+
+        const result = updateMaterialsValidation.safeParse(updatePayload);
+
+        if (result.success) {
+            updateMaterialMutation.mutate(result.data);
+            closeDrawer();
+        }
+    };
+
     // Handle Save New Pricing button click
     const handleSaveNewPricing = () => {
         if (bulkPurchaseQuantity > 0) {
             const computed = bulkPurchasePrice / bulkPurchaseQuantity;
             setNewCostPerUnit(computed);
-            setCostPerUnit(computed);
-            setPricingUpdated(true);
+
+            // Only mark as updated if the price actually changed
+            if (computed !== originalCostPerUnit) {
+                setCostPerUnit(computed);
+                setPricingUpdated(true);
+            }
+
             setShowUpdatePricing(false);
         }
     };
@@ -513,13 +566,13 @@ function MaterialsList() {
     return (
         <BaseLayout title="Materials List">
             {error && <div>Error: {error.message}</div>}
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
                 <PageTitle title="My Materials" info={tooltip} />
-                <Button
+                <AddButton
                     value="Add New Material"
                     onClick={() => setDrawerOpen(true)}
                     icon="/icon/plus.svg"
-                ></Button>
+                ></AddButton>
             </div>
             <div className="flex gap-6 py-2">
                 <Metric
@@ -875,6 +928,12 @@ function MaterialsList() {
                 isConfirmationModalOpen={isConfirmationModalOpen}
                 setIsConfirmationModalOpen={setIsConfirmationModalOpen}
                 onConfirm={handleConfirmDelete}
+            />
+            <ConfirmationModal
+                confirmationMessage="Changing the material price will update existing expense records, but products using this material will not be updated. Continue?"
+                isConfirmationModalOpen={isPriceUpdateModalOpen}
+                setIsConfirmationModalOpen={setIsPriceUpdateModalOpen}
+                onConfirm={handleConfirmPriceUpdate}
             />
             <ToastNotification
                 setVisibleToast={setVisibleToast}
