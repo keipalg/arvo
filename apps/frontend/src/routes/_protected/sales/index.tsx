@@ -61,6 +61,7 @@ function SalesList() {
     const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
     const [subTotalPrice, setSubTotalPrice] = useState(0.0);
     const [totalPrice, setTotalPrice] = useState(0.0);
+    const [viewOnlyMode, setViewOnlyMode] = useState(false);
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
         useState(false);
     const [visibleToast, setVisibleToast] = useState(false);
@@ -119,11 +120,16 @@ function SalesList() {
         {
             key: "salesNumber",
             header: "Sales Number",
-            render: (value) => {
-                return typeof value === "number" ? (
-                    <div className="text-arvo-blue-100 font-semibold">
-                        #{value.toString().padStart(7, "0")}
-                    </div>
+            render: (_value, row) => {
+                return typeof row.salesNumber === "number" ? (
+                    <button
+                        type="button"
+                        className="text-arvo-blue-100 font-semibold cursor-pointer"
+                        onClick={() => handleView(row)}
+                        aria-label={`View sale #${String(row.salesNumber).padStart(7, "0")}`}
+                    >
+                        #{String(row.salesNumber).padStart(7, "0")}
+                    </button>
                 ) : (
                     <></>
                 );
@@ -194,6 +200,7 @@ function SalesList() {
         setTax(0.0);
         setEditingSaleId(null);
         setFormErrors({});
+        setViewOnlyMode(false);
     };
 
     const closeDrawer = () => {
@@ -428,6 +435,7 @@ function SalesList() {
     };
 
     const handleEdit = (sale: Sales) => {
+        setViewOnlyMode(false);
         setDrawerOpen(true);
         setCustomer(sale.customer);
         setChannelId(sale.channelId);
@@ -458,6 +466,11 @@ function SalesList() {
                 };
             }),
         );
+    };
+
+    const handleView = (sale: Sales) => {
+        handleEdit(sale);
+        setViewOnlyMode(true);
     };
 
     const handleDeleteModal = (saleId: string) => {
@@ -612,233 +625,330 @@ function SalesList() {
                 title={"#" + String(salesNumber).padStart(7, "0")}
                 isOpen={drawerOpen}
                 onClose={() => closeDrawer()}
+                narrower={viewOnlyMode}
             >
-                <form
-                    onSubmit={(e) => {
-                        void handleSubmit(e);
-                    }}
-                    className="flex flex-col gap-2"
-                >
-                    <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2 justify-between">
-                        <TextInput
-                            label="Customer"
-                            name="customer"
-                            placeholder="John Doe"
-                            value={customer}
-                            required={true}
-                            onChange={(e) => setCustomer(e.target.value)}
-                            error={formErrors.customer}
-                        ></TextInput>
-                        <Select
-                            label="Channel"
-                            name="channelId"
-                            style="top-3/5"
-                            value={channelId}
-                            options={
-                                channels
-                                    ? channels.map((ch) => ({
-                                          value: ch.id,
-                                          label: ch.name,
-                                      }))
-                                    : []
-                            }
-                            onChange={(e) => setChannelId(e.target.value)}
-                            error={formErrors.channelId}
-                        ></Select>
-                        <TextInput
-                            label="Sale Date & Time"
-                            type="datetime-local"
-                            name="customer"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            error={formErrors.date}
-                        ></TextInput>
-                    </div>
-                    <Button
-                        type="button"
-                        value="Add Product"
-                        onClick={addProductRow}
-                    ></Button>
-                    {products.map((row, index) => (
-                        <div
-                            key={index}
-                            className="sm:flex gap-y-2 justify-between items-center"
-                        >
-                            <Select
-                                label="Product"
-                                value={row.productId}
-                                options={[
-                                    { value: "", label: "" },
-                                    ...(productList
-                                        ? productList.map((product) => ({
-                                              value: product.id,
-                                              label: product.name,
-                                          }))
-                                        : []),
-                                ]}
-                                onChange={(e) =>
-                                    updateProductRow(
-                                        index,
-                                        "productId",
-                                        e.target.value,
-                                    )
-                                }
-                            ></Select>
-                            <NumberInput
-                                label="Price per item"
-                                value={row.retailPrice}
-                                step="0.01"
-                                min="0"
-                                required={true}
-                                disabled={true}
-                                unit="$"
-                                onChange={(e) =>
-                                    updateProductRow(
-                                        index,
-                                        "retailPrice",
-                                        e.target.value,
-                                    )
-                                }
-                            ></NumberInput>
-
-                            <NumberInput
-                                label="Quantity"
-                                value={row.quantity}
-                                min="0"
-                                max={String(row.maxQuantity)}
-                                onChange={(e) =>
-                                    updateProductRow(
-                                        index,
-                                        "quantity",
-                                        Number(e.target.value),
-                                    )
-                                }
-                                onBlur={(e) => {
-                                    if (
-                                        Number(e.target.value) > row.maxQuantity
-                                    ) {
-                                        updateProductRow(
-                                            index,
-                                            "quantity",
-                                            row.maxQuantity,
+                {viewOnlyMode ? (
+                    <div className="flex flex-col gap-4 mt-4">
+                        <div className="grid grid-cols-1 gap-2">
+                            <div className="font-semibold">Status</div>
+                            <SalesStatus statusKey={status} />
+                        </div>
+                        <div className="pt-2">
+                            <div className="mt-2 space-y-2">
+                                <div className="grid grid-cols-[1fr_100px_100px] gap-2">
+                                    <div className="font-semibold text-xl">
+                                        Item
+                                    </div>
+                                    <div className="font-semibold text-xl">
+                                        Qty
+                                    </div>
+                                    <div className="font-semibold text-xl text-right">
+                                        Amount
+                                    </div>
+                                    {products.map((p) => {
+                                        const productName =
+                                            productList?.find(
+                                                (x) => x.id === p.productId,
+                                            )?.name ?? p.productId;
+                                        return (
+                                            <React.Fragment key={p.productId}>
+                                                <div className="font-semibold">
+                                                    {productName}
+                                                </div>
+                                                <div className="font-semibold">
+                                                    {p.quantity}
+                                                </div>
+                                                <div className="font-semibold text-right">
+                                                    $
+                                                    {Number(
+                                                        p.retailPrice,
+                                                    ).toFixed(2)}
+                                                </div>
+                                            </React.Fragment>
                                         );
-                                    }
-                                }}
-                            ></NumberInput>
-                            <DisplayValue label="Price" unit="$">
-                                {(row.retailPrice * row.quantity).toFixed(2)}
-                            </DisplayValue>
-                            <button
-                                type="button"
-                                onClick={() => removeProductRow(index)}
-                            >
-                                <img
-                                    src="/icon/close.svg"
-                                    alt="Close"
-                                    className="w-4 cursor-pointer"
-                                />
-                            </button>
+                                    })}
+                                </div>
+                            </div>
                         </div>
-                    ))}
-                    {formErrors.products && (
-                        <div className="text-red-500 text-sm">
-                            {formErrors.products}
+                        <HorizontalRule />
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="font-semibold">Subtotal</div>
+                            <div className="font-semibold text-right">
+                                ${subTotalPrice.toFixed(2)}
+                            </div>
+
+                            <div className="font-semibold">Discount</div>
+                            <div className="font-semibold text-right">
+                                ${discount.toFixed(2)}
+                            </div>
+
+                            <div className="font-semibold">Shipping Fee</div>
+                            <div className="font-semibold text-right">
+                                ${shippingFee.toFixed(2)}
+                            </div>
+
+                            <div className="font-semibold">Tax</div>
+                            <div className="font-semibold text-right">
+                                {tax}%
+                            </div>
                         </div>
-                    )}
-                    <HorizontalRule />
-                    <div className="sm:grid sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <SelectCustom
-                                label="Status"
-                                name="status"
-                                value={status}
+                        <HorizontalRule />
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="font-semibold">Total</div>
+                            <div className="font-semibold text-right">
+                                ${totalPrice.toFixed(2)}
+                            </div>
+                        </div>
+                        <HorizontalRule />
+
+                        <div className="font-semibold">Sales Date</div>
+                        <div>
+                            {date ? new Date(date).toLocaleString() : "-"}
+                        </div>
+
+                        <div>
+                            <div className="font-semibold">
+                                Note : {notes || "-"}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <form
+                        onSubmit={(e) => {
+                            void handleSubmit(e);
+                        }}
+                        className="flex flex-col gap-2"
+                    >
+                        <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2 justify-between">
+                            <TextInput
+                                label="Customer"
+                                name="customer"
+                                placeholder="John Doe"
+                                value={customer}
+                                required={true}
+                                onChange={(e) => setCustomer(e.target.value)}
+                                error={formErrors.customer}
+                            ></TextInput>
+                            <Select
+                                label="Channel"
+                                name="channelId"
+                                style="top-3/5"
+                                value={channelId}
                                 options={
-                                    statusList
-                                        ? statusList.map((statusOption) => ({
-                                              value: statusOption.key,
-                                              label: statusOption.name,
-                                              render: (
-                                                  <SalesStatus
-                                                      statusKey={String(
-                                                          statusOption.key,
-                                                      )}
-                                                  ></SalesStatus>
-                                              ),
+                                    channels
+                                        ? channels.map((ch) => ({
+                                              value: ch.id,
+                                              label: ch.name,
                                           }))
                                         : []
                                 }
-                                onChange={setStatus}
-                            ></SelectCustom>
-                            <TextArea
-                                label="Additional Notes"
-                                placeholder="Notes"
-                                name="notes"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                            ></TextArea>
+                                onChange={(e) => setChannelId(e.target.value)}
+                                error={formErrors.channelId}
+                            ></Select>
+                            <TextInput
+                                label="Sale Date & Time"
+                                type="datetime-local"
+                                name="customer"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                error={formErrors.date}
+                            ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <DisplayValue label="Subtotal" unit="$">
-                                {subTotalPrice.toFixed(2)}
-                            </DisplayValue>
-                            <NumberInput
-                                label="Discount"
-                                name="discount"
-                                value={discount}
-                                step="0.01"
-                                min="0"
-                                unit="$"
-                                onChange={(e) =>
-                                    setDiscount(Number(e.target.value))
-                                }
-                                error={formErrors.discount}
-                            ></NumberInput>
-                            <NumberInput
-                                label="Shipping Fee"
-                                name="shippingFee"
-                                value={shippingFee}
-                                step="0.01"
-                                min="0"
-                                unit="$"
-                                onChange={(e) =>
-                                    setShippingFee(Number(e.target.value))
-                                }
-                                error={formErrors.shippingFee}
-                            ></NumberInput>
-                            <NumberInput
-                                label="Tax"
-                                name="tax"
-                                value={tax}
-                                step="0.1"
-                                min="0"
-                                max="100"
-                                unit="%"
-                                onChange={(e) => setTax(Number(e.target.value))}
-                                error={formErrors.tax}
-                            ></NumberInput>
-                            <DisplayValue label="Total Price" unit="$">
-                                {totalPrice.toFixed(2)}
-                                <input
-                                    type="hidden"
-                                    name="totalPrice"
-                                    value={Number(totalPrice)}
-                                />
-                            </DisplayValue>
-                        </div>
-                    </div>
-                    <div
-                        className={`grid ${editingSaleId && "grid-cols-2 gap-2"}`}
-                    >
-                        {editingSaleId && (
-                            <Button
-                                type="button"
-                                value="Delete"
-                                onClick={() => handleDeleteModal(editingSaleId)}
-                            />
+                        <Button
+                            type="button"
+                            value="Add Product"
+                            onClick={addProductRow}
+                        ></Button>
+                        {products.map((row, index) => (
+                            <div
+                                key={index}
+                                className="sm:flex gap-y-2 justify-between items-center"
+                            >
+                                <Select
+                                    label="Product"
+                                    value={row.productId}
+                                    options={[
+                                        { value: "", label: "" },
+                                        ...(productList
+                                            ? productList.map((product) => ({
+                                                  value: product.id,
+                                                  label: product.name,
+                                              }))
+                                            : []),
+                                    ]}
+                                    onChange={(e) =>
+                                        updateProductRow(
+                                            index,
+                                            "productId",
+                                            e.target.value,
+                                        )
+                                    }
+                                ></Select>
+                                <NumberInput
+                                    label="Price per item"
+                                    value={row.retailPrice}
+                                    step="0.01"
+                                    min="0"
+                                    required={true}
+                                    disabled={true}
+                                    unit="$"
+                                    onChange={(e) =>
+                                        updateProductRow(
+                                            index,
+                                            "retailPrice",
+                                            e.target.value,
+                                        )
+                                    }
+                                ></NumberInput>
+
+                                <NumberInput
+                                    label="Quantity"
+                                    value={row.quantity}
+                                    min="0"
+                                    max={String(row.maxQuantity)}
+                                    onChange={(e) =>
+                                        updateProductRow(
+                                            index,
+                                            "quantity",
+                                            Number(e.target.value),
+                                        )
+                                    }
+                                    onBlur={(e) => {
+                                        if (
+                                            Number(e.target.value) >
+                                            row.maxQuantity
+                                        ) {
+                                            updateProductRow(
+                                                index,
+                                                "quantity",
+                                                row.maxQuantity,
+                                            );
+                                        }
+                                    }}
+                                ></NumberInput>
+                                <DisplayValue label="Price" unit="$">
+                                    {(row.retailPrice * row.quantity).toFixed(
+                                        2,
+                                    )}
+                                </DisplayValue>
+                                <button
+                                    type="button"
+                                    onClick={() => removeProductRow(index)}
+                                >
+                                    <img
+                                        src="/icon/close.svg"
+                                        alt="Close"
+                                        className="w-4 cursor-pointer"
+                                    />
+                                </button>
+                            </div>
+                        ))}
+                        {formErrors.products && (
+                            <div className="text-red-500 text-sm">
+                                {formErrors.products}
+                            </div>
                         )}
-                        <Button type="submit" value="Save"></Button>
-                    </div>
-                </form>
+                        <HorizontalRule />
+                        <div className="sm:grid sm:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <SelectCustom
+                                    label="Status"
+                                    name="status"
+                                    value={status}
+                                    options={
+                                        statusList
+                                            ? statusList.map(
+                                                  (statusOption) => ({
+                                                      value: statusOption.key,
+                                                      label: statusOption.name,
+                                                      render: (
+                                                          <SalesStatus
+                                                              statusKey={String(
+                                                                  statusOption.key,
+                                                              )}
+                                                          ></SalesStatus>
+                                                      ),
+                                                  }),
+                                              )
+                                            : []
+                                    }
+                                    onChange={setStatus}
+                                ></SelectCustom>
+                                <TextArea
+                                    label="Additional Notes"
+                                    placeholder="Notes"
+                                    name="notes"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                ></TextArea>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <DisplayValue label="Subtotal" unit="$">
+                                    {subTotalPrice.toFixed(2)}
+                                </DisplayValue>
+                                <NumberInput
+                                    label="Discount"
+                                    name="discount"
+                                    value={discount}
+                                    step="0.01"
+                                    min="0"
+                                    unit="$"
+                                    onChange={(e) =>
+                                        setDiscount(Number(e.target.value))
+                                    }
+                                    error={formErrors.discount}
+                                ></NumberInput>
+                                <NumberInput
+                                    label="Shipping Fee"
+                                    name="shippingFee"
+                                    value={shippingFee}
+                                    step="0.01"
+                                    min="0"
+                                    unit="$"
+                                    onChange={(e) =>
+                                        setShippingFee(Number(e.target.value))
+                                    }
+                                    error={formErrors.shippingFee}
+                                ></NumberInput>
+                                <NumberInput
+                                    label="Tax"
+                                    name="tax"
+                                    value={tax}
+                                    step="0.1"
+                                    min="0"
+                                    max="100"
+                                    unit="%"
+                                    onChange={(e) =>
+                                        setTax(Number(e.target.value))
+                                    }
+                                    error={formErrors.tax}
+                                ></NumberInput>
+                                <DisplayValue label="Total Price" unit="$">
+                                    {totalPrice.toFixed(2)}
+                                    <input
+                                        type="hidden"
+                                        name="totalPrice"
+                                        value={Number(totalPrice)}
+                                    />
+                                </DisplayValue>
+                            </div>
+                        </div>
+                        <div
+                            className={`grid ${editingSaleId && "grid-cols-2 gap-2"}`}
+                        >
+                            {editingSaleId && (
+                                <Button
+                                    type="button"
+                                    value="Delete"
+                                    onClick={() =>
+                                        handleDeleteModal(editingSaleId)
+                                    }
+                                />
+                            )}
+                            <Button type="submit" value="Save"></Button>
+                        </div>
+                    </form>
+                )}
             </RightDrawer>
         </BaseLayout>
     );
