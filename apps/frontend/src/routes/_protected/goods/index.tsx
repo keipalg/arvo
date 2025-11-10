@@ -15,6 +15,8 @@ import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
 import PageTitle from "../../../components/layout/PageTitle.tsx";
 import Metric from "../../../components/metric/Metric.tsx";
 import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
+import ToastNotification from "../../../components/modal/ToastNotification.tsx";
+import ConfirmationModal from "../../../components/modal/ConfirmationModal.tsx";
 import { PriceSuggestionWidget } from "../../../components/pricing/PriceSuggestionWidget";
 import DataTable, {
     type FilterOption,
@@ -96,7 +98,14 @@ function GoodsList() {
     const [productImage, setProductImage] = useState<File | string | null>(
         null,
     );
-    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+        useState(false);
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
     const { data, isLoading, error } = useQuery(trpc.goods.list.queryOptions());
     const { data: materialList } = useQuery(
@@ -123,6 +132,25 @@ function GoodsList() {
     const { data: leastProductMetrics } = useQuery(
         trpc.dashboard.leastSellingProductWithComparison.queryOptions({
             timezone,
+        }),
+    );
+
+    const checkProductInSalesMutation = useMutation(
+        trpc.goods.checkInSales.mutationOptions({
+            onSuccess: (isUsedInSales) => {
+                if (isUsedInSales) {
+                    setToastMessage({
+                        kind: "WARN",
+                        content:
+                            "Cannot delete this product because it is used in sales records.",
+                    });
+                    setVisibleToast(true);
+                } else {
+                    deleteGoodMutation.mutate({ id: itemToDelete! });
+                }
+                setItemToDelete(null);
+                setIsConfirmationModalOpen(false);
+            },
         }),
     );
 
@@ -251,7 +279,7 @@ function GoodsList() {
 
     const closeDrawer = () => {
         setDrawerOpen(false);
-        setDeleteError(null);
+        // setDeleteError(null);
         resetForm();
     };
 
@@ -347,6 +375,18 @@ function GoodsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.materialOutputRatio.queryKey(),
                 });
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Added product successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error adding product: ${error.message}`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -360,6 +400,18 @@ function GoodsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.materialOutputRatio.queryKey(),
                 });
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Updated successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updateing product: ${error.message}`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -386,12 +438,18 @@ function GoodsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.goods.list.queryKey(),
                 });
-                setDeleteError(null);
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Deleted successfully!`,
+                });
+                setVisibleToast(true);
             },
-            onError: () => {
-                setDeleteError(
-                    "You can't delete. This record have been used in sales record.",
-                );
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error deleting product: ${error.message}`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -488,9 +546,13 @@ function GoodsList() {
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this good?")) {
-            setDeleteError(null);
-            deleteGoodMutation.mutate({ id });
+        setItemToDelete(id);
+        setIsConfirmationModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (itemToDelete) {
+            checkProductInSalesMutation.mutate({ id: itemToDelete });
         }
     };
 
@@ -585,6 +647,17 @@ function GoodsList() {
 
     return (
         <BaseLayout title="Product List">
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
+            <ConfirmationModal
+                confirmationMessage={`Are you sure you want to delete this product?`}
+                isConfirmationModalOpen={isConfirmationModalOpen}
+                setIsConfirmationModalOpen={setIsConfirmationModalOpen}
+                onConfirm={confirmDelete}
+            />
             <div className="flex justify-between gap-2">
                 <PageTitle
                     title="Product Inventory"
@@ -849,20 +922,11 @@ function GoodsList() {
                             className={`grid ${editingGoodId && "grid-cols-2 gap-2"}`}
                         >
                             {editingGoodId && (
-                                <div className="grid">
-                                    {deleteError && (
-                                        <div className="mb-1 p-2 text-red-700 rounded">
-                                            {deleteError}
-                                        </div>
-                                    )}
-                                    <Button
-                                        type="button"
-                                        value="Delete"
-                                        onClick={() =>
-                                            handleDelete(editingGoodId)
-                                        }
-                                    />
-                                </div>
+                                <Button
+                                    type="button"
+                                    value="Delete"
+                                    onClick={() => handleDelete(editingGoodId)}
+                                />
                             )}
                             <Button type="submit" value="Save"></Button>
                         </div>

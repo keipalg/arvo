@@ -198,3 +198,16 @@ export const getMonthlySalesCount = async (
         );
     return summary[0].count ?? 0;
 };
+
+// Check the sales is used or not
+export const getSalesCount = async (goodId: string, userId: string) => {
+    const result = await db
+        .select({
+            count: sql<number>`cast(count(${saleDetail.id}) as int)`,
+        })
+        .from(saleDetail)
+        .innerJoin(sale, eq(saleDetail.saleId, sale.id))
+        .where(and(eq(saleDetail.goodId, goodId), eq(sale.userId, userId)));
+
+    return result[0].count ?? 0;
+};

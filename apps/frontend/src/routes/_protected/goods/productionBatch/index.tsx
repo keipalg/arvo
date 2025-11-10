@@ -21,6 +21,8 @@ import MaterialCostTable from "../../../../components/pricing/MaterialCostTable"
 import NumberInput from "../../../../components/input/NumberInput";
 import Metric from "../../../../components/metric/Metric";
 import BatchDetails from "../../../../components/table/DataTableDetailProductionBatch";
+import ToastNotification from "../../../../components/modal/ToastNotification";
+import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 
 import {
     productionBatchInputValidation,
@@ -73,6 +75,14 @@ function ProductionBatchList() {
     >([]);
     const [editingBatchId, setEditingBatchId] = useState<string>("");
     const [maxQuantity, setMaxQuantity] = useState(0);
+    const [selectedItemForDeletion, setSelectedItemForDeletion] = useState("");
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+        useState(false);
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
     const { data, isLoading, error } = useQuery(
         trpc.productionBatch.list.queryOptions(),
     );
@@ -166,7 +176,10 @@ function ProductionBatchList() {
                 <>
                     <MoreButton
                         onEdit={() => handleEdit(row)}
-                        onDeleteModal={() => handleDelete(row.id)}
+                        onDeleteModal={() => {
+                            setIsConfirmationModalOpen(true);
+                            setSelectedItemForDeletion(row.id);
+                        }}
                     />
                 </>
             ),
@@ -217,6 +230,17 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.materialList.queryKey(),
                 });
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Added batch production successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error adding batch production `,
+                });
             },
         }),
     );
@@ -230,6 +254,18 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.materialList.queryKey(),
                 });
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Updated batch production successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updating batch production: ${error.message}`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -240,6 +276,19 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.productionBatch.list.queryKey(),
                 });
+
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `Deleted batch production successfully!`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (error) => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error deleting batch production ${error.message}`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -337,14 +386,11 @@ function ProductionBatchList() {
                 : "",
         );
         setQuantity(productionBatch.quantity || 0);
-        setNote(productionBatch.notes);
+        setNote(productionBatch.notes || "");
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this good?")) {
-            deleteProductionBatchMutation.mutate({ id });
-            closeDrawer();
-        }
+        deleteProductionBatchMutation.mutate({ id });
     };
 
     // find material output ratio by selected good id
@@ -416,6 +462,17 @@ function ProductionBatchList() {
 
     return (
         <BaseLayout title="Batch Production">
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
+            <ConfirmationModal
+                confirmationMessage={`Are you sure you want to delete this product?`}
+                isConfirmationModalOpen={isConfirmationModalOpen}
+                setIsConfirmationModalOpen={setIsConfirmationModalOpen}
+                onConfirm={() => handleDelete(selectedItemForDeletion)}
+            />
             <div className="flex justify-between">
                 <PageTitle
                     title="Batch Production"
@@ -427,7 +484,7 @@ function ProductionBatchList() {
                     onClick={() => setDrawerOpen(true)}
                 ></AddButton>
             </div>
-            <div className="flex gap-6 py-2 overflow-x-aut">
+            <div className="flex gap-6 py-2 overflow-x-auto">
                 {topProducedMetrics && (
                     <Metric
                         value={topProducedMetrics.productName}
@@ -544,7 +601,10 @@ function ProductionBatchList() {
                             <Button
                                 type="button"
                                 value="Delete"
-                                onClick={() => handleDelete(editingBatchId)}
+                                onClick={() => {
+                                    setIsConfirmationModalOpen(true);
+                                    setSelectedItemForDeletion(editingBatchId);
+                                }}
                             ></Button>
                         )}
                         <Button type="submit" value="Save"></Button>
