@@ -12,9 +12,15 @@ import {
     getSaleDetailsBySaleId,
     deleteSaleDetailsBySaleId,
     updateSale,
+    getMonthlySalesRevenue,
+    getMonthlySalesCount,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
-import { salesInputValidation, salesUpdateValidation } from "@arvo/shared";
+import {
+    salesInputValidation,
+    salesMetricValidation,
+    salesUpdateValidation,
+} from "@arvo/shared";
 import {
     getGoodInfoByIds,
     getProductsListForSales,
@@ -300,4 +306,37 @@ export const salesRouter = router({
         const usedMaterials = await getUsedMaterialPerSales(ctx.user.id);
         return usedMaterials;
     }),
+    metricTotalRevenue: protectedProcedure
+        .input(salesMetricValidation)
+        .query(async ({ ctx, input }) => {
+            const [currentMonth, lastMonth] = await Promise.all([
+                getMonthlySalesRevenue(ctx.user.id, input.timezone, 0),
+                getMonthlySalesRevenue(ctx.user.id, input.timezone, -1),
+            ]);
+            return {
+                totalRevenue: currentMonth.totalRevenue,
+                change:
+                    lastMonth.totalRevenue === 0
+                        ? null
+                        : ((currentMonth.totalRevenue -
+                              lastMonth.totalRevenue) /
+                              lastMonth.totalRevenue) *
+                          100,
+            };
+        }),
+    metricTotalSalesCount: protectedProcedure
+        .input(salesMetricValidation)
+        .query(async ({ ctx, input }) => {
+            const [currentMonth, lastMonth] = await Promise.all([
+                getMonthlySalesCount(ctx.user.id, input.timezone, 0),
+                getMonthlySalesCount(ctx.user.id, input.timezone, -1),
+            ]);
+            return {
+                totalSalesCount: currentMonth,
+                change:
+                    lastMonth === 0
+                        ? null
+                        : ((currentMonth - lastMonth) / lastMonth) * 100,
+            };
+        }),
 });

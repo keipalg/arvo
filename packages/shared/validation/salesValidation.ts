@@ -65,4 +65,15 @@ export const salesUpdateValidation = z
         { message: "Products cannot be duplicated", path: ["products"] },
     );
 
+export const salesMetricValidation = z.object({
+    timezone: z.string().refine((tz) => {
+        try {
+            Intl.DateTimeFormat(undefined, { timeZone: tz });
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }),
+});
+
 export type SalesUpdateInput = z.infer<typeof salesUpdateValidation>;
