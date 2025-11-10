@@ -733,11 +733,35 @@ function MaterialsList() {
                             name="unit"
                             style="top-3/5"
                             value={unit}
-                            options={
+                            optgroup={
                                 unitsList
-                                    ? unitsList.map((unitsOption) => ({
-                                          value: unitsOption.name,
-                                          label: `${unitsOption.name} (${unitsOption.abv})`,
+                                    ? Object.entries(
+                                          unitsList.reduce(
+                                              (acc, unitsOption) => {
+                                                  const category =
+                                                      unitsOption.cat;
+                                                  if (!acc[category]) {
+                                                      acc[category] = [];
+                                                  }
+                                                  acc[category].push({
+                                                      value: unitsOption.name,
+                                                      label: `${unitsOption.name} (${unitsOption.abv})`,
+                                                  });
+                                                  return acc;
+                                              },
+                                              {} as Record<
+                                                  string,
+                                                  Array<{
+                                                      value: string;
+                                                      label: string;
+                                                  }>
+                                              >,
+                                          ),
+                                      ).map(([category, options]) => ({
+                                          optGroupLabel:
+                                              category.charAt(0).toUpperCase() +
+                                              category.slice(1),
+                                          optGroupValues: options,
                                       }))
                                     : []
                             }
