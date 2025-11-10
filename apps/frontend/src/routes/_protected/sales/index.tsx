@@ -26,6 +26,10 @@ import { MoreButton } from "../../../components/button/MoreButton";
 import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import { useIsSmUp } from "../../../utils/screenWidth";
 import SaleDetails from "../../../components/table/DataTableDetailSale";
+import ToastNotification from "../../../components/modal/ToastNotification";
+import ConfirmationModal from "../../../components/modal/ConfirmationModal";
+import AddButton from "../../../components/button/AddButton";
+
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
 });
@@ -57,6 +61,14 @@ function SalesList() {
     const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
     const [subTotalPrice, setSubTotalPrice] = useState(0.0);
     const [totalPrice, setTotalPrice] = useState(0.0);
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+        useState(false);
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
+    const [selectedItemForDeletion, setSelectedItemForDeletion] = useState("");
 
     const { data: channels } = useQuery(trpc.channel.list.queryOptions());
     const { data: statusList } = useQuery(trpc.status.list.queryOptions());
@@ -109,7 +121,9 @@ function SalesList() {
             header: "Sales Number",
             render: (value) => {
                 return typeof value === "number" ? (
-                    <>#{value.toString().padStart(7, "0")}</>
+                    <div className="text-arvo-blue-100 font-semibold">
+                        #{value.toString().padStart(7, "0")}
+                    </div>
                 ) : (
                     <></>
                 );
@@ -119,7 +133,11 @@ function SalesList() {
         {
             key: "totalPrice",
             header: "Total Price",
-            render: (value) => <>${Number(value).toFixed(2)}</>,
+            render: (value) => (
+                <div className="text-arvo-green-100">
+                    ${Number(value).toFixed(2)}
+                </div>
+            ),
         },
         {
             key: "date",
@@ -156,7 +174,7 @@ function SalesList() {
                     <MoreButton
                         id={row.id}
                         onEdit={() => handleEdit(row)}
-                        onDelete={() => handleDelete(row.id)}
+                        onDeleteModal={() => handleDeleteModal(row.id)}
                     />
                 </>
             ),
@@ -246,6 +264,18 @@ function SalesList() {
         trpc.sales.add.mutationOptions({
             onSuccess: async () => {
                 await invalidateAllQueries();
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Added sales successfully!",
+                });
+                setVisibleToast(true);
+            },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error adding sales`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -254,6 +284,18 @@ function SalesList() {
         trpc.sales.update.mutationOptions({
             onSuccess: async () => {
                 await invalidateAllQueries();
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Updated sales successfully!",
+                });
+                setVisibleToast(true);
+            },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updating sales`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -262,6 +304,18 @@ function SalesList() {
         trpc.sales.delete.mutationOptions({
             onSuccess: async () => {
                 await invalidateAllQueries();
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Deleted sales successfully!",
+                });
+                setVisibleToast(true);
+            },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error deleting sales`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -406,11 +460,13 @@ function SalesList() {
         );
     };
 
+    const handleDeleteModal = (saleId: string) => {
+        setSelectedItemForDeletion(saleId);
+        setIsConfirmationModalOpen(true);
+    };
+
     const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this sale?")) {
-            deleteSaleMutation.mutate({ id });
-            closeDrawer();
-        }
+        deleteSaleMutation.mutate({ id });
     };
 
     useEffect(() => {
@@ -465,15 +521,31 @@ function SalesList() {
 
     return (
         <BaseLayout title="Sales List">
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
+            <ConfirmationModal
+                confirmationMessage="Are you sure you want to delete this sale?"
+                isConfirmationModalOpen={isConfirmationModalOpen}
+                setIsConfirmationModalOpen={setIsConfirmationModalOpen}
+                onConfirm={() => {
+                    handleDelete(selectedItemForDeletion);
+                }}
+            />
             <div className="flex justify-between">
-                <PageTitle title="Sales" />
-                <Button
+                <PageTitle
+                    title="Sales"
+                    info="Sales automatically records and tracks all your product sales in one place."
+                />
+                <AddButton
                     value="Add New Sales"
-                    icon="/icon/plus.svg"
                     onClick={() => setDrawerOpen(true)}
-                ></Button>
+                    icon="/icon/plus.svg"
+                ></AddButton>
             </div>
-            <div className="flex gap-6 py-2">
+            <div className="flex gap-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
                 <Metric
                     value={
                         metricRevenue
@@ -536,10 +608,11 @@ function SalesList() {
                     />
                 </MoreButtonProvider>
             )}
-            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
-                <h3 className="text-2xl">
-                    #{String(salesNumber).padStart(7, "0")}
-                </h3>
+            <RightDrawer
+                title={"#" + String(salesNumber).padStart(7, "0")}
+                isOpen={drawerOpen}
+                onClose={() => closeDrawer()}
+            >
                 <form
                     onSubmit={(e) => {
                         void handleSubmit(e);
@@ -760,7 +833,7 @@ function SalesList() {
                             <Button
                                 type="button"
                                 value="Delete"
-                                onClick={() => handleDelete(editingSaleId)}
+                                onClick={() => handleDeleteModal(editingSaleId)}
                             />
                         )}
                         <Button type="submit" value="Save"></Button>
