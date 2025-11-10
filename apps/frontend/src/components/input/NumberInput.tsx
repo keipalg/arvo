@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { BaseInputProps } from "./BaseInputProps";
 import FormLabel from "./FormLabel";
 
@@ -32,6 +33,15 @@ const NumberInput = ({
     onBlur,
     style,
 }: NumberInputProps) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Update input value when prop changes (only when not actively typing)
+    useEffect(() => {
+        if (inputRef.current && document.activeElement !== inputRef.current) {
+            inputRef.current.value = value.toString();
+        }
+    }, [value]);
+
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
         let numValue = parseFloat(inputValue);
@@ -48,6 +58,11 @@ const NumberInput = ({
             if (max !== undefined && numValue > parseFloat(max)) {
                 numValue = parseFloat(max);
             }
+        }
+
+        // Update input display with corrected value
+        if (inputRef.current) {
+            inputRef.current.value = numValue.toString();
         }
 
         // Create new copy of event, then replace target to put the desired value
@@ -80,6 +95,7 @@ const NumberInput = ({
                     </span>
                 )}
                 <input
+                    ref={inputRef}
                     type="number"
                     name={name}
                     defaultValue={value}
