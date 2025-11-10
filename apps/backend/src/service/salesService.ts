@@ -11,7 +11,9 @@ import { channel, good, sale, saleDetail, status } from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
+import { createProductLowInventoryNotification } from "./notificationsService.js";
 
+export type GoodSelect = Partial<InferSelectModel<typeof good>>;
 export type SaleSelect = InferSelectModel<typeof sale>;
 export const getSalesList = async (userId: string) => {
     return await db
@@ -127,12 +129,21 @@ export const updateInventoryQuantity = async (
     quantity: number,
     tx: NeonDbTx = db,
 ) => {
-    await tx
+    const result = await tx
         .update(good)
         .set({
             inventoryQuantity: sql`${good.inventoryQuantity} + ${quantity}`,
         })
-        .where(eq(good.id, goodId));
+        .where(eq(good.id, goodId))
+        .returning({
+            id: good.id,
+            name: good.name,
+            userId: good.userId,
+            minimumStockLevel: good.minimumStockLevel,
+            inventoryQuantity: good.inventoryQuantity,
+        });
+
+    await _checkAndNotifyLowInventory(result[0]);
 };
 
 export const deleteSale = async (saleId: string, tx: NeonDbTx = db) => {
@@ -210,4 +221,17 @@ export const getSalesCount = async (goodId: string, userId: string) => {
         .where(and(eq(saleDetail.goodId, goodId), eq(sale.userId, userId)));
 
     return result[0].count ?? 0;
+};
+
+const _checkAndNotifyLowInventory = async (product: GoodSelect) => {
+    const remainingQuantity = Number(product.inventoryQuantity ?? 0);
+    const threshold = Number(product.minimumStockLevel ?? 0);
+
+    if (remainingQuantity < Number(threshold)) {
+        await createProductLowInventoryNotification(
+            product.userId!,
+            product.name!,
+            remainingQuantity,
+        );
+    }
 };
