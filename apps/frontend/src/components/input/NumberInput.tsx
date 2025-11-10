@@ -32,6 +32,44 @@ const NumberInput = ({
     onBlur,
     style,
 }: NumberInputProps) => {
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+        let numValue = parseFloat(inputValue);
+
+        // Check empty or invalid, set to minimum or 0
+        if (inputValue === "" || isNaN(numValue)) {
+            numValue = min ? parseFloat(min) : 0;
+        } else {
+            // Set to minimum provided if input is less than minimum
+            if (min !== undefined && numValue < parseFloat(min)) {
+                numValue = parseFloat(min);
+            }
+            // Set to maximum provided if input is less than maximum
+            if (max !== undefined && numValue > parseFloat(max)) {
+                numValue = parseFloat(max);
+            }
+        }
+
+        // Create new copy of event, then replace target to put the desired value
+        const correctedEvent = {
+            ...e,
+            target: {
+                ...e.target,
+                value: numValue.toString(),
+            },
+        } as React.FocusEvent<HTMLInputElement>;
+
+        // Call the original onChange with corrected value
+        onChange(
+            correctedEvent as unknown as React.ChangeEvent<HTMLInputElement>,
+        );
+
+        // Call original onBlur if provided
+        if (onBlur) {
+            onBlur(correctedEvent);
+        }
+    };
+
     return (
         <div className={`flex flex-col gap-1 pb-2 ${style ? style : ""}`}>
             <FormLabel label={label} required={required} />
@@ -44,15 +82,15 @@ const NumberInput = ({
                 <input
                     type="number"
                     name={name}
-                    value={value}
+                    defaultValue={value}
                     onChange={onChange}
-                    onBlur={onBlur}
+                    onBlur={handleBlur}
                     placeholder={placeholder}
                     step={step}
                     min={min}
                     max={max}
                     disabled={disabled}
-                    required // Enforce non-empty input
+                    required={required}
                     className="px-2.5 py-2.5 grow disabled:cursor-not-allowed outline-none"
                 />
             </div>
