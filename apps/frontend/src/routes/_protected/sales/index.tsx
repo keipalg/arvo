@@ -66,6 +66,14 @@ function SalesList() {
         trpc.sales.nextSalesNumber.queryOptions(),
     );
 
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const { data: metricRevenue } = useQuery(
+        trpc.sales.metricTotalRevenue.queryOptions({ timezone }),
+    );
+    const { data: metricSalesCount } = useQuery(
+        trpc.sales.metricTotalSalesCount.queryOptions({ timezone }),
+    );
+
     const isSmUp = useIsSmUp();
 
     const detailsRender = (row: Sales) => {
@@ -467,17 +475,27 @@ function SalesList() {
             </div>
             <div className="flex gap-6 py-2">
                 <Metric
-                    value={`${String(7)} items`}
-                    changePercent={-5}
+                    value={
+                        metricRevenue
+                            ? `$${Number(metricRevenue.totalRevenue).toFixed(2)}`
+                            : "-"
+                    }
+                    changePercent={metricRevenue?.change ?? 0}
                     topText="Total Revenue"
-                    bottomText="than last month"
-                ></Metric>
+                    bottomText="compared to last month"
+                    showPercentage={metricRevenue?.change != null}
+                />
                 <Metric
-                    value={`${String(6)} items`}
-                    changePercent={15}
+                    value={
+                        metricSalesCount
+                            ? `${String(metricSalesCount.totalSalesCount)} items`
+                            : "-"
+                    }
+                    changePercent={metricSalesCount?.change ?? 0}
                     topText="Total Sales"
                     bottomText="compared to last month"
-                ></Metric>
+                    showPercentage={metricSalesCount?.change != null}
+                />
             </div>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
