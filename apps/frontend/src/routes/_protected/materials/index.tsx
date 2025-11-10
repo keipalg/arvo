@@ -585,7 +585,7 @@ function MaterialsList() {
                     icon="/icon/plus.svg"
                 ></AddButton>
             </div>
-            <div className="flex gap-6 py-2">
+            <div className="flex gap-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
                 <Metric
                     value={
                         mostUsedMaterialData &&
