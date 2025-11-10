@@ -19,6 +19,7 @@ import TextArea from "../../../../components/input/TextArea";
 import { Switcher } from "../../../../components/button/Switcher";
 import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
+import { MoreButtonProvider } from "../../../../components/button/MoreButtonProvider";
 import FormLabel from "../../../../components/input/FormLabel";
 import { FileInput } from "../../../../components/input/FileInput";
 import { uploadFile } from "../../../../utils/fileUpload";
@@ -26,6 +27,7 @@ import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 import ToastNotification from "../../../../components/modal/ToastNotification";
 import Metric from "../../../../components/metric/Metric";
 import { useIsSmUp } from "../../../../utils/screenWidth";
+import AddButton from "../../../../components/button/AddButton";
 import BusinessExpenseDetails from "../../../../components/table/DataTableDetailBusinessExpense";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
@@ -813,6 +815,7 @@ function BusinessExpense() {
             render: (_value, row) => (
                 <>
                     <MoreButton
+                        id={row.id}
                         onEdit={() => {
                             setBusinessExpenseFormData({
                                 ...row,
@@ -891,17 +894,17 @@ function BusinessExpense() {
                     title="Business Expense"
                     info="Business Expense is where you log costs that keep your business running."
                 />
-                <Button
-                    value="Add"
+                <AddButton
+                    value="Add New Expense"
                     onClick={() => {
                         setToggleOpen(false);
                         setBusinessExpenseFormData(initialBusinessExpense);
                         setDrawerOpen(true);
                     }}
                     icon="/icon/plus.svg"
-                ></Button>
+                ></AddButton>
             </div>
-            <div className="flex gap-6 py-2">
+            <div className="flex gap-6 py-2 overflow-x-auto">
                 <Metric
                     value={`${topExpense?.name ?? "-"}`}
                     changePercent={Number(topExpense?.changePercent) ?? 0}
@@ -926,48 +929,54 @@ function BusinessExpense() {
                 <div>Error: {errorOperational.message}</div>
             )}
             {!errorStudio && !errorOperational && tabledData && (
-                <DataTable<BusinessExpenseWithActions>
-                    columns={columns}
-                    data={tabledData}
-                    detailRender={detailsRender}
-                    mobileVisibleKeys={["name", "cost", "actions"]}
-                    sortOptions={[
-                        {
-                            key: "name",
-                            label: "Name (A → Z)",
-                            order: "asc",
-                        },
-                        {
-                            key: "name",
-                            label: "Name (Z → A)",
-                            order: "desc",
-                        },
-                        {
-                            key: "createdAt",
-                            label: "Date (Newest → Oldest)",
-                            order: "desc",
-                        },
-                        {
-                            key: "createdAt",
-                            label: "Date (Oldest → Newest)",
-                            order: "asc",
-                        },
-                        {
-                            key: "cost",
-                            label: "Cost (High → Low)",
-                            order: "desc",
-                        },
-                        {
-                            key: "cost",
-                            label: "Cost (Low → High)",
-                            order: "asc",
-                        },
-                    ]}
-                    filterOptions={tableFilterOptions}
-                />
+                <MoreButtonProvider>
+                    <DataTable<BusinessExpenseWithActions>
+                        columns={columns}
+                        data={tabledData}
+                        detailRender={detailsRender}
+                        mobileVisibleKeys={["name", "cost", "actions"]}
+                        sortOptions={[
+                            {
+                                key: "name",
+                                label: "Name (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "name",
+                                label: "Name (Z → A)",
+                                order: "desc",
+                            },
+                            {
+                                key: "createdAt",
+                                label: "Date (Newest → Oldest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "createdAt",
+                                label: "Date (Oldest → Newest)",
+                                order: "asc",
+                            },
+                            {
+                                key: "cost",
+                                label: "Cost (High → Low)",
+                                order: "desc",
+                            },
+                            {
+                                key: "cost",
+                                label: "Cost (Low → High)",
+                                order: "asc",
+                            },
+                        ]}
+                        filterOptions={tableFilterOptions}
+                    />
+                </MoreButtonProvider>
             )}
 
-            <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
+            <RightDrawer
+                narrower={true}
+                isOpen={drawerOpen}
+                onClose={() => closeDrawer()}
+            >
                 <h3 className="text-2xl">Add New Expense</h3>
                 <form
                     onSubmit={(e) => {
@@ -1349,83 +1358,102 @@ function BusinessExpense() {
                             }));
                         }}
                     />
-                    {businessExpenseFormData.expense_type !=
-                        "inventory_loss" && (
-                        <Switcher
-                            label="Make this a recurring expense?"
-                            checked={toggleOpen}
-                            onChange={() => setToggleOpen((prev) => !prev)}
-                        >
-                            <>
-                                <Select
-                                    name="repeat_every"
-                                    label="Repeat Every"
-                                    value={
-                                        businessExpenseFormData.repeat_every ||
-                                        ""
-                                    }
-                                    onChange={(e) => {
-                                        setBusinessExpenseFormData((prev) => ({
-                                            ...prev,
-                                            repeat_every: e.target
-                                                .value as BusinessExpense["repeat_every"],
-                                        }));
-                                    }}
-                                    options={[
-                                        { label: "Daily", value: "daily" },
-                                        { label: "Weekly", value: "weekly" },
-                                        {
-                                            label: "Bi-Weekly",
-                                            value: "bi-weekly",
-                                        },
-                                        { label: "Monthly", value: "monthly" },
-                                        {
-                                            label: "Quarterly",
-                                            value: "quarterly",
-                                        },
-                                        { label: "Yearly", value: "yearly" },
-                                    ]}
-                                />
-                                <TextInput
-                                    type="date"
-                                    label="Start Date"
-                                    value={
-                                        businessExpenseFormData.start_date
-                                            ? businessExpenseFormData.start_date
-                                                  .toISOString()
-                                                  .substring(0, 10)
-                                            : ""
-                                    }
-                                    onChange={(e) => {
-                                        setBusinessExpenseFormData((prev) => ({
-                                            ...prev,
-                                            start_date: new Date(
-                                                e.target.value,
-                                            ),
-                                        }));
-                                    }}
-                                />
-                                <Select
-                                    name="due_date"
-                                    label="Due Date"
-                                    value={
-                                        businessExpenseFormData.due_date
-                                            ? businessExpenseFormData.due_date
-                                                  .toISOString()
-                                                  .substring(0, 10)
-                                            : ""
-                                    }
-                                    onChange={(e) => {
-                                        setBusinessExpenseFormData((prev) => ({
-                                            ...prev,
-                                            due_date: new Date(e.target.value),
-                                        }));
-                                    }}
-                                    options={dueDateOptions}
-                                />
-                            </>
-                        </Switcher>
-                    )}
+                    <div className="mt-4">
+                        {businessExpenseFormData.expense_type !=
+                            "inventory_loss" && (
+                            <Switcher
+                                label="Make this a recurring expense?"
+                                checked={toggleOpen}
+                                onChange={() => setToggleOpen((prev) => !prev)}
+                            >
+                                <>
+                                    <Select
+                                        name="repeat_every"
+                                        label="Repeat Every"
+                                        value={
+                                            businessExpenseFormData.repeat_every ||
+                                            ""
+                                        }
+                                        onChange={(e) => {
+                                            setBusinessExpenseFormData(
+                                                (prev) => ({
+                                                    ...prev,
+                                                    repeat_every: e.target
+                                                        .value as BusinessExpense["repeat_every"],
+                                                }),
+                                            );
+                                        }}
+                                        options={[
+                                            { label: "Daily", value: "daily" },
+                                            {
+                                                label: "Weekly",
+                                                value: "weekly",
+                                            },
+                                            {
+                                                label: "Bi-Weekly",
+                                                value: "bi-weekly",
+                                            },
+                                            {
+                                                label: "Monthly",
+                                                value: "monthly",
+                                            },
+                                            {
+                                                label: "Quarterly",
+                                                value: "quarterly",
+                                            },
+                                            {
+                                                label: "Yearly",
+                                                value: "yearly",
+                                            },
+                                        ]}
+                                    />
+                                    <TextInput
+                                        type="date"
+                                        label="Start Date"
+                                        value={
+                                            businessExpenseFormData.start_date
+                                                ? businessExpenseFormData.start_date
+                                                      .toISOString()
+                                                      .substring(0, 10)
+                                                : ""
+                                        }
+                                        onChange={(e) => {
+                                            setBusinessExpenseFormData(
+                                                (prev) => ({
+                                                    ...prev,
+                                                    start_date: new Date(
+                                                        e.target.value,
+                                                    ),
+                                                }),
+                                            );
+                                        }}
+                                    />
+                                    <Select
+                                        name="due_date"
+                                        label="Due Date"
+                                        value={
+                                            businessExpenseFormData.due_date
+                                                ? businessExpenseFormData.due_date
+                                                      .toISOString()
+                                                      .substring(0, 10)
+                                                : ""
+                                        }
+                                        onChange={(e) => {
+                                            setBusinessExpenseFormData(
+                                                (prev) => ({
+                                                    ...prev,
+                                                    due_date: new Date(
+                                                        e.target.value,
+                                                    ),
+                                                }),
+                                            );
+                                        }}
+                                        options={dueDateOptions}
+                                    />
+                                </>
+                            </Switcher>
+                        )}
+                    </div>
 
                     {/* <Button
 						type="submit"

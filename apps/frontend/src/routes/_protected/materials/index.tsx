@@ -21,6 +21,7 @@ import InventoryStatus from "../../../components/badge/InventoryStatus";
 import AddButton from "../../../components/button/AddButton";
 import Button from "../../../components/button/Button";
 import { MoreButton } from "../../../components/button/MoreButton";
+import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import DisplayValue from "../../../components/input/DisplayValue";
 import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
@@ -167,6 +168,7 @@ function MaterialsList() {
             render: (_value, row) => (
                 <>
                     <MoreButton
+                        id={row.id}
                         onEdit={() => handleEdit(row)}
                         onDeleteModal={() => handleDelete(row.id)}
                     />
@@ -660,45 +662,47 @@ function MaterialsList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable
-                    columns={columns}
-                    data={tabledData || []}
-                    detailRender={detailsRender}
-                    mobileVisibleKeys={["name", "materialType", "actions"]}
-                    sortOptions={[
-                        {
-                            key: "statusPriority",
-                            label: "Status (Out of Stock → Sufficient)",
-                            order: "asc",
-                        },
-                        {
-                            key: "statusPriority",
-                            label: "Status (Sufficient → Out of Stock)",
-                            order: "desc",
-                        },
-                        {
-                            key: "name",
-                            label: "Material Item (A → Z)",
-                            order: "asc",
-                        },
-                        {
-                            key: "name",
-                            label: "Material Item (Z → A)",
-                            order: "desc",
-                        },
-                        {
-                            key: "materialType",
-                            label: "Material Type (A → Z)",
-                            order: "asc",
-                        },
-                        {
-                            key: "materialType",
-                            label: "Material Type (Z → A)",
-                            order: "desc",
-                        },
-                    ]}
-                    filterOptions={tableFilterOptions}
-                />
+                <MoreButtonProvider>
+                    <DataTable
+                        columns={columns}
+                        data={tabledData || []}
+                        detailRender={detailsRender}
+                        mobileVisibleKeys={["name", "materialType", "actions"]}
+                        sortOptions={[
+                            {
+                                key: "statusPriority",
+                                label: "Status (Out of Stock → Sufficient)",
+                                order: "asc",
+                            },
+                            {
+                                key: "statusPriority",
+                                label: "Status (Sufficient → Out of Stock)",
+                                order: "desc",
+                            },
+                            {
+                                key: "name",
+                                label: "Material Item (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "name",
+                                label: "Material Item (Z → A)",
+                                order: "desc",
+                            },
+                            {
+                                key: "materialType",
+                                label: "Material Type (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "materialType",
+                                label: "Material Type (Z → A)",
+                                order: "desc",
+                            },
+                        ]}
+                        filterOptions={tableFilterOptions}
+                    />
+                </MoreButtonProvider>
             )}
             <RightDrawer
                 isOpen={drawerOpen}

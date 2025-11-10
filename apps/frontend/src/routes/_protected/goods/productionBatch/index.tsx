@@ -17,13 +17,13 @@ import TextInput from "../../../../components/input/TextInput";
 import TextArea from "../../../../components/input/TextArea";
 import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
+import { MoreButtonProvider } from "../../../../components/button/MoreButtonProvider";
 import MaterialCostTable from "../../../../components/pricing/MaterialCostTable";
 import NumberInput from "../../../../components/input/NumberInput";
 import Metric from "../../../../components/metric/Metric";
 import BatchDetails from "../../../../components/table/DataTableDetailProductionBatch";
 import ToastNotification from "../../../../components/modal/ToastNotification";
 import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
-
 import {
     productionBatchInputValidation,
     productionBatchUpdateValidation,
@@ -175,6 +175,7 @@ function ProductionBatchList() {
             render: (_value, row) => (
                 <>
                     <MoreButton
+                        id={row.id}
                         onEdit={() => handleEdit(row)}
                         onDeleteModal={() => {
                             setIsConfirmationModalOpen(true);
@@ -505,24 +506,26 @@ function ProductionBatchList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable
-                    columns={columns}
-                    data={tabledData || []}
-                    filterOptions={tableFilterOptions}
-                    detailRender={detailsRender}
-                    sortOptions={[
-                        {
-                            key: "productionDate",
-                            label: "Production Date (Oldest → Newest)",
-                            order: "asc",
-                        },
-                        {
-                            key: "productionDate",
-                            label: "Production Date (Newest → Oldest)",
-                            order: "desc",
-                        },
-                    ]}
-                />
+                <MoreButtonProvider>
+                    <DataTable
+                        columns={columns}
+                        data={tabledData || []}
+                        filterOptions={tableFilterOptions}
+                        detailRender={detailsRender}
+                        sortOptions={[
+                            {
+                                key: "productionDate",
+                                label: "Production Date (Oldest → Newest)",
+                                order: "asc",
+                            },
+                            {
+                                key: "productionDate",
+                                label: "Production Date (Newest → Oldest)",
+                                order: "desc",
+                            },
+                        ]}
+                    />
+                </MoreButtonProvider>
             )}
             <RightDrawer
                 title={

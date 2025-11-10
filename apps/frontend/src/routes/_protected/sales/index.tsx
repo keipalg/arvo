@@ -23,6 +23,7 @@ import NumberInput from "../../../components/input/NumberInput";
 import DisplayValue from "../../../components/input/DisplayValue";
 import HorizontalRule from "../../../components/hr/HorizontalRule";
 import { MoreButton } from "../../../components/button/MoreButton";
+import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import { useIsSmUp } from "../../../utils/screenWidth";
 import SaleDetails from "../../../components/table/DataTableDetailSale";
 export const Route = createFileRoute("/_protected/sales/")({
@@ -145,6 +146,7 @@ function SalesList() {
             render: (_value, row) => (
                 <>
                     <MoreButton
+                        id={row.id}
                         onEdit={() => handleEdit(row)}
                         onDelete={() => handleDelete(row.id)}
                     />
@@ -480,35 +482,41 @@ function SalesList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable
-                    columns={columns}
-                    data={tabledData || []}
-                    detailRender={detailsRender}
-                    mobileVisibleKeys={["salesNumber", "totalPrice", "actions"]}
-                    sortOptions={[
-                        {
-                            key: "salesNumber",
-                            label: "Sales Number (Newest → Oldest)",
-                            order: "desc",
-                        },
-                        {
-                            key: "salesNumber",
-                            label: "Sales Number (Oldest → Newest)",
-                            order: "asc",
-                        },
-                        {
-                            key: "date",
-                            label: "Date (Newest → Oldest)",
-                            order: "desc",
-                        },
-                        {
-                            key: "date",
-                            label: "Date (Oldest → Newest)",
-                            order: "asc",
-                        },
-                    ]}
-                    filterOptions={tableFilterOptions}
-                />
+                <MoreButtonProvider>
+                    <DataTable
+                        columns={columns}
+                        data={tabledData || []}
+                        detailRender={detailsRender}
+                        mobileVisibleKeys={[
+                            "salesNumber",
+                            "totalPrice",
+                            "actions",
+                        ]}
+                        sortOptions={[
+                            {
+                                key: "salesNumber",
+                                label: "Sales Number (Newest → Oldest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "salesNumber",
+                                label: "Sales Number (Oldest → Newest)",
+                                order: "asc",
+                            },
+                            {
+                                key: "date",
+                                label: "Date (Newest → Oldest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "date",
+                                label: "Date (Oldest → Newest)",
+                                order: "asc",
+                            },
+                        ]}
+                        filterOptions={tableFilterOptions}
+                    />
+                </MoreButtonProvider>
             )}
             <RightDrawer isOpen={drawerOpen} onClose={() => closeDrawer()}>
                 <h3 className="text-2xl">

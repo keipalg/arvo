@@ -5,6 +5,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/button/Button";
 import AddButton from "../../../components/button/AddButton";
+import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import { MoreButton } from "../../../components/button/MoreButton.tsx";
 import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
 import RightDrawer from "../../../components/drawer/RightDrawer";
@@ -206,7 +207,7 @@ function GoodsList() {
         },
         {
             key: "inventoryQuantity",
-            header: "Inventory Quantity",
+            header: "Stock Level",
         },
         {
             key: "retailPrice",
@@ -219,6 +220,7 @@ function GoodsList() {
             render: (_value, row) => (
                 <>
                     <MoreButton
+                        id={row.id}
                         onEdit={() => handleEdit(row)}
                         onDeleteModal={() => handleDelete(row.id)}
                     />
@@ -696,34 +698,36 @@ function GoodsList() {
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
-                <DataTable
-                    columns={columns}
-                    data={tabledData || []}
-                    filterOptions={tableFilterOptions}
-                    detailRender={detailsRender}
-                    sortOptions={[
-                        {
-                            key: "createdAt",
-                            label: "Date Created (Oldest → Newest)",
-                            order: "asc",
-                        },
-                        {
-                            key: "createdAt",
-                            label: "Date Created (Newest → Oldest)",
-                            order: "desc",
-                        },
-                        {
-                            key: "inventoryQuantity",
-                            label: "Quantity (Highest → Lowest)",
-                            order: "desc",
-                        },
-                        {
-                            key: "inventoryQuantity",
-                            label: "Quantity (Lowest → Highest)",
-                            order: "asc",
-                        },
-                    ]}
-                />
+                <MoreButtonProvider>
+                    <DataTable
+                        columns={columns}
+                        data={tabledData || []}
+                        filterOptions={tableFilterOptions}
+                        detailRender={detailsRender}
+                        sortOptions={[
+                            {
+                                key: "createdAt",
+                                label: "Date Created (Oldest → Newest)",
+                                order: "asc",
+                            },
+                            {
+                                key: "createdAt",
+                                label: "Date Created (Newest → Oldest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "inventoryQuantity",
+                                label: "Quantity (Highest → Lowest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "inventoryQuantity",
+                                label: "Quantity (Lowest → Highest)",
+                                order: "asc",
+                            },
+                        ]}
+                    />
+                </MoreButtonProvider>
             )}
             <RightDrawer
                 narrower={true}
