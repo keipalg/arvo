@@ -505,18 +505,29 @@ function MaterialsList() {
 
     // Handle Save New Pricing button click
     const handleSaveNewPricing = () => {
-        if (bulkPurchaseQuantity > 0) {
-            const computed = bulkPurchasePrice / bulkPurchaseQuantity;
-            setNewCostPerUnit(computed);
-
-            // Only mark as updated if the price actually changed
-            if (computed !== originalCostPerUnit) {
-                setCostPerUnit(computed);
-                setPricingUpdated(true);
+        if (bulkPurchasePrice <= 0 || bulkPurchaseQuantity <= 0) {
+            const errors: Record<string, string> = {};
+            if (bulkPurchasePrice <= 0) {
+                errors.bulkPurchasePrice =
+                    "New Purchase Price must be greater than zero";
             }
-
-            setShowUpdatePricing(false);
+            if (bulkPurchaseQuantity <= 0) {
+                errors.bulkPurchaseQuantity =
+                    "New Quantity Per Purchase must be greater than zero";
+            }
+            setFormErrors(errors);
+            return;
         }
+
+        const computed = bulkPurchasePrice / bulkPurchaseQuantity;
+        setNewCostPerUnit(computed);
+
+        if (computed !== originalCostPerUnit) {
+            setCostPerUnit(computed);
+            setPricingUpdated(true);
+        }
+
+        setShowUpdatePricing(false);
     };
 
     // Handle Cancel Update Pricing button click
@@ -714,7 +725,7 @@ function MaterialsList() {
                         label="Material Type*"
                         value={materialType}
                         onChange={setMaterialType}
-                        error={formErrors.materialType}
+                        error={formErrors.typeId}
                     />
                     <div className="grid grid-cols-2 gap-2">
                         <NumberInput
@@ -810,11 +821,23 @@ function MaterialsList() {
                                             label="New Purchase Price"
                                             name="bulkPurchasePrice"
                                             value={bulkPurchasePrice}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                                 setBulkPurchasePrice(
                                                     Number(e.target.value),
-                                                )
-                                            }
+                                                );
+                                                if (
+                                                    formErrors.bulkPurchasePrice
+                                                ) {
+                                                    setFormErrors((prev) => {
+                                                        const newErrors = {
+                                                            ...prev,
+                                                        };
+                                                        delete newErrors.bulkPurchasePrice;
+                                                        return newErrors;
+                                                    });
+                                                }
+                                            }}
+                                            error={formErrors.bulkPurchasePrice}
                                             min="0"
                                             step="0.01"
                                             unit="$"
@@ -823,10 +846,24 @@ function MaterialsList() {
                                             label="New Quantity Per Purchase"
                                             name="bulkPurchaseQuantity"
                                             value={bulkPurchaseQuantity}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                                 setBulkPurchaseQuantity(
                                                     Number(e.target.value),
-                                                )
+                                                );
+                                                if (
+                                                    formErrors.bulkPurchaseQuantity
+                                                ) {
+                                                    setFormErrors((prev) => {
+                                                        const newErrors = {
+                                                            ...prev,
+                                                        };
+                                                        delete newErrors.bulkPurchaseQuantity;
+                                                        return newErrors;
+                                                    });
+                                                }
+                                            }}
+                                            error={
+                                                formErrors.bulkPurchaseQuantity
                                             }
                                             min="0"
                                             step="0.01"
