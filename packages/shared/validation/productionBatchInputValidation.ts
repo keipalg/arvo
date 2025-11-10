@@ -25,7 +25,7 @@ export const productionBatchUpdateValidation = z.object({
     quantity: z.number().min(1, "Amount must be at least 1"),
     productionCost: z.number(),
     productionDate: z.string().nonempty("Please input production date"),
-    notes: z.string,
+    notes: z.string(),
     materials: z.array(
         z.object({
             materialId: z.uuid().nonempty("Material ID is required"),

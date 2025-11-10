@@ -21,6 +21,8 @@ import {
     getMaterialOutputRatioByGoodId,
     deleteMaterialOutputRatio,
 } from "../service/goodsService.js";
+import { getSalesCount } from "../service/salesService.js";
+import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpcBase.js";
 
 export const goodsRouter = router({
@@ -178,8 +180,23 @@ export const goodsRouter = router({
 
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
-        .mutation(async ({ input }) => {
+        .mutation(async ({ ctx, input }) => {
+            const salesCount = await getSalesCount(input.id, ctx.user.id);
+            if (salesCount > 0) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                        "Cannot delete this product because it is used in sales records.",
+                });
+            }
             await deleteGood(input.id);
             return { success: true };
+        }),
+
+    checkInSales: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const salesCount = await getSalesCount(input.id, ctx.user.id);
+            return salesCount > 0;
         }),
 });
