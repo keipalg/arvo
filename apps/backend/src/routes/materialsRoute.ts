@@ -8,6 +8,7 @@ import {
     getMostUsedMaterial,
     getMaterialsLowOnStock,
     getTotalInventoryValue,
+    checkMaterialUsage,
     type MaterialInsert,
     type MaterialUpdate,
 } from "../service/materialsService.js";
@@ -88,6 +89,11 @@ export const materialsRouter = router({
         .mutation(async ({ input }) => {
             await deleteMaterial(input.id);
             return { success: true };
+        }),
+    checkUsage: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ input }) => {
+            return await checkMaterialUsage(input.id);
         }),
 
     materialList: protectedProcedure.query(async ({ ctx }) => {

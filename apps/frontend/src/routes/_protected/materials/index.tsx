@@ -3,7 +3,12 @@ import BaseLayout from "../../../components/BaseLayout";
 import DataTable, {
     type FilterOption,
 } from "../../../components/table/DataTable";
-import { queryClient, trpc, type AppRouter } from "../../../utils/trpcClient";
+import {
+    queryClient,
+    trpc,
+    trpcClient,
+    type AppRouter,
+} from "../../../utils/trpcClient";
 
 import {
     addMaterialsValidation,
@@ -24,8 +29,10 @@ import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
-import { useIsSmUp } from "../../../utils/screenWidth";
+import ConfirmationModal from "../../../components/modal/ConfirmationModal";
+import ToastNotification from "../../../components/modal/ToastNotification";
 import MaterialDetails from "../../../components/table/DataTableDetailMaterial";
+import { useIsSmUp } from "../../../utils/screenWidth";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -65,6 +72,19 @@ function MaterialsList() {
     const [pricingUpdated, setPricingUpdated] = useState(false);
     const [createdAt, setCreatedAt] = useState("N/A");
     const [updatedAt, setUpdatedAt] = useState("N/A");
+
+    // Confirmation modal and toast states
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+        useState(false);
+    const [materialToDelete, setMaterialToDelete] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState({
+        kind: "",
+        content: "",
+    });
 
     const { data: unitsList } = useQuery(trpc.units.list.queryOptions());
     const { data: materialTypesList } = useQuery(
@@ -146,7 +166,7 @@ function MaterialsList() {
                 <>
                     <MoreButton
                         onEdit={() => handleEdit(row)}
-                        onDelete={() => handleDelete(row.id)}
+                        onDeleteModal={() => handleDelete(row.id)}
                     />
                 </>
             ),
@@ -398,10 +418,41 @@ function MaterialsList() {
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this material?")) {
-            deleteMaterialMutation.mutate({ id });
-            closeDrawer();
-        }
+        // Find the material name
+        const material = data?.find((m) => m.id === id);
+        if (!material) return;
+
+        // Set material to delete and open confirmation modal
+        setMaterialToDelete({ id, name: material.name });
+        setIsConfirmationModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!materialToDelete) return;
+
+        // Check if material is being used
+        void trpcClient.materials.checkUsage
+            .query({ id: materialToDelete.id })
+            .then((usageCheck) => {
+                if (usageCheck.isUsed) {
+                    setToastMessage({
+                        kind: "WARN",
+                        content: `${materialToDelete.name} is currently being used in product recipes and cannot be deleted.`,
+                    });
+                    setVisibleToast(true);
+                } else {
+                    deleteMaterialMutation.mutate({ id: materialToDelete.id });
+                    setToastMessage({
+                        kind: "SUCCESS",
+                        content: `${materialToDelete.name} successfully deleted`,
+                    });
+                    setVisibleToast(true);
+                    closeDrawer();
+                }
+
+                // Clean up
+                setMaterialToDelete(null);
+            });
     };
 
     // Handle Save New Pricing button click
@@ -819,6 +870,17 @@ function MaterialsList() {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                confirmationMessage={`Are you sure you want to delete ${materialToDelete?.name}?`}
+                isConfirmationModalOpen={isConfirmationModalOpen}
+                setIsConfirmationModalOpen={setIsConfirmationModalOpen}
+                onConfirm={handleConfirmDelete}
+            />
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
         </BaseLayout>
     );
 }

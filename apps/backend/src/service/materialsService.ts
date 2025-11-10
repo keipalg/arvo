@@ -1,14 +1,24 @@
-import { and, eq, type InferInsertModel, sql, lt, desc } from "drizzle-orm";
+import {
+    and,
+    desc,
+    eq,
+    inArray,
+    type InferInsertModel,
+    lt,
+    sql,
+} from "drizzle-orm";
+import { getStatus } from "src/utils/inventoryUtil.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import {
+    goodToMaterialOutputRatio,
     materialAndSupply,
     materialInventoryTransaction,
+    materialOutputRatio,
     materialType,
     unit,
 } from "../db/schema.js";
 import { getQuantityWithUnit } from "../utils/materialsUtil.js";
-import { getStatus } from "src/utils/inventoryUtil.js";
 import { createMaterialLowInventoryNotification } from "./notificationsService.js";
 
 /**
@@ -89,6 +99,41 @@ export const getMaterialById = async (materialId: string, userId: string) => {
         )
         .limit(1)
         .then((result) => result[0]);
+};
+
+/**
+ * Check if a material is being used in product recipes
+ * For Materials page - Delete confirmation
+ * @param materialId material ID
+ * @returns Object indicating if material is in use
+ */
+export const checkMaterialUsage = async (materialId: string) => {
+    // Step 1: Find all material_output_ratio entries for this material
+    const outputRatios = await db
+        .select({ id: materialOutputRatio.id })
+        .from(materialOutputRatio)
+        .where(eq(materialOutputRatio.materialId, materialId));
+
+    // Step 2: Check if any of these ratios are linked to goods
+    let isUsed = false;
+    if (outputRatios.length > 0) {
+        const ratioIds = outputRatios.map((ratio) => ratio.id);
+        const linkedGoods = await db
+            .select()
+            .from(goodToMaterialOutputRatio)
+            .where(
+                inArray(
+                    goodToMaterialOutputRatio.materialOutputRatioId,
+                    ratioIds,
+                ),
+            );
+
+        isUsed = linkedGoods.length > 0;
+    }
+
+    return {
+        isUsed,
+    };
 };
 
 /**

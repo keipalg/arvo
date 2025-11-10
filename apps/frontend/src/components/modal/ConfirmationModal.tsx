@@ -15,15 +15,15 @@ const ConfirmationModal = ({
                 id="confirmation-overlay"
                 className={`fixed inset-0 bg-arvo-black-100/50 z-50 ${isConfirmationModalOpen ? "block" : "hidden"}`}
             >
-                <div className="flex items-center justify-center min-h-screen px-4">
-                    <div className="bg-arvo-red-50 border-2 border-arvo-red-100 rounded-2xl shadow-lg w-full max-w-md">
-                        <div className="p-6">
-                            <h2 className="text-xl font-semibold mb-4 text-center">
+                <div className="flex items-center justify-center min-h-screen px-4 text-xl">
+                    <div className="bg-arvo-red-20 border-2 border-arvo-red-100 rounded-3xl shadow-lg w-full max-w-md">
+                        <div className="p-10">
+                            <h2 className="font-semibold mb-6">
                                 {confirmationMessage}
                             </h2>
-                            <div className="flex justify-center space-x-4">
+                            <div className="flex justify-center gap-4">
                                 <button
-                                    className="px-4 py-2 bg-white rounded-2xl border border-arvo-blue-100 w-30"
+                                    className="flex-1 py-3 bg-arvo-white-0 rounded-2xl border-2 border-arvo-blue-100 text-arvo-blue-100 font-semibold cursor-pointer hover:bg-arvo-white-100 hover:text-arvo-black-100"
                                     onClick={() =>
                                         setIsConfirmationModalOpen(false)
                                     }
@@ -31,7 +31,7 @@ const ConfirmationModal = ({
                                     Cancel
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-arvo-blue-100 text-arvo-black-5 rounded-2xl border border-arvo-blue-100 w-30"
+                                    className="flex-1 py-3 bg-arvo-blue-100 text-arvo-black-5 rounded-2xl border-2 border-arvo-blue-100 font-semibold cursor-pointer hover:bg-arvo-blue-50 hover:text-arvo-black-100"
                                     onClick={() => {
                                         onConfirm();
                                         setIsConfirmationModalOpen(false);
