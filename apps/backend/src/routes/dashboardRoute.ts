@@ -1,8 +1,15 @@
 import {
     dashboardRevenueProfitSummaryOverviewValidation,
     dashboardTimezoneValidation,
+    dashboardSellingItemsTableValidation,
+    dashboardRevenueProfitSummary6MonthsOverviewValidation,
+    productionInOutOverviewValidation,
 } from "@arvo/shared";
-import { generateRevenueProfitSummaryOverview } from "../service/dashboardOverviewService.js";
+import {
+    generateProductionInOutOverview,
+    generateRevenueProfitSummary6MonthsOverview,
+    generateRevenueProfitSummaryOverview,
+} from "../service/dashboardOverviewService.js";
 import { getMonthlySalesRevenue } from "../service/salesService.js";
 import {
     getLeastSellingProducts,
@@ -17,6 +24,10 @@ import {
     getMonthlyBusinessExpenseWithType as getTotalMonthlyBusinessExpenses,
 } from "../service/dashboardService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
+import {
+    MaterialExpenseTypes,
+    OperationalExpenseTypes,
+} from "../utils/constants/expenseTypes.js";
 
 export const dashboardRouter = router({
     revenueProfitSummary: protectedProcedure
@@ -41,8 +52,9 @@ export const dashboardRouter = router({
         }),
     revenueProfitSummaryOverview: protectedProcedure
         .input(dashboardRevenueProfitSummaryOverviewValidation)
-        .query(async ({ input }) => {
+        .query(async ({ ctx, input }) => {
             const overview = await generateRevenueProfitSummaryOverview({
+                userId: ctx.user.id,
                 totalRevenue: input.totalRevenue,
                 totalExpenses: input.totalExpenses,
                 totalProfit: input.totalProfit,
@@ -105,12 +117,23 @@ export const dashboardRouter = router({
 
             return filled;
         }),
+    revenueProfitSummary6MonthsOverview: protectedProcedure
+        .input(dashboardRevenueProfitSummary6MonthsOverviewValidation)
+        .query(async ({ ctx, input }) => {
+            const overview = await generateRevenueProfitSummary6MonthsOverview(
+                ctx.user.id,
+                input.revenueProfitSummary6MonthsData,
+            );
+            return {
+                overview: overview,
+            };
+        }),
     topSellingProducts: protectedProcedure
-        .input(dashboardTimezoneValidation)
+        .input(dashboardSellingItemsTableValidation)
         .query(async ({ ctx, input }) => {
             const [totalProductsSold, topSellingProducts] = await Promise.all([
                 getMonthlyProductsSold(ctx.user.id, input.timezone),
-                getTopSellingProducts(ctx.user.id, input.timezone),
+                getTopSellingProducts(ctx.user.id, input.timezone, input.limit),
             ]);
             return topSellingProducts.map((product) => ({
                 ...product,
@@ -128,11 +151,15 @@ export const dashboardRouter = router({
         }),
 
     lowSellingProducts: protectedProcedure
-        .input(dashboardTimezoneValidation)
+        .input(dashboardSellingItemsTableValidation)
         .query(async ({ ctx, input }) => {
             const [totalProductsSold, lowSellingProducts] = await Promise.all([
                 getMonthlyProductsSold(ctx.user.id, input.timezone),
-                getLeastSellingProducts(ctx.user.id, input.timezone),
+                getLeastSellingProducts(
+                    ctx.user.id,
+                    input.timezone,
+                    input.limit,
+                ),
             ]);
             return lowSellingProducts.map((product) => ({
                 ...product,
@@ -161,15 +188,33 @@ export const dashboardRouter = router({
                     ),
                 ]);
 
+            const totalBusinessExpensesWithLabel = totalBusinessExpenses.map(
+                (expense) => ({
+                    expenceType: expense.expenceType,
+                    expenseTypeLabel: String(
+                        OperationalExpenseTypes[expense.expenceType].label,
+                    ),
+                    totalExpense: expense.totalExpense,
+                }),
+            );
+
             const expenseBreakdown = [
-                ...totalBusinessExpenses,
+                ...totalBusinessExpensesWithLabel,
                 {
-                    expenceType: "material",
+                    expenceType: MaterialExpenseTypes.materials,
+                    expenseTypeLabel: String(
+                        MaterialExpenseTypes.materials.label,
+                    ),
                     totalExpense: totalMaterialExpense,
                 },
             ];
 
-            return expenseBreakdown;
+            const sortedExpenseBreakdown = expenseBreakdown.sort(
+                (a, b) =>
+                    Number(b.totalExpense ?? 0) - Number(a.totalExpense ?? 0),
+            );
+
+            return sortedExpenseBreakdown;
         }),
     productionInOut: protectedProcedure
         .input(dashboardTimezoneValidation)
@@ -181,6 +226,18 @@ export const dashboardRouter = router({
             return {
                 totalProduced: totalProduced ?? 0,
                 totalSold: totalSold ?? 0,
+            };
+        }),
+    productionInOutOverview: protectedProcedure
+        .input(productionInOutOverviewValidation)
+        .query(async ({ ctx, input }) => {
+            const overview = await generateProductionInOutOverview(
+                ctx.user.id,
+                input.totalProduced,
+                input.totalSold,
+            );
+            return {
+                overview: overview,
             };
         }),
 });

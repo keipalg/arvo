@@ -1,5 +1,3 @@
-import HorizontalRule from "../hr/HorizontalRule";
-
 type DashboardCardProps = {
     title?: string;
     description?: string;
@@ -28,9 +26,8 @@ const DashboardCard = ({
             </div>
             {overview && (
                 <>
-                    <HorizontalRule />
-                    <div className="flex gap-4 items-center">
-                        <img src="/icon/sparkle.svg" />
+                    <div className="flex gap-4 items-start">
+                        <img src="/icon/ai-black.svg" className="mt-2" />
                         <p className="text-arvo-black-100 font-light">
                             {overview}
                         </p>

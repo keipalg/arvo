@@ -40,6 +40,9 @@ ChartJS.register(
     Legend,
 );
 
+ChartJS.defaults.font.family =
+    "National Park, system-ui, Avenir, Helvetica, Arial, sans-serif";
+
 const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -52,6 +55,11 @@ const options = {
         x: {
             grid: {
                 display: false,
+            },
+        },
+        y: {
+            ticks: {
+                maxTicksLimit: 6,
             },
         },
     },
@@ -71,6 +79,11 @@ const revenueProfitSummaryChartOptions = {
                 display: false,
             },
         },
+        y: {
+            ticks: {
+                maxTicksLimit: 6,
+            },
+        },
     },
 };
 
@@ -88,6 +101,11 @@ const revenueProfitSummary6MonthsChartOptions = {
                 display: false,
             },
         },
+        y: {
+            ticks: {
+                maxTicksLimit: 6,
+            },
+        },
     },
 };
 
@@ -98,6 +116,10 @@ const expenseBreakdownChartOptions = {
         legend: {
             position: "right" as const,
             labels: {
+                usePointStyle: true,
+                boxWidth: 14,
+                boxHeight: 14,
+                padding: 20,
                 font: {
                     family: "National Park, system-ui, Avenir, Helvetica, Arial, sans-serif",
                     size: 14,
@@ -130,12 +152,37 @@ function RouteComponent() {
     const { data: revenueProfitSummary6MonthsData } = useQuery(
         trpc.dashboard.revenueProfitSummary6Months.queryOptions({ timezone }),
     );
+
+    const revenueProfitSummary6MonthsDataMapped =
+        revenueProfitSummary6MonthsData?.map((d) => ({
+            month: d.month,
+            totalRevenue: d.totalRevenue,
+            totalExpenses: d.totalRevenue - d.totalProfit,
+            totalProfit: d.totalProfit,
+        })) ?? [];
+
+    const { data: revenueProfitSummary6MonthsOverview } = useQuery(
+        trpc.dashboard.revenueProfitSummary6MonthsOverview.queryOptions(
+            {
+                revenueProfitSummary6MonthsData:
+                    revenueProfitSummary6MonthsDataMapped,
+            },
+            { enabled: !!revenueProfitSummary6MonthsData },
+        ),
+    );
+
     const { data: topSellingProductsData } = useQuery(
-        trpc.dashboard.topSellingProducts.queryOptions({ timezone }),
+        trpc.dashboard.topSellingProducts.queryOptions({
+            limit: 3,
+            timezone,
+        }),
     );
 
     const { data: lowSellingProductsData } = useQuery(
-        trpc.dashboard.lowSellingProducts.queryOptions({ timezone }),
+        trpc.dashboard.lowSellingProducts.queryOptions({
+            limit: 3,
+            timezone,
+        }),
     );
 
     const { data: expenseBreakdownData } = useQuery(
@@ -144,6 +191,23 @@ function RouteComponent() {
 
     const { data: productionInOutData } = useQuery(
         trpc.dashboard.productionInOut.queryOptions({ timezone }),
+    );
+
+    const { data: productionInOutOverview } = useQuery(
+        trpc.dashboard.productionInOutOverview.queryOptions(
+            {
+                totalProduced: productionInOutData?.totalProduced ?? 0,
+                totalSold: productionInOutData?.totalSold ?? 0,
+            },
+            { enabled: !!productionInOutData },
+        ),
+    );
+
+    const { data: metricRevenue } = useQuery(
+        trpc.sales.metricTotalRevenue.queryOptions({ timezone }),
+    );
+    const { data: metricSalesCount } = useQuery(
+        trpc.sales.metricTotalSalesCount.queryOptions({ timezone }),
     );
 
     const revenueProfitSummaryChartData = {
@@ -178,43 +242,59 @@ function RouteComponent() {
                     revenueProfitSummary6MonthsData?.map(
                         (d) => d.totalRevenue,
                     ) ?? [],
-                backgroundColor: [
-                    "#2B72FB",
-                    "#64BDC6",
-                    "#EECA34",
-                    "#FE6A35",
-                    "#FA4B42",
-                    "#EE60E0",
-                ],
+                backgroundColor: ["#2D42C9"],
                 borderRadius: {
                     topLeft: 5,
                     topRight: 5,
                     bottomLeft: 0,
                     bottomRight: 0,
                 },
+                order: 2,
             },
-            // {
-            //     label: "Profit Margin",
-            //     type: "line" as const,
-            //     data:
-            //         revenueProfitSummary6MonthsData?.map(
-            //             (d) => d.profitMargin,
-            //         ) ?? [],
-            // }
+            {
+                label: "Expenses",
+                type: "bar" as const,
+                data:
+                    revenueProfitSummary6MonthsData?.map(
+                        (d) => d.totalRevenue - d.totalProfit,
+                    ) ?? [],
+                backgroundColor: ["#F3BFBF"],
+                borderRadius: {
+                    topLeft: 5,
+                    topRight: 5,
+                    bottomLeft: 0,
+                    bottomRight: 0,
+                },
+                order: 2,
+            },
+            {
+                label: "Profit",
+                type: "line" as const,
+                data:
+                    revenueProfitSummary6MonthsData?.map(
+                        (d) => d.totalProfit,
+                    ) ?? [],
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                backgroundColor: "#F0742F",
+                borderColor: "#F0742F",
+                borderWidth: 4,
+                order: 1,
+            },
         ],
     };
 
     const expenseBreakdownDataChartData = {
-        labels: expenseBreakdownData?.map((d) => d.expenceType) ?? [],
+        labels: expenseBreakdownData?.map((d) => d.expenseTypeLabel) ?? [],
         datasets: [
             {
                 label: "Expense",
                 data: expenseBreakdownData?.map((d) => d.totalExpense) ?? [],
                 backgroundColor: [
-                    "#2B72FB",
-                    "#64BDC6",
-                    "#EECA34",
-                    "#FE6A35",
+                    "#2D42C9",
+                    "#F0742F",
+                    "#FFA200",
+                    "#267F53",
                     "#FA4B42",
                     "#EE60E0",
                 ],
@@ -232,7 +312,7 @@ function RouteComponent() {
                     productionInOutData?.totalProduced ?? 0,
                     productionInOutData?.totalSold ?? 0,
                 ],
-                backgroundColor: ["#2D42C9", "#F0742F"],
+                backgroundColor: ["#2D42C9", "#FDC841"],
                 borderRadius: {
                     topLeft: 5,
                     topRight: 5,
@@ -246,36 +326,61 @@ function RouteComponent() {
     return (
         <BaseLayout title="Dashboard">
             <PageTitle title={`Hello ${session ? session.user.name : ""}`} />
-            <p>Let’s take a look at how your business is growing.</p>
-            <div className="flex gap-6 py-2">
+            <p className="font-semibold text-arvo-black-50 mt-4">
+                Let’s take a look at how your business is growing.
+            </p>
+            <div className="flex gap-6 py-2 mt-6 overflow-x-auto [&::-webkit-scrollbar]:hidden">
                 <Metric
-                    value={`${String(40)} %`}
-                    changePercent={8}
+                    value={
+                        metricRevenue
+                            ? `$${Number(metricRevenue.totalProfit).toFixed(0)}`
+                            : "-"
+                    }
+                    changePercent={metricRevenue?.profitChange ?? 0}
                     topText="Total Profit"
-                    bottomText="compared to last mont"
-                ></Metric>
+                    bottomText="compared to last month"
+                    showPercentage={metricRevenue?.profitChange != null}
+                />
                 <Metric
-                    value={`${String(6)} items`}
-                    changePercent={15}
-                    topText="Total Sales"
-                    bottomText="since last month"
-                ></Metric>
+                    value={
+                        metricRevenue
+                            ? `$${Number(metricRevenue.totalRevenue).toFixed(0)}`
+                            : "-"
+                    }
+                    changePercent={metricRevenue?.change ?? 0}
+                    topText="Total Revenue"
+                    bottomText="compared to last month"
+                    showPercentage={metricRevenue?.change != null}
+                />
                 <Metric
-                    value={`${String(50)} items`}
-                    changePercent={50}
-                    topText="Total sold products"
-                    bottomText="since last month"
-                ></Metric>
+                    value={
+                        metricSalesCount
+                            ? `${String(metricSalesCount.totalSalesCount)} items`
+                            : "-"
+                    }
+                    changePercent={metricSalesCount?.change ?? 0}
+                    topText="Total Products Sold"
+                    bottomText="compared to last month"
+                    showPercentage={metricSalesCount?.change != null}
+                />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-                <DashboardCard>
-                    <p className="text-lg font-semibold">
-                        Sales grew 15% today, with Daisy Mugs leading again.
-                        <br />
-                        <br />
-                        Keep the momentum going!
-                        <br />
-                    </p>
+                <DashboardCard className="bg-arvo-blue-20 border-arvo-blue-100 border">
+                    <div className="flex flex-col">
+                        <div className="flex gap-2 border-arvo-blue-100 border rounded-4xl px-6 py-2">
+                            <img src="/icon/ai-blue.svg" />
+                            <span className="font-semibold text-arvo-blue-100">
+                                Today’s info
+                            </span>
+                        </div>
+                        <p className="text-2xl py-8 font-semibold text-arvo-blue-100">
+                            Sales grew 15% today, with Daisy Mugs leading again.
+                            <br />
+                            <br />
+                            Keep the momentum going!
+                            <br />
+                        </p>
+                    </div>
                 </DashboardCard>
                 <DashboardCard
                     title="Your Monthly Sales, Costs & Earnings"
@@ -296,7 +401,9 @@ function RouteComponent() {
                 <DashboardCard
                     title="Your Business Performance Over Time"
                     description="A look at how your income and profit shaped up this half of the year."
-                    overview="Great momentum! Over the past 6 months, revenue has fluctuated, peaking at $ 550 April and dipping at $ 300 June, while expenses remained mostly stable. Profit margins are averaging 00%, indicating that occasional dips haven’t severely impacted overall performance."
+                    overview={
+                        revenueProfitSummary6MonthsOverview?.overview ?? ""
+                    }
                     className="sm:col-span-2"
                 >
                     <ChartContainer>
@@ -334,7 +441,7 @@ function RouteComponent() {
                 <DashboardCard
                     title="Product In, Product Out"
                     description="See if you’re making more than you’re selling."
-                    overview="You sold more than you made — looks like demand’s catching up fast. Time to plan your next batch."
+                    overview={productionInOutOverview?.overview ?? ""}
                 >
                     <ChartContainer>
                         <Bar

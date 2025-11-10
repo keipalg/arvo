@@ -322,6 +322,13 @@ export const salesRouter = router({
                               lastMonth.totalRevenue) /
                               lastMonth.totalRevenue) *
                           100,
+                totalProfit: currentMonth.totalProfit,
+                profitChange:
+                    lastMonth.totalProfit === 0
+                        ? null
+                        : ((currentMonth.totalProfit - lastMonth.totalProfit) /
+                              lastMonth.totalProfit) *
+                          100,
             };
         }),
     metricTotalSalesCount: protectedProcedure

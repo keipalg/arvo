@@ -27,7 +27,7 @@ const TopSellingTable = ({ data }: TopSellingTableProps) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((product) => (
+                    {data.map((product, index) => (
                         <tr
                             key={product.goodId}
                             className="border-b border-gray-200"
@@ -41,9 +41,29 @@ const TopSellingTable = ({ data }: TopSellingTableProps) => {
                             </td>
                             <td className="px-4 py-3">{product.goodName}</td>
                             <td className="px-4 py-3">
-                                <div className="bg-arvo-black-5 w-full h-1.5 rounded-full">
+                                <div
+                                    className={`w-full h-1.5 rounded-full 
+                                    ${
+                                        index === 0
+                                            ? "bg-arvo-blue-50"
+                                            : index === 1
+                                              ? "bg-arvo-orange-50"
+                                              : index === 2
+                                                ? "bg-arvo-yellow-50"
+                                                : "bg-gray-200"
+                                    }`}
+                                >
                                     <div
-                                        className="bg-arvo-blue-100 h-1.5 rounded-full"
+                                        className={`h-1.5 rounded-full 
+                                            ${
+                                                index === 0
+                                                    ? "bg-arvo-blue-100"
+                                                    : index === 1
+                                                      ? "bg-arvo-orange-100"
+                                                      : index === 2
+                                                        ? "bg-arvo-yellow-100"
+                                                        : "bg-gray-100"
+                                            }`}
                                         style={{
                                             width: `${product.popularityPercentage * 100}%`,
                                         }}
@@ -53,7 +73,15 @@ const TopSellingTable = ({ data }: TopSellingTableProps) => {
                             <td className="px-4 py-3">
                                 <Badge
                                     text={String(product.goodsSold)}
-                                    className="w-16 text-gray-800 bg-gray-200"
+                                    className={`w-16 ${
+                                        index === 0
+                                            ? "bg-arvo-blue-50 text-arvo-blue-100"
+                                            : index === 1
+                                              ? "bg-arvo-orange-50 text-arvo-orange-100"
+                                              : index === 2
+                                                ? "bg-arvo-yellow-50 text-arvo-yellow-100"
+                                                : ""
+                                    }`}
                                 ></Badge>
                             </td>
                         </tr>

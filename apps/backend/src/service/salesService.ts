@@ -198,9 +198,10 @@ export const getMonthlySalesCount = async (
     const targetMonth = getMonthRangeInTimezone(timezone, offset);
     const summary = await db
         .select({
-            count: sql<number>`cast(count(${sale.id}) as int)`,
+            count: sql<number>`cast(sum(${saleDetail.quantity}) as int)`,
         })
         .from(sale)
+        .innerJoin(saleDetail, eq(sale.id, saleDetail.saleId))
         .where(
             and(
                 eq(sale.userId, userId),

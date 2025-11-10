@@ -94,8 +94,9 @@ export const getSellingProducts = async (
 export const getTopSellingProducts = async (
     userId: string,
     timezone: string,
+    limit: number = 5,
 ) => {
-    return await getSellingProducts(userId, timezone, "DESC", 5);
+    return await getSellingProducts(userId, timezone, "DESC", limit);
 };
 
 export const getMostSellingProductWithComparison = async (
@@ -146,8 +147,9 @@ export const getMostSellingProductWithComparison = async (
 export const getLeastSellingProducts = async (
     userId: string,
     timezone: string,
+    limit: number = 5,
 ) => {
-    return await getSellingProducts(userId, timezone, "ASC", 5);
+    return await getSellingProducts(userId, timezone, "ASC", limit);
 };
 
 export const getLeastSellingProductWithComparison = async (
