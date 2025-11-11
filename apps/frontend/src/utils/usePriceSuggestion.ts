@@ -9,14 +9,11 @@ interface PriceSuggestionInput {
     overheadCost: number;
     operationalCost: number;
     profitMarginPreference: number;
-    // salesChannel: string;
 }
 
 interface PriceSuggestion {
     suggestedPrice: number;
     priceRange: { min: number; max: number };
-    reasoning: string;
-    marketInsights: string;
 }
 
 export const usePriceSuggestion = () => {

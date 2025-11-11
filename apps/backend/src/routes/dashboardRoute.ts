@@ -1,25 +1,22 @@
 import {
-    getMonthlySalesCount,
-    getMonthlySalesRevenue,
-} from "src/service/salesService.js";
+    dashboardRevenueProfitSummaryOverviewValidation,
+    dashboardTimezoneValidation,
+} from "@arvo/shared";
+import { generateRevenueProfitSummaryOverview } from "../service/dashboardOverviewService.js";
+import { getMonthlySalesRevenue } from "../service/salesService.js";
 import {
-    getMonthlyMaterialExpense,
     getLeastSellingProducts,
-    getMonthlyReveneueLast6Months,
-    getTopSellingProducts,
-    getMostSellingProductWithComparison,
     getLeastSellingProductWithComparison,
-    getTotalProductsSold as getMonthlyProductsSold,
-    getMonthlyBusinessExpenseWithType as getTotalMonthlyBusinessExpenses,
-    getMonthlyTotalBusinessExpenses,
+    getMonthlyMaterialExpense,
     getMonthlyProductionCount,
+    getTotalProductsSold as getMonthlyProductsSold,
+    getMonthlyReveneueLast6Months,
+    getMonthlyTotalBusinessExpenses,
+    getMostSellingProductWithComparison,
+    getTopSellingProducts,
+    getMonthlyBusinessExpenseWithType as getTotalMonthlyBusinessExpenses,
 } from "../service/dashboardService.js";
 import { protectedProcedure, router } from "./trpcBase.js";
-import {
-    dashboardTimezoneValidation,
-    dashboardRevenueProfitSummaryOverviewValidation,
-} from "@arvo/shared";
-import { generateRevenueProfitSummaryOverview } from "src/service/dashboardOverviewService.js";
 
 export const dashboardRouter = router({
     revenueProfitSummary: protectedProcedure

@@ -7,7 +7,7 @@ import {
     lt,
     sql,
 } from "drizzle-orm";
-import { getStatus } from "src/utils/inventoryUtil.js";
+import { getStatus } from "../utils/inventoryUtil.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import {

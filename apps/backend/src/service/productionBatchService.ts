@@ -1,21 +1,21 @@
-import { and, asc, between, eq, sql, type InferInsertModel } from "drizzle-orm";
 import type {
     ProductionBatchInput,
     ProductionBatchUpdateInput,
 } from "@arvo/shared";
+import { and, between, eq, sql, type InferInsertModel } from "drizzle-orm";
+import { getMonthRangeInTimezone } from "../utils/datetimeUtil.js";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
-import { good, productionBatch, sale, saleDetail } from "../db/schema.js";
+import { good, productionBatch } from "../db/schema.js";
 import {
     addGoodQuantity,
-    reduceGoodQuantity,
     getMaterialOutputRatioByGoodId,
+    reduceGoodQuantity,
 } from "./goodsService.js";
 import {
-    reduceMaterialQuantity,
     addMaterialQuantity,
+    reduceMaterialQuantity,
 } from "./materialsService.js";
-import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
 
 const isDate = (value: any): value is Date => value instanceof Date;
 
@@ -127,7 +127,7 @@ export const processProductionBatchUpdate = async (
     data: ProductionBatchUpdateInput,
 ) => {
     const lastProductionBatch = await getProductionBatchById(userId, data.id);
-    const updatedProductionBatch = await updateProductionBatch(data.id, data);
+    await updateProductionBatch(data.id, data);
 
     // Calculate difference of quantity
     const quantityDiff =

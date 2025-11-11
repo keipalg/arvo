@@ -1,4 +1,4 @@
-import { file, z } from "zod";
+import { z } from "zod";
 import { db } from "./db/client.js";
 import { sampleTable } from "./db/schema.js";
 import type { About } from "@arvo/shared";
