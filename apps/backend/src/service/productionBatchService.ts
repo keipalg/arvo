@@ -113,8 +113,8 @@ export const updateProductionBatch = async (
         .set({
             ...data,
             productionDate:
-                data.productionDate instanceof Date
-                    ? data.productionDate.toISOString().split("T")[0]
+                (data.productionDate as any) instanceof Date
+                    ? data.productionDate.toString().split("T")[0]
                     : data.productionDate,
         })
         .where(and(eq(productionBatch.id, id)))
@@ -213,8 +213,8 @@ const getProducedItemByMonth = async (
                 eq(good.userId, userId),
                 between(
                     productionBatch.productionDate,
-                    targetMonth.start,
-                    targetMonth.end,
+                    targetMonth.start.toISOString().split("T")[0],
+                    targetMonth.end.toISOString().split("T")[0],
                 ),
             ),
         )
@@ -258,8 +258,8 @@ export const getMostProducedProductWithComparison = async (
                 eq(good.id, topProduct.goodId),
                 between(
                     productionBatch.productionDate,
-                    lastMonth.start,
-                    lastMonth.end,
+                    lastMonth.start.toISOString().split("T")[0],
+                    lastMonth.end.toISOString().split("T")[0],
                 ),
             ),
         );
@@ -313,8 +313,8 @@ export const getLeastProducedProductWithComparison = async (
                 eq(good.id, leastProduct.goodId),
                 between(
                     productionBatch.productionDate,
-                    lastMonth.start,
-                    lastMonth.end,
+                    lastMonth.start.toISOString().split("T")[0],
+                    lastMonth.end.toISOString().split("T")[0],
                 ),
             ),
         );

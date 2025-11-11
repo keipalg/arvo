@@ -3,7 +3,6 @@ import { db } from "../db/client.js";
 import { priceSuggestionCache } from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
-import { resourceLimits } from "worker_threads";
 
 interface PriceSuggestionInput {
     productType: string;
@@ -18,8 +17,6 @@ interface PriceSuggestionInput {
 export interface PriceSuggestion {
     suggestedPrice: number;
     priceRange: { min: number; max: number };
-    reasoning: string;
-    marketInsights: string;
 }
 
 const generateInputHash = (input: PriceSuggestionInput): string => {
@@ -60,8 +57,6 @@ export const generatePriceSuggestion = async (
                 min: result.priceRangeMin,
                 max: result.priceRangeMax,
             },
-            reasoning: result.reasoning,
-            marketInsights: result.marketInsights,
         };
     }
 
@@ -110,8 +105,6 @@ Search and consider competitor pricing for this season and sales chanel Eatsy or
         suggestedPrice: suggestion.suggestedPrice,
         priceRangeMin: suggestion.priceRange.min,
         priceRangeMax: suggestion.priceRange.max,
-        reasoning: suggestion.reasoning,
-        marketInsights: suggestion.marketInsights,
     });
 
     return suggestion;
