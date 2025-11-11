@@ -1,11 +1,22 @@
-type MetricProps = {
-    value: string;
-    changePercent: number;
-    topText: string;
-    bottomText: string;
-    showPercentage?: boolean;
-    styleOverride?: "positive" | "negative" | "neutral";
-};
+type MetricProps =
+    | {
+          message: string;
+          value?: never;
+          topText?: never;
+          changePercent?: never;
+          bottomText?: never;
+          showPercentage?: never;
+          colorVariant?: never;
+      }
+    | {
+          message?: never;
+          value: string;
+          topText: string;
+          changePercent?: number;
+          bottomText?: string;
+          showPercentage?: boolean;
+          colorVariant?: "positive" | "negative" | "neutral";
+      };
 
 type MetricStyleType = {
     textColor: string;
@@ -31,30 +42,47 @@ const metricStyles: Record<string, MetricStyleType> = {
         trendIconSrc: "/icon/arrow-trend-downward.svg",
     },
     neutral: {
-        textColor: "text-arvo-black-100",
-        bgColor: "bg-arvo-white-100",
-        borderColor: "border-arvo-black-50",
-        badgeBgColor: "bg-arvo-black-100",
+        textColor: "text-arvo-blue-100",
+        bgColor: "bg-arvo-blue-20",
+        borderColor: "border-arvo-blue-80",
+        badgeBgColor: "bg-arvo-blue-100",
         trendIconSrc: "/icon/arrow-trend-upward.svg",
     },
 };
 
-const Metric = ({
-    value,
-    changePercent,
-    topText,
-    bottomText,
-    showPercentage = true,
-    styleOverride,
-}: MetricProps) => {
-    const posneg = styleOverride
-        ? styleOverride
-        : changePercent > 0
-          ? "positive"
-          : changePercent < 0
-            ? "negative"
-            : "neutral";
+const Metric = (props: MetricProps) => {
+    // When message is provided
+    if ("message" in props && props.message) {
+        return (
+            <div className="bg-arvo-white-100 border border-arvo-black-5 rounded-2xl min-w-[200px] max-w-[320px] px-4 py-3.5">
+                <div className="text-arvo-black-100 whitespace-normal break-words">
+                    {props.message}
+                </div>
+            </div>
+        );
+    }
+
+    // Regular metric display
+    const {
+        value,
+        topText,
+        changePercent,
+        bottomText,
+        showPercentage = true,
+        colorVariant,
+    } = props;
+
+    const posneg = colorVariant
+        ? colorVariant
+        : changePercent !== undefined
+          ? changePercent > 0
+              ? "positive"
+              : changePercent < 0
+                ? "negative"
+                : "neutral"
+          : "neutral";
     const style = metricStyles[posneg];
+
     return (
         <>
             <div
@@ -66,21 +94,32 @@ const Metric = ({
                 >
                     {value}
                 </div>
-                <div className="flex gap-1 items-center">
-                    {showPercentage && (
-                        <div
-                            className={`${style.badgeBgColor} text-arvo-white-0 px-1.5 rounded-[5px] flex gap-1.5`}
-                        >
-                            <img
-                                src={style.trendIconSrc}
-                                alt=""
-                                className="w-3 icon-white"
-                            />
-                            <div>{changePercent.toFixed(1)}%</div>
-                        </div>
-                    )}
-                    <div>{bottomText}</div>
-                </div>
+                {(showPercentage || bottomText) && (
+                    <div className="flex gap-1 items-center">
+                        {showPercentage && changePercent !== undefined && (
+                            <div
+                                className={`${style.badgeBgColor} text-arvo-white-0 px-1.5 rounded-[5px] flex gap-1.5`}
+                            >
+                                <img
+                                    src={style.trendIconSrc}
+                                    alt=""
+                                    className="w-3 icon-white"
+                                />
+                                <div>
+                                    {changePercent > 0
+                                        ? "+"
+                                        : changePercent < 0
+                                          ? "-"
+                                          : ""}
+                                    {changePercent % 1 === 0
+                                        ? `${Math.abs(changePercent)}%`
+                                        : `${Math.abs(changePercent).toFixed(1)}%`}
+                                </div>
+                            </div>
+                        )}
+                        {bottomText && <div>{bottomText}</div>}
+                    </div>
+                )}
             </div>
         </>
     );
