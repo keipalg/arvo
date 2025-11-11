@@ -7,7 +7,7 @@ type Material = {
     usedAmount?: number;
     inventoryQuantity?: number;
     cost?: number;
-    errorCondition: string;
+    errorCondition: boolean;
 };
 
 type MaterialCostTableProps = {
@@ -63,7 +63,7 @@ const MaterialCostTable = ({
                                     )}
                                 </td>
                                 <td className="text-right py-2.5 px-4">
-                                    ${item.cost.toFixed(2)}
+                                    ${item.cost?.toFixed(2)}
                                 </td>
                             </tr>
                         ))}

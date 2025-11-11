@@ -50,10 +50,13 @@ export const SettingsNotification = () => {
             subTagline:
                 "Get notified when product stock levels fall below your defined threshold.",
             handleChange: (e) =>
-                setSettingsForm((prev) => ({
-                    ...prev,
-                    lowInventoryAlertForGoods: e.target.checked,
-                })),
+                setSettingsForm((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        lowInventoryAlertForGoods: e.target.checked,
+                    };
+                }),
         },
         {
             type: "toggleButton",
@@ -61,14 +64,14 @@ export const SettingsNotification = () => {
             subTitle: "Low Inventory of Materials",
             subTagline:
                 "Get notified when product stock levels fall below your defined threshold.",
-            handleChange: (e) => {
-                if (settingsForm) {
-                    setSettingsForm((prev) => ({
+            handleChange: (e) =>
+                setSettingsForm((prev) => {
+                    if (!prev) return prev;
+                    return {
                         ...prev,
                         lowInventoryAlertForMaterials: e.target.checked,
-                    }));
-                }
-            },
+                    };
+                }),
         },
     ];
 

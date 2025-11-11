@@ -13,18 +13,11 @@ interface ProductTypeSelectorProps extends BaseInputProps {
 const ProductTypeSelector = (props: ProductTypeSelectorProps) => {
     const { items, addItem, deleteItem } = useTypeManager(productTypeConfig);
 
-    const handleAdd = async (data: { name: string }) => {
-        const newItem = (await addItem(data)) as { id: string };
-        if (newItem?.id) {
-            props.onChange(newItem.id);
-        }
-    };
-
     return (
         <TypeSelector
             {...props}
             items={items}
-            onAdd={handleAdd}
+            onAdd={addItem}
             onDelete={deleteItem}
             placeholder="Select or type product type..."
         />
