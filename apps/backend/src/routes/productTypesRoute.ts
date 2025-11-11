@@ -3,7 +3,6 @@ import {
     addProductType,
     addProductTypes,
     deleteProductType,
-    getProductTypes,
     getProductTypesWithUsage,
     updateProductType,
 } from "../service/productTypesService.js";

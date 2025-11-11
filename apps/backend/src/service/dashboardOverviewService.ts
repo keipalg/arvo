@@ -1,4 +1,4 @@
-import { openai } from "src/utils/openaiClient.js";
+import { openai } from "../utils/openaiClient.js";
 
 type RevenueProfitSummary = {
     totalRevenue: number;

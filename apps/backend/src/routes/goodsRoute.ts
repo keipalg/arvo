@@ -1,28 +1,26 @@
 import { goodsInputValidation, goodsUpdateValidation } from "@arvo/shared";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
     addGood,
     addGoodToMaterialOutputRatio,
     addMaterialOutputRatio,
     deleteGood,
+    deleteMaterialOutputRatio,
     getGoodsList,
+    getMaterialOutputRatio,
+    getMaterialOutputRatioByGoodId,
     getMaterialsList,
     getProductTypesList,
     getUserPreference,
-    getMaterialOutputRatio,
     type GoodInsert,
     type GoodToMaterialOutputRatioInsert,
-    type MaterialOutputRatioInsert,
-    type MaterialOutputRatioUpdate,
     type GoodUpdate,
+    type MaterialOutputRatioInsert,
     updateGood,
     updateMaterialOutputRatio,
-    getGoodToMaterialOutputRatio,
-    getMaterialOutputRatioByGoodId,
-    deleteMaterialOutputRatio,
 } from "../service/goodsService.js";
 import { getSalesCount } from "../service/salesService.js";
-import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpcBase.js";
 
 export const goodsRouter = router({
@@ -113,11 +111,7 @@ export const goodsRouter = router({
                 netProfit: input.netProfit,
             };
 
-            const updatedData = await updateGood(
-                input.id,
-                ctx.user.id,
-                inputData,
-            );
+            await updateGood(input.id, ctx.user.id, inputData);
 
             const materialOutputRatioData =
                 await getMaterialOutputRatioByGoodId(ctx.user.id, input.id);

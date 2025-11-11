@@ -10,7 +10,7 @@ import {
 import { channel, good, sale, saleDetail, status } from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
-import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
+import { getMonthRangeInTimezone } from "../utils/datetimeUtil.js";
 import { createProductLowInventoryNotification } from "./notificationsService.js";
 
 export type GoodSelect = Partial<InferSelectModel<typeof good>>;

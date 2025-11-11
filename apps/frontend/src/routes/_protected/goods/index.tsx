@@ -203,7 +203,6 @@ function GoodsList() {
         {
             key: "type",
             header: "Product Type",
-            render: (value) => value || "-",
         },
         {
             key: "inventoryQuantity",
@@ -746,7 +745,7 @@ function GoodsList() {
                         label="Product Image"
                         file={productImage || undefined}
                         onChange={(e) =>
-                            setProductImage(e.target.files?.[0] ?? undefined)
+                            setProductImage(e.target.files?.[0] ?? null)
                         }
                     />
                     <div className="grid grid-cols-2 gap-2">
