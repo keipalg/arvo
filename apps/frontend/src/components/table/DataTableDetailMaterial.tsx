@@ -1,4 +1,5 @@
 import type { inferRouterOutputs } from "@trpc/server";
+import { getFormattedDate } from "../../utils/dateFormatter";
 import type { AppRouter } from "../../utils/trpcClient";
 
 type Materials = inferRouterOutputs<AppRouter>["materials"]["list"][number] & {
@@ -84,11 +85,7 @@ const MaterialDetails = ({
                                 Last Purchase Date
                             </div>
                             <div className="text-arvo-black-100">
-                                {row.lastPurchaseDate
-                                    ? new Date(
-                                          row.lastPurchaseDate,
-                                      ).toLocaleDateString()
-                                    : "N/A"}
+                                {getFormattedDate(row.lastPurchaseDate)}
                             </div>
                         </div>
                         <div className="flex flex-col px-2 py-1">
@@ -167,13 +164,7 @@ const MaterialDetails = ({
                         </div>
 
                         <div className="font-semibold">Last Purchase Date</div>
-                        <div>
-                            {row.lastPurchaseDate
-                                ? new Date(
-                                      row.lastPurchaseDate,
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                        </div>
+                        <div>{getFormattedDate(row.lastPurchaseDate)}</div>
 
                         <div className="font-semibold">Supplier</div>
                         <div className="flex items-center gap-2">

@@ -23,6 +23,7 @@ import Button from "../../../components/button/Button";
 import { MoreButton } from "../../../components/button/MoreButton";
 import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import RightDrawer from "../../../components/drawer/RightDrawer";
+import DatePicker from "../../../components/input/DatePicker";
 import DisplayValue from "../../../components/input/DisplayValue";
 import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
 import NumberInput from "../../../components/input/NumberInput";
@@ -34,6 +35,10 @@ import Metric from "../../../components/metric/Metric";
 import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 import ToastNotification from "../../../components/modal/ToastNotification";
 import MaterialDetails from "../../../components/table/DataTableDetailMaterial";
+import {
+    getFormattedDateTime,
+    getDateForInputField,
+} from "../../../utils/dateFormatter";
 import { useIsSmUp } from "../../../utils/screenWidth";
 
 export const Route = createFileRoute("/_protected/materials/")({
@@ -226,9 +231,7 @@ function MaterialsList() {
         setUnitAbbreviation(material.unitAbbreviation);
         setLastPurchaseDate(
             material.lastPurchaseDate
-                ? new Date(material.lastPurchaseDate)
-                      .toISOString()
-                      .split("T")[0]
+                ? getDateForInputField(material.lastPurchaseDate)
                 : "",
         );
         setSupplier(material.supplier || "");
@@ -239,12 +242,12 @@ function MaterialsList() {
             .createdAt;
         setCreatedAt(
             materialCreatedAt !== undefined
-                ? new Date(materialCreatedAt as string | Date).toLocaleString()
+                ? getFormattedDateTime(materialCreatedAt as string | Date)
                 : "N/A",
         );
         setUpdatedAt(
             material.lastUpdatedDate
-                ? new Date(material.lastUpdatedDate).toLocaleString()
+                ? getFormattedDateTime(material.lastUpdatedDate)
                 : "N/A",
         );
         setDrawerOpen(true);
@@ -571,8 +574,7 @@ function MaterialsList() {
     // Set default date to today when opening drawer for adding new material
     useEffect(() => {
         if (drawerOpen && !editingMaterialId && !lastPurchaseDate) {
-            const today = new Date().toISOString().split("T")[0];
-            setLastPurchaseDate(today);
+            setLastPurchaseDate(getDateForInputField(new Date()));
         }
     }, [drawerOpen, editingMaterialId, lastPurchaseDate]);
 
@@ -922,16 +924,14 @@ function MaterialsList() {
                         </div>
                     )}
                     <div className="grid grid-cols-2 gap-2">
-                        <TextInput
+                        <DatePicker
                             label="Last Purchase Date*"
-                            type="date"
                             name="lastPurchaseDate"
                             value={lastPurchaseDate}
-                            onChange={(e) =>
-                                setLastPurchaseDate(e.target.value)
-                            }
+                            onChange={setLastPurchaseDate}
                             error={formErrors.lastPurchaseDate}
-                        ></TextInput>
+                            placeholder="Select date"
+                        />
                         <NumberInput
                             label="Min. Stock Level"
                             name="minStockLevel"
