@@ -17,6 +17,8 @@ import {
 } from "./materialsService.js";
 import { getMonthRangeInTimezone } from "src/utils/datetimeUtil.js";
 
+const isDate = (value: any): value is Date => value instanceof Date;
+
 export const getProductionBatch = async (userId: string) => {
     return await db
         .select({
@@ -112,10 +114,9 @@ export const updateProductionBatch = async (
         .update(productionBatch)
         .set({
             ...data,
-            productionDate:
-                data.productionDate instanceof Date
-                    ? data.productionDate.toISOString().split("T")[0]
-                    : data.productionDate,
+            productionDate: isDate(data.productionDate)
+                ? data.productionDate.toISOString().split("T")[0]
+                : data.productionDate,
         })
         .where(and(eq(productionBatch.id, id)))
         .returning({ id: productionBatch.id });
@@ -213,8 +214,8 @@ const getProducedItemByMonth = async (
                 eq(good.userId, userId),
                 between(
                     productionBatch.productionDate,
-                    targetMonth.start,
-                    targetMonth.end,
+                    targetMonth.start.toISOString().split("T")[0],
+                    targetMonth.end.toISOString().split("T")[0],
                 ),
             ),
         )
@@ -258,8 +259,8 @@ export const getMostProducedProductWithComparison = async (
                 eq(good.id, topProduct.goodId),
                 between(
                     productionBatch.productionDate,
-                    lastMonth.start,
-                    lastMonth.end,
+                    lastMonth.start.toISOString().split("T")[0],
+                    lastMonth.end.toISOString().split("T")[0],
                 ),
             ),
         );
@@ -313,8 +314,8 @@ export const getLeastProducedProductWithComparison = async (
                 eq(good.id, leastProduct.goodId),
                 between(
                     productionBatch.productionDate,
-                    lastMonth.start,
-                    lastMonth.end,
+                    lastMonth.start.toISOString().split("T")[0],
+                    lastMonth.end.toISOString().split("T")[0],
                 ),
             ),
         );

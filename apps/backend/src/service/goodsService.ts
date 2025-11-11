@@ -329,7 +329,7 @@ export const reduceGoodQuantity = async (
     if (!goodRecord) {
         throw new Error("Good not found");
     }
-    if (goodRecord.inventoryQuantity < quantityToDeduct) {
+    if (goodRecord.inventoryQuantity ?? 0 < quantityToDeduct) {
         throw new Error(
             `Insufficient quantity. Available: ${goodRecord.inventoryQuantity}, Requested: ${quantityToDeduct}`,
         );
