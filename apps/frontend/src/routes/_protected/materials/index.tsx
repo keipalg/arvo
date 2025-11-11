@@ -31,6 +31,7 @@ import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
+import MetricsGroup from "../../../components/metric/MetricsGroup";
 import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 import ToastNotification from "../../../components/modal/ToastNotification";
 import MaterialDetails from "../../../components/table/DataTableDetailMaterial";
@@ -587,8 +588,49 @@ function MaterialsList() {
                     icon="/icon/plus.svg"
                 ></AddButton>
             </div>
-            <div className="flex gap-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            <MetricsGroup>
                 <Metric
+                    value={
+                        totalInventoryValueData &&
+                        "currentValue" in totalInventoryValueData
+                            ? `$${Number(totalInventoryValueData.currentValue).toFixed(2)}`
+                            : "$0.00"
+                    }
+                    changePercent={
+                        totalInventoryValueData &&
+                        "percentageChange" in totalInventoryValueData &&
+                        "lastMonthValue" in totalInventoryValueData
+                            ? totalInventoryValueData.lastMonthValue === 0
+                                ? 100
+                                : Number(
+                                      totalInventoryValueData.percentageChange,
+                                  )
+                            : undefined
+                    }
+                    topText="Total Inventory Value"
+                    bottomText="Compared to last month"
+                    colorVariant="neutral"
+                />
+
+                <Metric
+                    value={String(
+                        lowStockData && "count" in lowStockData
+                            ? lowStockData.count
+                            : 0,
+                    )}
+                    topText="Materials Low on Stock"
+                    bottomText="material/s need to be restocked"
+                    showPercentage={false}
+                    colorVariant={
+                        lowStockData &&
+                        "count" in lowStockData &&
+                        lowStockData.count >= 1
+                            ? "negative"
+                            : "positive"
+                    }
+                />
+                <Metric
+                    topText="Most Used Material"
                     value={
                         mostUsedMaterialData &&
                         "materialName" in mostUsedMaterialData &&
@@ -602,7 +644,6 @@ function MaterialsList() {
                             ? Number(mostUsedMaterialData.percentageChange)
                             : 0
                     }
-                    topText="Most Used Material"
                     bottomText={
                         mostUsedMaterialData &&
                         "materialName" in mostUsedMaterialData &&
@@ -612,53 +653,7 @@ function MaterialsList() {
                     }
                     showPercentage={mostUsedMaterialData?.materialName !== null}
                 />
-
-                <Metric
-                    value={String(
-                        lowStockData && "count" in lowStockData
-                            ? lowStockData.count
-                            : 0,
-                    )}
-                    changePercent={0}
-                    topText="Materials Low on Stock"
-                    bottomText="material/s need to be restocked"
-                    showPercentage={false}
-                    styleOverride={
-                        lowStockData &&
-                        "count" in lowStockData &&
-                        lowStockData.count >= 1
-                            ? "negative"
-                            : "positive"
-                    }
-                />
-                <Metric
-                    value={
-                        totalInventoryValueData &&
-                        "currentValue" in totalInventoryValueData
-                            ? `$${Number(totalInventoryValueData.currentValue).toFixed(2)}`
-                            : "$0.00"
-                    }
-                    changePercent={
-                        totalInventoryValueData &&
-                        "percentageChange" in totalInventoryValueData
-                            ? Number(totalInventoryValueData.percentageChange)
-                            : 0
-                    }
-                    topText="Total Inventory Value"
-                    bottomText={
-                        totalInventoryValueData &&
-                        "lastMonthValue" in totalInventoryValueData &&
-                        totalInventoryValueData.lastMonthValue > 0
-                            ? "Compared to last month"
-                            : "No data for previous month"
-                    }
-                    showPercentage={
-                        totalInventoryValueData &&
-                        "lastMonthValue" in totalInventoryValueData &&
-                        totalInventoryValueData.lastMonthValue > 0
-                    }
-                />
-            </div>
+            </MetricsGroup>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
