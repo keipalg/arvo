@@ -298,8 +298,8 @@ export const getMonthlyProductionCount = async (
                 eq(good.userId, userId),
                 between(
                     productionBatch.productionDate,
-                    targetMonth.start,
-                    targetMonth.end,
+                    targetMonth.start.toISOString().split("T")[0],
+                    targetMonth.end.toISOString().split("T")[0],
                 ),
             ),
         );

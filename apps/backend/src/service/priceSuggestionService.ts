@@ -1,9 +1,8 @@
-import { openai } from "../utils/openaiClient.js";
+import crypto from "crypto";
+import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { priceSuggestionCache } from "../db/schema.js";
-import { eq, and } from "drizzle-orm";
-import crypto from "crypto";
-import { resourceLimits } from "worker_threads";
+import { openai } from "../utils/openaiClient.js";
 
 interface PriceSuggestionInput {
     productType: string;
@@ -12,14 +11,11 @@ interface PriceSuggestionInput {
     overheadCost: number;
     operationalCost: number;
     profitMarginPreference: number;
-    // salesChannel: string;
 }
 
 export interface PriceSuggestion {
     suggestedPrice: number;
     priceRange: { min: number; max: number };
-    reasoning: string;
-    marketInsights: string;
 }
 
 const generateInputHash = (input: PriceSuggestionInput): string => {
@@ -31,7 +27,6 @@ const generateInputHash = (input: PriceSuggestionInput): string => {
         operationalCost: Math.round(input.operationalCost * 100) / 100,
         profitMarginPreference:
             Math.round(input.profitMarginPreference * 100) / 100,
-        // salesChannel:,
     };
     return crypto
         .createHash("md5")
@@ -60,8 +55,6 @@ export const generatePriceSuggestion = async (
                 min: result.priceRangeMin,
                 max: result.priceRangeMax,
             },
-            reasoning: result.reasoning,
-            marketInsights: result.marketInsights,
         };
     }
 
@@ -110,8 +103,6 @@ Search and consider competitor pricing for this season and sales chanel Eatsy or
         suggestedPrice: suggestion.suggestedPrice,
         priceRangeMin: suggestion.priceRange.min,
         priceRangeMax: suggestion.priceRange.max,
-        reasoning: suggestion.reasoning,
-        marketInsights: suggestion.marketInsights,
     });
 
     return suggestion;
