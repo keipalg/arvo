@@ -3,6 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "tsx watch src/index.ts",
+        "typecheck": "tsc --noEmit",
         "build": "tsc",
         "start": "node dist/index.js",
         "db:seed": "node --import tsx --env-file .env ./scripts/seed.ts",
