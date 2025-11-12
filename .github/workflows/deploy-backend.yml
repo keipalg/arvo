@@ -1,0 +1,58 @@
+name: Arvo Backend Deployment (Cloud Run)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+env:
+  SERVICE: "${{ vars.SERVICE }}"
+  GCLOUD_PROJECT: "${{ vars.GCLOUD_PROJECT }}"
+  REPO: "${{ vars.REPO }}"
+  REGION: "${{ vars.REGION }}"
+  IMAGE: "${{ vars.IMAGE }}"
+  IMAGE_TAG: "${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCLOUD_PROJECT }}/${{ vars.REPO }}/${{ vars.IMAGE }}"
+
+jobs:
+  build-and-deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'deploy-backend-prod'
+      cancel-in-progress: true
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+        
+      - name: 'Auth to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: "${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.SERVICE_ACCOUNT_EMAIL}}"
+        
+      - name: 'Setup gcloud'
+        uses: 'google-github-actions/setup-gcloud@v3'
+        with:
+          version: '>= 363.0.0'
+    
+      - name: 'Configure Docker (gcloud)'
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: 'Build and push image'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 'Deploy to Cloud Run'
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --image "$IMAGE_TAG" \
+            --region "$REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --revision-suffix="gh-${{ github.run_number }}"
