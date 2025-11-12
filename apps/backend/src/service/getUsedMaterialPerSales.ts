@@ -7,6 +7,7 @@ import {
     materialOutputRatio,
     sale,
     saleDetail,
+    unit,
 } from "../db/schema.js";
 
 export const getUsedMaterialPerSales = async (userId: string) => {
@@ -17,12 +18,14 @@ export const getUsedMaterialPerSales = async (userId: string) => {
             salesNumber: sale.salesNumber,
             goodID: good.id,
             goodName: good.name,
+            quantity: saleDetail.quantity,
             materialOutputRatioId:
                 goodToMaterialOutputRatio.materialOutputRatioId,
             materialOutputRatio: materialOutputRatio.input,
             materialID: materialOutputRatio.materialId,
             materialName: materialAndSupply.name,
             costPerUnit: materialAndSupply.costPerUnit,
+            unit: unit.name,
             usedMaterialCost: sql<number>`(${materialAndSupply.costPerUnit} * ${materialOutputRatio.input} * ${saleDetail.quantity})`,
         })
         .from(sale)
@@ -43,6 +46,7 @@ export const getUsedMaterialPerSales = async (userId: string) => {
             materialAndSupply,
             eq(materialAndSupply.id, materialOutputRatio.materialId),
         )
+        .innerJoin(unit, eq(unit.id, materialAndSupply.unitId))
         .where(and(eq(good.userId, userId)))
         .orderBy(desc(sale.date));
 };

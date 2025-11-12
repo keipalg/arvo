@@ -726,6 +726,19 @@ function BusinessExpense() {
         {
             key: "name",
             header: "Expense",
+            render: (value, row) => {
+                if (typeof value !== "string") return <span>-</span>;
+                return (
+                    <div className="flex items-center justify-between gap-2">
+                        <span>{value}</span>
+                        {row.repeat_every && row.start_date && row.due_date && (
+                            <span>
+                                <img src="/icon/recurring.svg" />
+                            </span>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             key: "cost",
@@ -765,11 +778,11 @@ function BusinessExpense() {
                 if (!str) return <span>-</span>;
 
                 return highlightValues.includes(str) ? (
-                    <span className="capitalize bg-arvo-blue-80 text-white rounded-xl px-2 py-1">
+                    <span className="capitalize bg-arvo-blue-80 text-white rounded-xl px-2 py-1 whitespace-nowrap">
                         {str.replace("_", " ")}
                     </span>
                 ) : (
-                    <span className="capitalize bg-arvo-orange-50 text-arvo-orange-100 rounded-xl px-2 py-1">
+                    <span className="capitalize bg-arvo-orange-50 text-arvo-orange-100 rounded-xl px-2 py-1 whitespace-nowrap">
                         {str.replace("_", " ")}
                     </span>
                 );
@@ -795,13 +808,13 @@ function BusinessExpense() {
                 return isNaN(d.getTime()) ? (
                     <>-</>
                 ) : (
-                    <>
+                    <span className="whitespace-nowrap">
                         {d.toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
                         })}
-                    </>
+                    </span>
                 );
             },
         },
@@ -937,16 +950,6 @@ function BusinessExpense() {
                         mobileVisibleKeys={["name", "cost", "actions"]}
                         sortOptions={[
                             {
-                                key: "name",
-                                label: "Name (A → Z)",
-                                order: "asc",
-                            },
-                            {
-                                key: "name",
-                                label: "Name (Z → A)",
-                                order: "desc",
-                            },
-                            {
                                 key: "createdAt",
                                 label: "Date (Newest → Oldest)",
                                 order: "desc",
@@ -955,6 +958,16 @@ function BusinessExpense() {
                                 key: "createdAt",
                                 label: "Date (Oldest → Newest)",
                                 order: "asc",
+                            },
+                            {
+                                key: "name",
+                                label: "Name (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "name",
+                                label: "Name (Z → A)",
+                                order: "desc",
                             },
                             {
                                 key: "cost",
@@ -985,7 +998,7 @@ function BusinessExpense() {
                 >
                     <TextInput
                         type="date"
-                        label="Date"
+                        label="Date*"
                         value={
                             businessExpenseFormData.createdAt
                                 ? businessExpenseFormData.createdAt
@@ -1002,7 +1015,7 @@ function BusinessExpense() {
                     />
                     <Select
                         name="expense_type"
-                        label="Expense Type"
+                        label="Expense Type*"
                         value={businessExpenseFormData.expense_type}
                         onChange={(e) => {
                             setBusinessExpenseFormData(
@@ -1100,6 +1113,7 @@ function BusinessExpense() {
                                                             "goods_loss",
                                                         materialAndSupply_id:
                                                             "",
+                                                        quantity: 0,
                                                     }),
                                                 );
                                             }}
@@ -1126,6 +1140,7 @@ function BusinessExpense() {
                                                         selectedInventoryLossOption:
                                                             "materials_loss",
                                                         good_id: "",
+                                                        quantity: 0,
                                                     }),
                                                 );
                                             }}
@@ -1146,6 +1161,9 @@ function BusinessExpense() {
                                     onChange={(e) => {
                                         setBusinessExpenseFormData((prev) => ({
                                             ...prev,
+                                            selectedInventoryLossOption:
+                                                "goods_loss",
+                                            quantity: 0,
                                             good_id: e.target.value,
                                             materialAndSupply_id: "",
                                             name:
@@ -1189,6 +1207,9 @@ function BusinessExpense() {
 
                                         setBusinessExpenseFormData((prev) => ({
                                             ...prev,
+                                            selectedInventoryLossOption:
+                                                "materials_loss",
+                                            quantity: 0,
                                             materialAndSupply_id:
                                                 e.target.value,
                                             good_id: "",
@@ -1218,7 +1239,12 @@ function BusinessExpense() {
                             )}
                             <TextInput
                                 type="number"
-                                step="0.1"
+                                step={
+                                    businessExpenseFormData.selectedInventoryLossOption ===
+                                    "goods_loss"
+                                        ? "1"
+                                        : "0.01"
+                                }
                                 label={
                                     "Quantity: " +
                                     (businessExpenseFormData.selectedInventoryLossOption ===
@@ -1281,7 +1307,7 @@ function BusinessExpense() {
                         <>
                             <TextInput
                                 type="text"
-                                label="Name"
+                                label="Name*"
                                 name="name"
                                 value={businessExpenseFormData.name}
                                 onChange={(e) => {
@@ -1294,7 +1320,7 @@ function BusinessExpense() {
                             />
                             <TextInput
                                 type="number"
-                                label="Cost"
+                                label="Cost*"
                                 name="cost"
                                 value={businessExpenseFormData.cost}
                                 step="0.01"
@@ -1307,7 +1333,7 @@ function BusinessExpense() {
                                 error={validationError.cost}
                             />
                             <TextInput
-                                label="Payee"
+                                label="Payee*"
                                 name="payee"
                                 value={businessExpenseFormData.payee}
                                 onChange={(e) => {
@@ -1454,15 +1480,6 @@ function BusinessExpense() {
                             </Switcher>
                         )}
                     </div>
-
-                    {/* <Button
-						type="submit"
-						value="Add Operational Expense"
-					></Button>
-					<Button
-						value="Cancel"
-						onClick={() => setDrawerOpen(false)}
-					></Button> */}
                     <div
                         className={`mt-4 grid ${selectedItemForDeletion.id !== "" && "grid-cols-2 gap-2"}`}
                     >

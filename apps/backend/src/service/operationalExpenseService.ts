@@ -29,6 +29,7 @@ export const addOperationalExpense = async (
         quantity: data.quantity,
         notes: data.notes,
         attach_recipt: data.attach_recipt,
+        repeat_every: data.repeat_every,
         start_date: data.start_date,
         due_date: data.due_date,
     });
