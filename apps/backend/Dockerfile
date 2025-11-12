@@ -30,4 +30,4 @@ COPY --from=builder /app/packages/shared /app/packages/shared
 USER nonroot
 EXPOSE 8080
 
-CMD ["dist/index.js"]
+CMD ["node", "dist/index.js"]
