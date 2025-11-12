@@ -296,16 +296,6 @@ function UsedMaterials() {
                 ]}
                 sortOptions={[
                     {
-                        key: "materialName",
-                        label: "Name (A → Z)",
-                        order: "asc",
-                    },
-                    {
-                        key: "materialName",
-                        label: "Name (Z → A)",
-                        order: "desc",
-                    },
-                    {
                         key: "soldDate",
                         label: "Date (Newest → Oldest)",
                         order: "desc",
@@ -314,6 +304,16 @@ function UsedMaterials() {
                         key: "soldDate",
                         label: "Date (Oldest → Newest)",
                         order: "asc",
+                    },
+                    {
+                        key: "materialName",
+                        label: "Name (A → Z)",
+                        order: "asc",
+                    },
+                    {
+                        key: "materialName",
+                        label: "Name (Z → A)",
+                        order: "desc",
                     },
                     {
                         key: "usedMaterialCost",

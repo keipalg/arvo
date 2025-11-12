@@ -23,7 +23,7 @@ export const getUsedMaterialPerSales = async (userId: string) => {
             materialID: materialOutputRatio.materialId,
             materialName: materialAndSupply.name,
             costPerUnit: materialAndSupply.costPerUnit,
-            usedMaterialCost: sql<number>`(${materialAndSupply.costPerUnit} * ${materialOutputRatio.input})`,
+            usedMaterialCost: sql<number>`(${materialAndSupply.costPerUnit} * ${materialOutputRatio.input} * ${saleDetail.quantity})`,
         })
         .from(sale)
         .innerJoin(saleDetail, eq(saleDetail.saleId, sale.id))
