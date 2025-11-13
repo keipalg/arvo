@@ -42,22 +42,27 @@ const TableSort = ({ options, onSelect }: TableSortProps) => {
         <div className="relative inline-block z-20" ref={sortRef}>
             <button
                 type="button"
-                className={`border border-arvo-black-5 my-2 px-2 py-1 rounded-md cursor-pointer flex gap-1.5 ${open && "bg-arvo-blue-50"}`}
+                className={`border border-arvo-black-5 my-2 px-2 py-1 rounded-md cursor-pointer flex gap-1.5 ${open && "bg-arvo-blue-100 border-arvo-blue-100"}`}
                 onClick={() => setOpen(!open)}
             >
-                <img src="/icon/table-sort.svg"></img>
-                <span className="text-arvo-black-100">
+                <img
+                    src={`${open ? "/icon/table-sort-selected.svg" : "/icon/table-sort.svg"}`}
+                />
+                <span
+                    className={`${open ? "text-arvo-white-100" : "text-arvo-black-100"}`}
+                >
                     {`Sort${selectedOption ? ": " + selectedOption.label : ""}`}
                 </span>
             </button>
             {open && (
-                <div className="absolute bg-arvo-white-0 rounded overflow-clip z-10 shadow-md">
-                    {options.map((option) => {
+                <div className="absolute bg-arvo-white-0 rounded-xl overflow-clip z-10 shadow-md">
+                    {options.map((option, index) => {
                         const optionkey = option.key + (option.order ?? "");
                         return (
                             <div
                                 key={optionkey}
-                                className="px-4 py-2 hover:bg-arvo-blue-50 cursor-pointer whitespace-nowrap"
+                                className={`px-4 py-1 hover:bg-arvo-blue-50 cursor-pointer whitespace-nowrap 
+                                    ${index === options.length - 1 ? "pb-3" : index === 0 ? "pt-3" : ""}`}
                                 onClick={() => handleSelect(option)}
                             >
                                 {option.label}
