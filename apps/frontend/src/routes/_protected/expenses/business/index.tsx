@@ -29,6 +29,7 @@ import Metric from "../../../../components/metric/Metric";
 import { useIsSmUp } from "../../../../utils/screenWidth";
 import AddButton from "../../../../components/button/AddButton";
 import BusinessExpenseDetails from "../../../../components/table/DataTableDetailBusinessExpense";
+import NumberInput from "../../../../components/input/NumberInput";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -70,6 +71,7 @@ type BusinessExpense = {
     payee: string;
     payment_method: "credit" | "cash";
     selectedInventoryLossOption: "goods_loss" | "materials_loss";
+    selectedInventoryLossMaxQuantity: number;
     good_id: string | null;
     materialAndSupply_id: string | null;
     quantity: number;
@@ -174,6 +176,7 @@ function BusinessExpense() {
         payee: "",
         payment_method: "credit",
         selectedInventoryLossOption: "goods_loss",
+        selectedInventoryLossMaxQuantity: 0,
         good_id: "",
         materialAndSupply_id: "",
         quantity: 0,
@@ -1159,12 +1162,20 @@ function BusinessExpense() {
                                     }
                                     error={validationError.good_id}
                                     onChange={(e) => {
+                                        const selectedGoods = goodsList?.find(
+                                            (goods) =>
+                                                goods.id === e.target.value,
+                                        );
+
                                         setBusinessExpenseFormData((prev) => ({
                                             ...prev,
                                             selectedInventoryLossOption:
                                                 "goods_loss",
                                             quantity: 0,
                                             good_id: e.target.value,
+                                            selectedInventoryLossMaxQuantity:
+                                                selectedGoods?.inventoryQuantity ||
+                                                0,
                                             materialAndSupply_id: "",
                                             name:
                                                 goodsList?.find(
@@ -1213,6 +1224,8 @@ function BusinessExpense() {
                                             materialAndSupply_id:
                                                 e.target.value,
                                             good_id: "",
+                                            selectedInventoryLossMaxQuantity:
+                                                selectedMaterial?.quantity || 0,
                                             cost: selectedMaterial?.costPerUnit
                                                 ? selectedMaterial.costPerUnit *
                                                   prev.quantity
@@ -1237,6 +1250,67 @@ function BusinessExpense() {
                                     }
                                 />
                             )}
+                            <NumberInput
+                                label="Quantity"
+                                value={businessExpenseFormData.quantity}
+                                step={
+                                    businessExpenseFormData.selectedInventoryLossOption ===
+                                    "goods_loss"
+                                        ? "1"
+                                        : "0.01"
+                                }
+                                min="0"
+                                max={String(
+                                    businessExpenseFormData.selectedInventoryLossMaxQuantity <
+                                        0
+                                        ? 0
+                                        : businessExpenseFormData.selectedInventoryLossMaxQuantity,
+                                )}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>,
+                                ) => {
+                                    const newQuantity = parseFloat(
+                                        e.target.value,
+                                    );
+                                    setBusinessExpenseFormData((prev) => {
+                                        if (prev.materialAndSupply_id) {
+                                            const selectedMaterial =
+                                                materialsList?.find(
+                                                    (m) =>
+                                                        m.id ===
+                                                        prev.materialAndSupply_id,
+                                                );
+                                            return {
+                                                ...prev,
+                                                quantity: newQuantity,
+                                                cost: selectedMaterial?.costPerUnit
+                                                    ? selectedMaterial.costPerUnit *
+                                                      newQuantity
+                                                    : prev.cost,
+                                            };
+                                        } else if (prev.good_id) {
+                                            const selectedGoods =
+                                                goodsList?.find(
+                                                    (g) =>
+                                                        g.id === prev.good_id,
+                                                );
+                                            return {
+                                                ...structuredClone(prev),
+                                                quantity: newQuantity,
+                                                cost: selectedGoods?.materialCost
+                                                    ? selectedGoods.materialCost *
+                                                      newQuantity
+                                                    : prev.cost,
+                                            };
+                                        } else {
+                                            return {
+                                                ...prev,
+                                                quantity: newQuantity,
+                                            };
+                                        }
+                                    });
+                                }}
+                            />
                             <TextInput
                                 type="number"
                                 step={
