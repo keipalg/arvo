@@ -231,13 +231,13 @@ function UsedMaterials() {
                     return isNaN(dateObj.getTime()) ? (
                         <></>
                     ) : (
-                        <>
+                        <span className="whitespace-nowrap">
                             {dateObj.toLocaleDateString("en-US", {
                                 month: "short",
                                 day: "numeric",
                                 year: "numeric",
                             })}
-                        </>
+                        </span>
                     );
                 }
                 return <></>;

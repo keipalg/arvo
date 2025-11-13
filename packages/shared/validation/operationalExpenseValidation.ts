@@ -14,7 +14,7 @@ export const operationalExpenseValidation = z
             "miscellaneous",
         ]),
         name: z.string(),
-        cost: z.number().default(0),
+        cost: z.number(),
         payee: z.string(),
         payment_method: z.enum(["credit", "cash"]),
         good_id: z.string().nullable(),
@@ -51,6 +51,29 @@ export const operationalExpenseValidation = z
                     message:
                         "Have to select either Good or Material/Supply for inventory loss expense",
                     path: ["good_id"],
+                });
+            }
+
+            if (data.quantity <= 0) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Quantity must be at least 1",
+                    path: ["quantity"],
+                });
+            }
+        } else {
+            if (!data.name || data.name.trim().length === 0) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Name is required",
+                    path: ["name"],
+                });
+            }
+            if (!data.payee || data.payee.trim().length === 0) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Payee is required",
+                    path: ["payee"],
                 });
             }
         }
