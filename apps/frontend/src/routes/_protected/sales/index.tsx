@@ -618,6 +618,10 @@ function SalesList() {
                             },
                         ]}
                         filterOptions={tableFilterOptions}
+                        searchOption={{
+                            key: "customer",
+                            label: "Customer",
+                        }}
                     />
                 </MoreButtonProvider>
             )}
