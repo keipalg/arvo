@@ -9,6 +9,11 @@ type SettingsFormData = {
 };
 
 export const SettingsNotification = () => {
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
     const { data: userPreferences, isLoading: isLoadingUserPreferences } =
         useQuery(trpc.userPreferences.get.queryOptions());
     console.log("userPreferences", userPreferences);
@@ -22,6 +27,21 @@ export const SettingsNotification = () => {
         trpc.userPreferences.updateLowInventoryAlert.mutationOptions({
             onSuccess: () => {
                 console.log("Low inventory alert updated successfully");
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content:
+                        "Success! Notification settings have been updated.",
+                });
+            },
+            onError: (error) => {
+                console.error("Error updating low inventory alert:", error);
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "WARN",
+                    content:
+                        "Failed to update notification settings. Please try again.",
+                });
             },
         }),
     );
@@ -46,7 +66,7 @@ export const SettingsNotification = () => {
             label: "Notifications",
             type: "toggleButton",
             value: settingsForm.lowInventoryAlertForGoods,
-            subTitle: "Low Inventory of Goods",
+            subTitle: "Low Inventory of Product",
             subTagline:
                 "Get notified when product stock levels fall below your defined threshold.",
             handleChange: (e) =>
@@ -93,6 +113,9 @@ export const SettingsNotification = () => {
             tagline="Manage how and when you receive updates and alerts from us."
             settingsData={settingsData}
             handleSubmit={handleSubmit}
+            visibleToast={visibleToast}
+            setVisibleToast={setVisibleToast}
+            toastMessage={toastMessage}
         />
     );
 };

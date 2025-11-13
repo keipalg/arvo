@@ -9,5 +9,11 @@ export const getUserInfo = async (userId: string) => {
 };
 
 export const updateUserInfo = async (userId: string, data: UserInfo) => {
-    return await db.update(user).set(data).where(eq(user.id, userId));
+    await db.update(user).set(data).where(eq(user.id, userId));
+    const updatedUser = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1);
+    return updatedUser[0];
 };

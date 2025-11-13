@@ -1,17 +1,22 @@
 import Button from "../button/Button";
 import { Switcher } from "../button/Switcher";
+import { FileInput } from "../input/FileInput";
 import { PasswordInput } from "../input/PasswordInput";
+import ToastNotification from "../modal/ToastNotification";
+import ToolTip from "../toolTip/ToolTip";
 
 export type SettingsData = {
     label?: string;
+    tooltip?: string;
     type:
         | "money"
         | "percentage"
         | "toggleButton"
         | "text"
         | "password"
-        | "item";
-    value: string | number | boolean;
+        | "item"
+        | "image";
+    value: string | number | boolean | File | undefined;
     disabled?: boolean;
     subTitle?: string;
     subTagline?: string;
@@ -23,25 +28,46 @@ export const SettingsLayout = ({
     tagline,
     settingsData,
     handleSubmit,
+    setVisibleToast,
+    visibleToast,
+    toastMessage,
 }: {
     title: string;
     tagline: string;
     settingsData: SettingsData;
     handleSubmit: (e: React.FormEvent) => void;
+    setVisibleToast: (visible: boolean) => void;
+    visibleToast: boolean;
+    toastMessage: { kind: "INFO" | "SUCCESS" | "WARN"; content: string };
 }) => {
     return (
-        <div className="flex flex-col gap-8 py-5">
+        <div className="flex flex-col gap-8 p-5">
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
+            />
             <div className="flex flex-col gap-2">
                 <h2 className="text-lg font-bold">{title}</h2>
                 <p>{tagline}</p>
             </div>
             <form onSubmit={handleSubmit}>
                 {settingsData.map((item, index) => (
-                    <div key={index} className="flex items-center mb-4">
-                        <label className="block min-w-80">{item.label}</label>
+                    <div
+                        key={index}
+                        className="flex flex-col items-start gap-2 sm:flex-row sm:items-center border-b-1 border-arvo-black-5 py-5"
+                    >
+                        <label className="flex gap-3 min-w-80">
+                            <span>{item.label}</span>
+                            {item.tooltip && (
+                                <span>
+                                    <ToolTip info={item.tooltip} />
+                                </span>
+                            )}
+                        </label>
                         {item.type === "money" && (
                             <div
-                                className={`relative border border-gray-300 rounded w-full py-2 px-3 ${item.disabled ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                className={`relative w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 ${item.disabled ? "bg-gray-200 cursor-not-allowed" : ""}`}
                             >
                                 <span className="block pr-2 border-r-1 w-10 text-center">
                                     $
@@ -58,7 +84,7 @@ export const SettingsLayout = ({
                         )}
                         {item.type === "item" && (
                             <div
-                                className={`relative border border-gray-300 rounded w-full py-2 px-3 ${item.disabled ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                className={`relative w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 ${item.disabled ? "bg-gray-200 cursor-not-allowed" : ""}`}
                             >
                                 <span className="block pr-2 border-r-1 w-10 text-center">
                                     item
@@ -74,7 +100,7 @@ export const SettingsLayout = ({
                             </div>
                         )}
                         {item.type === "percentage" && (
-                            <div className="relative border border-gray-300 rounded w-full py-2 px-3">
+                            <div className="relative w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5">
                                 <span className="block pr-2 border-r-1 w-10 text-center">
                                     %
                                 </span>
@@ -101,7 +127,7 @@ export const SettingsLayout = ({
                             />
                         )}
                         {item.type === "text" && (
-                            <div className="border border-gray-300 rounded w-full py-2 px-3">
+                            <div className="relative w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5">
                                 <input
                                     type="text"
                                     onChange={item.handleChange}
@@ -114,12 +140,22 @@ export const SettingsLayout = ({
                             <PasswordInput
                                 password={item.value as string}
                                 handlePasswordChange={item.handleChange}
-                                className="border border-gray-300 rounded w-full py-2 px-3"
+                                className="w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5"
+                            />
+                        )}
+                        {item.type === "image" && (
+                            <FileInput
+                                file={item.value as File | undefined}
+                                onChange={(e) => {
+                                    item.handleChange(e);
+                                }}
                             />
                         )}
                     </div>
                 ))}
-                <Button type="submit" value="Save" />
+                <div className="flex flex-col justify-center px-20 mt-10">
+                    <Button type="submit" value="Save Change" />
+                </div>
             </form>
         </div>
     );

@@ -7,7 +7,7 @@ export const FileInput = ({
     file,
 }: {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    label: string;
+    label?: string;
     file: File | string | undefined;
 }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -55,7 +55,7 @@ export const FileInput = ({
     };
 
     return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full">
             <FormLabel label={label} />
             {!file && (
                 <div

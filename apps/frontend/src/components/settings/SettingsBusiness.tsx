@@ -13,6 +13,11 @@ type SettingsFormData = {
 };
 
 export const SettingsBusiness = () => {
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
     const { data: userPreferences, isLoading: isLoadingUserPreferences } =
         useQuery(trpc.userPreferences.get.queryOptions());
 
@@ -30,6 +35,20 @@ export const SettingsBusiness = () => {
         trpc.userPreferences.updateUserPreferences.mutationOptions({
             onSuccess: () => {
                 console.log("Business settings updated successfully");
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Success! Business settings have been updated.",
+                });
+            },
+            onError: (error) => {
+                console.error("Error updating business settings:", error);
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "WARN",
+                    content:
+                        "Failed to update business settings. Please try again.",
+                });
             },
         }),
     );
@@ -56,7 +75,9 @@ export const SettingsBusiness = () => {
 
     const settingsData: SettingsData = [
         {
-            label: "Operating Cost (Estimated Monthly Total Expenses)",
+            label: "Operating Cost ",
+            tooltip:
+                "The day-to-day expenses required to run your business, not directly linked to producing each product.",
             type: "money",
             value: settingsForm.estimatedMonthlyOperatingExpenses,
             handleChange: (e) =>
@@ -73,7 +94,9 @@ export const SettingsBusiness = () => {
                 })),
         },
         {
-            label: "(Estimated Monthly Produced Units)",
+            label: "Monthly Production Estimate",
+            tooltip:
+                "The projected number of product units you plan to produce each month to meet demand and manage inventory.",
             type: "item",
             value: settingsForm.estimatedMonthlyProducedUnits,
             handleChange: (e) =>
@@ -90,7 +113,9 @@ export const SettingsBusiness = () => {
                 })),
         },
         {
-            label: "(Estimated Operating Cost per Goods)",
+            label: "Operating Cost per Product",
+            tooltip:
+                " The day-to-day expenses required to run your business, allocated to each individual product, excluding costs directly tied to production.",
             type: "money",
             value: settingsForm.operatingCostPercentage,
             disabled: true,
@@ -107,6 +132,8 @@ export const SettingsBusiness = () => {
         },
         {
             label: "Labor Cost",
+            tooltip:
+                "The total cost of wages and benefits for the staff involved in production and other business operations.",
             type: "money",
             value: settingsForm.laborCost,
             handleChange: (e) =>
@@ -117,6 +144,8 @@ export const SettingsBusiness = () => {
         },
         {
             label: "Studio Overhead",
+            tooltip:
+                "Ongoing operational expenses of running your business, including rent, utilities, marketing, and other fixed costs.",
             type: "percentage",
             value: settingsForm.overheadCostPercentage,
             handleChange: (e) =>
@@ -128,6 +157,8 @@ export const SettingsBusiness = () => {
         },
         {
             label: "Profit Margin",
+            tooltip:
+                "The percentage of revenue remaining after all costs and expenses are deducted, indicating the profitability of your products.",
             type: "percentage",
             value: settingsForm.profitPercentage,
             handleChange: (e) =>
@@ -159,6 +190,9 @@ export const SettingsBusiness = () => {
             tagline="Configure your business settings to suit your operations."
             settingsData={settingsData}
             handleSubmit={handleSubmit}
+            visibleToast={visibleToast}
+            setVisibleToast={setVisibleToast}
+            toastMessage={toastMessage}
         />
     );
 };
