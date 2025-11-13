@@ -3,6 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../../auth/auth-client";
 import { PasswordInput } from "../../components/input/PasswordInput";
+import TextInput from "../../components/input/TextInput";
+import Button from "../../components/button/Button";
 
 export const Route = createFileRoute("/_public/login")({
     component: Login,
@@ -51,40 +53,41 @@ function Login() {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-            <div className="shadow-2xl max-w-100 text-center rounded-2xl p-5 flex flex-col gap-5">
-                <h3 className="text-2xl">Login</h3>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <label className="text-left" htmlFor="">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        placeholder="email"
-                        className="border border-gray-300 rounded px-2"
+        <div className="h-screen w-full flex items-center justify-center">
+            <div className="basis-1/2 h-full md:block hidden">
+                <img src="/login.jpg" className="object-cover w-full h-full" />
+            </div>
+            <div className="md:basis-1/2 basis-full h-full flex flex-col items-center justify-center p-3">
+                <div className="w-1/3 mb-8">
+                    <img src="/arvo-logo.svg" alt="Arvo Logo" />
+                </div>
+                <form
+                    onSubmit={handleSubmit}
+                    className="w-2/3 flex flex-col items-stretch"
+                >
+                    <h3 className="text-2xl font-semibold">Sign In</h3>
+                    <div className="flex gap-1 text-sm text-gray-500">
+                        <p>Don&apos;t have an account?</p>
+                        <Link
+                            to="/signup"
+                            className="text-arvo-blue-100 font-semibold"
+                        >
+                            Sign up
+                        </Link>
+                    </div>
+                    <TextInput
+                        label="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
+                        placeholder="Email"
+                        type="email"
                     />
-                    <label className="text-left" htmlFor="">
-                        Password
-                    </label>
                     <PasswordInput
                         password={password}
                         handlePasswordChange={handlePasswordChange}
                     />
-                    <button
-                        className="bg-black text-white rounded py-1 hover:bg-gray-800"
-                        type="submit"
-                        disabled={loginMutation.isPending}
-                    >
-                        Login
-                    </button>
-                    <div className="flex gap-1 text-sm text-gray-500">
-                        <p>Don&apos;t have an account?</p>
-                        <Link to="/signup" className="underline">
-                            Sign up
-                        </Link>
+                    <div className="flex flex-col mt-6">
+                        <Button type="submit" value="Sign In" />
                     </div>
                 </form>
                 {error && <div className="text-red-500">{error}</div>}
