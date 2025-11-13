@@ -313,6 +313,13 @@ function MaterialsList() {
                 });
                 setVisibleToast(true);
             },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: "Failed to add material. Please try again.",
+                });
+                setVisibleToast(true);
+            },
         }),
     );
 
@@ -344,12 +351,19 @@ function MaterialsList() {
                 });
                 setVisibleToast(true);
             },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: "Failed to update material. Please try again.",
+                });
+                setVisibleToast(true);
+            },
         }),
     );
 
     const deleteMaterialMutation = useMutation(
         trpc.materials.delete.mutationOptions({
-            onSuccess: async () => {
+            onSuccess: async (_data, variables) => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
                 });
@@ -362,6 +376,25 @@ function MaterialsList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.totalInventoryValue.queryKey(),
                 });
+
+                // Find material name for the success message
+                const deletedMaterial = data?.find(
+                    (m) => m.id === variables.id,
+                );
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: `${deletedMaterial?.name || "Material"} successfully deleted`,
+                });
+                setVisibleToast(true);
+            },
+            onError: (_error, variables) => {
+                const failedMaterial = data?.find((m) => m.id === variables.id);
+
+                setToastMessage({
+                    kind: "WARN",
+                    content: `${failedMaterial?.name || "This material"} is currently being used and cannot be deleted.`,
+                });
+                setVisibleToast(true);
             },
         }),
     );
@@ -456,7 +489,7 @@ function MaterialsList() {
     const handleConfirmDelete = () => {
         if (!materialToDelete) return;
 
-        // Check if material is being used
+        // Check if material is being used in product recipes
         void trpcClient.materials.checkUsage
             .query({ id: materialToDelete.id })
             .then((usageCheck) => {
@@ -467,12 +500,8 @@ function MaterialsList() {
                     });
                     setVisibleToast(true);
                 } else {
+                    // Attempt to delete - onSuccess/onError handlers will show toast
                     deleteMaterialMutation.mutate({ id: materialToDelete.id });
-                    setToastMessage({
-                        kind: "SUCCESS",
-                        content: `${materialToDelete.name} successfully deleted`,
-                    });
-                    setVisibleToast(true);
                     closeDrawer();
                 }
 

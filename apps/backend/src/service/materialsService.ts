@@ -137,14 +137,19 @@ export const checkMaterialUsage = async (materialId: string) => {
 };
 
 /**
- * Detele a material by ID
+ * Delete a material by ID
  * For Materials page
  * @param materialId material ID
  */
 export const deleteMaterial = async (materialId: string) => {
-    await db
-        .delete(materialAndSupply)
-        .where(eq(materialAndSupply.id, materialId));
+    try {
+        await db
+            .delete(materialAndSupply)
+            .where(eq(materialAndSupply.id, materialId));
+    } catch (error) {
+        console.error("Database error during material deletion:", error);
+        throw new Error("DELETE_FAILED");
+    }
 };
 
 // Exclude auto-computed fields from insert type:
@@ -230,91 +235,96 @@ export const updateMaterial = async (
     userId: string,
     data: MaterialUpdate,
 ) => {
-    return await db.transaction(async (tx) => {
-        // Get current material state
-        const [currentMaterial] = await tx
-            .select()
-            .from(materialAndSupply)
-            .where(
-                and(
-                    eq(materialAndSupply.id, materialId),
-                    eq(materialAndSupply.userId, userId),
-                ),
-            );
+    try {
+        return await db.transaction(async (tx) => {
+            // Get current material state
+            const [currentMaterial] = await tx
+                .select()
+                .from(materialAndSupply)
+                .where(
+                    and(
+                        eq(materialAndSupply.id, materialId),
+                        eq(materialAndSupply.userId, userId),
+                    ),
+                );
 
-        if (!currentMaterial) {
-            throw new Error("Material not found");
-        }
+            if (!currentMaterial) {
+                throw new Error("Material not found");
+            }
 
-        // Compute costPerUnit if purchasePrice and purchaseQuantity are both provided (from Update Material Pricing)
-        const updateData: MaterialUpdate & { costPerUnit?: number } = {
-            ...data,
-        };
+            // Compute costPerUnit if purchasePrice and purchaseQuantity are both provided (from Update Material Pricing)
+            const updateData: MaterialUpdate & { costPerUnit?: number } = {
+                ...data,
+            };
 
-        // Recalculate costPerUnit if BOTH purchasePrice and purchaseQuantity are provided (for Update Material Pricing)
-        if (
-            data.purchasePrice !== undefined &&
-            data.purchaseQuantity !== undefined &&
-            data.purchaseQuantity !== null
-        ) {
-            updateData.costPerUnit = computeCostPerUnit(
-                data.purchasePrice,
-                data.purchaseQuantity,
-            );
-        }
+            // Recalculate costPerUnit if BOTH purchasePrice and purchaseQuantity are provided (for Update Material Pricing)
+            if (
+                data.purchasePrice !== undefined &&
+                data.purchaseQuantity !== undefined &&
+                data.purchaseQuantity !== null
+            ) {
+                updateData.costPerUnit = computeCostPerUnit(
+                    data.purchasePrice,
+                    data.purchaseQuantity,
+                );
+            }
 
-        // Update material
-        const result = await tx
-            .update(materialAndSupply)
-            .set(updateData)
-            .where(
-                and(
-                    eq(materialAndSupply.id, materialId),
-                    eq(materialAndSupply.userId, userId),
-                ),
-            )
-            .returning({ id: materialAndSupply.id });
+            // Update material
+            const result = await tx
+                .update(materialAndSupply)
+                .set(updateData)
+                .where(
+                    and(
+                        eq(materialAndSupply.id, materialId),
+                        eq(materialAndSupply.userId, userId),
+                    ),
+                )
+                .returning({ id: materialAndSupply.id });
 
-        // Record transaction if quantity changed
-        if (
-            data.quantity !== undefined &&
-            data.quantity !== currentMaterial.quantity
-        ) {
-            const quantityChange = data.quantity - currentMaterial.quantity;
+            // Record transaction if quantity changed
+            if (
+                data.quantity !== undefined &&
+                data.quantity !== currentMaterial.quantity
+            ) {
+                const quantityChange = data.quantity - currentMaterial.quantity;
 
-            await tx.insert(materialInventoryTransaction).values({
-                id: uuidv7(),
-                materialId,
-                userId,
-                quantityChange,
-                quantityBefore: currentMaterial.quantity,
-                quantityAfter: data.quantity,
-            });
-        }
+                await tx.insert(materialInventoryTransaction).values({
+                    id: uuidv7(),
+                    materialId,
+                    userId,
+                    quantityChange,
+                    quantityBefore: currentMaterial.quantity,
+                    quantityAfter: data.quantity,
+                });
+            }
 
-        // Check inventory and notify if needed when quantity or threshold changed
-        if (data.quantity !== undefined || data.threshold !== undefined) {
-            // Use the updated values from the transaction
-            const finalQuantity =
-                data.quantity !== undefined
-                    ? data.quantity
-                    : currentMaterial.quantity;
-            const finalThreshold =
-                data.threshold !== undefined
-                    ? data.threshold
-                    : currentMaterial.threshold;
+            // Check inventory and notify if needed when quantity or threshold changed
+            if (data.quantity !== undefined || data.threshold !== undefined) {
+                // Use the updated values from the transaction
+                const finalQuantity =
+                    data.quantity !== undefined
+                        ? data.quantity
+                        : currentMaterial.quantity;
+                const finalThreshold =
+                    data.threshold !== undefined
+                        ? data.threshold
+                        : currentMaterial.threshold;
 
-            await _checkAndNotifyLowInventory(
-                materialId,
-                userId,
-                tx,
-                finalQuantity,
-                finalThreshold,
-            );
-        }
+                await _checkAndNotifyLowInventory(
+                    materialId,
+                    userId,
+                    tx,
+                    finalQuantity,
+                    finalThreshold,
+                );
+            }
 
-        return result;
-    });
+            return result;
+        });
+    } catch (error) {
+        console.error("Database error during material update:", error);
+        throw error;
+    }
 };
 
 /**
