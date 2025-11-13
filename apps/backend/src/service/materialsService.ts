@@ -1,13 +1,4 @@
-import {
-    and,
-    desc,
-    eq,
-    inArray,
-    type InferInsertModel,
-    lt,
-    sql,
-} from "drizzle-orm";
-import { getStatus } from "../utils/inventoryUtil.js";
+import { and, eq, inArray, type InferInsertModel, sql } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import {
@@ -18,6 +9,7 @@ import {
     materialType,
     unit,
 } from "../db/schema.js";
+import { getStatus } from "../utils/inventoryUtil.js";
 import { getQuantityWithUnit } from "../utils/materialsUtil.js";
 import { createMaterialLowInventoryNotification } from "./notificationsService.js";
 
@@ -608,112 +600,6 @@ export const addMaterialQuantity = async (
     });
 
     return result;
-};
-
-/**
- * Get the most used material for the current month and compare with same material last month
- * Used for: Materials page insights
- * @param userId user ID
- * @returns Material name and percentage change (or null with 0% if no data)
- */
-export const getMostUsedMaterial = async (userId: string) => {
-    const now = new Date();
-    const firstDayOfCurrentMonth = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1,
-    );
-    const firstDayOfNextMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        1,
-    );
-    const firstDayOfLastMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        1,
-    );
-
-    // Query: Get most used materjial of the month
-    // Get total negative quantity changes (usage) (absolute value)
-    // GROUP BY material (with name & unit for getting info)
-    const currentMonthData = await db
-        .select({
-            materialId: materialAndSupply.id,
-            materialName: materialAndSupply.name,
-            totalUsed: sql<number>`SUM(ABS(${materialInventoryTransaction.quantityChange}))`,
-        })
-        .from(materialInventoryTransaction)
-        .innerJoin(
-            materialAndSupply,
-            eq(materialInventoryTransaction.materialId, materialAndSupply.id),
-        )
-        .where(
-            and(
-                eq(materialInventoryTransaction.userId, userId),
-                lt(materialInventoryTransaction.quantityChange, 0), // Only negative changes (usage/reduction)
-                sql`${materialInventoryTransaction.createdAt} >= ${firstDayOfCurrentMonth}`, // Current month start
-                sql`${materialInventoryTransaction.createdAt} < ${firstDayOfNextMonth}`, // Current month end
-            ),
-        )
-        .groupBy(materialAndSupply.id, materialAndSupply.name)
-        .orderBy(
-            // Highest usage first
-            desc(sql`SUM(ABS(${materialInventoryTransaction.quantityChange}))`),
-        )
-        .limit(1);
-
-    // Scenario 1: No data for this month - return null with 0% change
-    if (currentMonthData.length === 0) {
-        return {
-            materialName: null,
-            percentageChange: 0,
-        };
-    }
-
-    // Query: Get previous month usage for same material for comparison
-    const lastMonthUsageData = await db
-        .select({
-            totalUsed: sql<number>`SUM(ABS(${materialInventoryTransaction.quantityChange}))`,
-        })
-        .from(materialInventoryTransaction)
-        .where(
-            and(
-                eq(materialInventoryTransaction.userId, userId),
-                eq(
-                    materialInventoryTransaction.materialId,
-                    currentMonthData[0].materialId,
-                ), // Same material as current month's top
-                lt(materialInventoryTransaction.quantityChange, 0),
-                // use sql for type purposes
-                sql`${materialInventoryTransaction.createdAt} >= ${firstDayOfLastMonth}`,
-                sql`${materialInventoryTransaction.createdAt} < ${firstDayOfCurrentMonth}`,
-            ),
-        );
-
-    const lastMonthUsage = lastMonthUsageData[0]?.totalUsed || 0;
-
-    // Scenario 2: No data for same material last month - assume 0%
-    // Scenario 3: Data exists for same material last month - compute percent change
-    let percentageChange = 0;
-    if (lastMonthUsage > 0) {
-        percentageChange =
-            ((currentMonthData[0].totalUsed - lastMonthUsage) /
-                lastMonthUsage) *
-            100;
-    }
-
-    console.log(`Most Used Material:
-        Name: ${currentMonthData[0].materialName}
-        Current Usage: ${currentMonthData[0].totalUsed}
-        Last Month Usage: ${lastMonthUsage}
-        Percentage Change: ${percentageChange}
-        `);
-
-    return {
-        materialName: currentMonthData[0].materialName,
-        percentageChange,
-    };
 };
 
 /**

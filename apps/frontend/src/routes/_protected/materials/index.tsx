@@ -104,9 +104,6 @@ function MaterialsList() {
     );
 
     // Insights queries
-    const { data: mostUsedMaterialData } = useQuery(
-        trpc.materials.mostUsedMaterial.queryOptions(),
-    );
     const { data: lowStockData } = useQuery(
         trpc.materials.lowStockCount.queryOptions(),
     );
@@ -298,9 +295,6 @@ function MaterialsList() {
                     queryKey: trpc.materialTypes.list.queryKey(),
                 });
                 await queryClient.invalidateQueries({
-                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
-                });
-                await queryClient.invalidateQueries({
                     queryKey: trpc.materials.lowStockCount.queryKey(),
                 });
                 await queryClient.invalidateQueries({
@@ -336,9 +330,6 @@ function MaterialsList() {
                     queryKey: trpc.notification.unreadCount.queryKey(),
                 });
                 await queryClient.invalidateQueries({
-                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
-                });
-                await queryClient.invalidateQueries({
                     queryKey: trpc.materials.lowStockCount.queryKey(),
                 });
                 await queryClient.invalidateQueries({
@@ -366,9 +357,6 @@ function MaterialsList() {
             onSuccess: async (_data, variables) => {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.list.queryKey(),
-                });
-                await queryClient.invalidateQueries({
-                    queryKey: trpc.materials.mostUsedMaterial.queryKey(),
                 });
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.lowStockCount.queryKey(),
@@ -644,13 +632,13 @@ function MaterialsList() {
                 />
 
                 <Metric
-                    value={String(
+                    value={
                         lowStockData && "count" in lowStockData
-                            ? lowStockData.count
-                            : 0,
-                    )}
-                    topText="Materials Low on Stock"
-                    bottomText="material/s need to be restocked"
+                            ? `${lowStockData.count} ${lowStockData.count == 1 ? "item" : "items"}`
+                            : "0 items"
+                    }
+                    topText="Materials low on stock"
+                    bottomText="must be restocked"
                     showPercentage={false}
                     colorVariant={
                         lowStockData &&
@@ -659,30 +647,6 @@ function MaterialsList() {
                             ? "negative"
                             : "positive"
                     }
-                />
-                <Metric
-                    topText="Most Used Material"
-                    value={
-                        mostUsedMaterialData &&
-                        "materialName" in mostUsedMaterialData &&
-                        mostUsedMaterialData.materialName
-                            ? mostUsedMaterialData.materialName
-                            : "No material usage yet"
-                    }
-                    changePercent={
-                        mostUsedMaterialData &&
-                        "percentageChange" in mostUsedMaterialData
-                            ? Number(mostUsedMaterialData.percentageChange)
-                            : 0
-                    }
-                    bottomText={
-                        mostUsedMaterialData &&
-                        "materialName" in mostUsedMaterialData &&
-                        mostUsedMaterialData.materialName
-                            ? "Compared to last month"
-                            : "No existing data"
-                    }
-                    showPercentage={mostUsedMaterialData?.materialName !== null}
                 />
             </MetricsGroup>
             {isLoading && <div>Loading...</div>}
