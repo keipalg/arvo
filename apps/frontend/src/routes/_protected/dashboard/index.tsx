@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
     Chart as ChartJS,
     CategoryScale,
+    LineController,
     LinearScale,
     BarElement,
     LineElement,
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/_protected/dashboard/")({
 
 ChartJS.register(
     CategoryScale,
+    LineController,
     LinearScale,
     BarElement,
     LineElement,
