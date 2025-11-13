@@ -34,9 +34,6 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                     </button>
                 </div>
                 <div className="flex px-2 my-auto gap-4">
-                    <a href="#">
-                        <img src="/icon/search.svg" alt="Search" />
-                    </a>
                     <div className="relative">
                         <button
                             type="button"
