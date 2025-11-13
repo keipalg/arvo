@@ -81,7 +81,20 @@ const Metric = (props: MetricProps) => {
                 ? "negative"
                 : "neutral"
           : "neutral";
-    const style = metricStyles[posneg];
+
+    const trendIcon =
+        changePercent === undefined
+            ? null
+            : changePercent > 0
+              ? "/icon/arrow-trend-upward.svg"
+              : changePercent < 0
+                ? "/icon/arrow-trend-downward.svg"
+                : "/icon/arrow-trend-upward.svg";
+
+    const style: MetricStyleType = {
+        ...metricStyles[posneg],
+        trendIconSrc: trendIcon ?? metricStyles[posneg].trendIconSrc,
+    };
 
     return (
         <>
