@@ -1,24 +1,23 @@
-import { z } from "zod";
-import {
-    addMaterial,
-    deleteMaterial,
-    getMaterialsList,
-    updateMaterial,
-    getMaterialListForRecipe,
-    getMostUsedMaterial,
-    getMaterialsLowOnStock,
-    getTotalInventoryValue,
-    checkMaterialUsage,
-    type MaterialInsert,
-    type MaterialUpdate,
-} from "../service/materialsService.js";
-import { getUnitByName } from "../service/unitsService.js";
-import { protectedProcedure, router } from "./trpcBase.js";
 import {
     addMaterialsValidation,
     updateMaterialsValidation,
 } from "@arvo/shared";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import {
+    addMaterial,
+    checkMaterialUsage,
+    deleteMaterial,
+    getMaterialListForRecipe,
+    getMaterialsList,
+    getMaterialsLowOnStock,
+    getTotalInventoryValue,
+    updateMaterial,
+    type MaterialInsert,
+    type MaterialUpdate,
+} from "../service/materialsService.js";
+import { getUnitByName } from "../service/unitsService.js";
+import { protectedProcedure, router } from "./trpcBase.js";
 
 export const materialsRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -137,9 +136,6 @@ export const materialsRouter = router({
     }),
 
     // Insights endpoints for Materials page
-    mostUsedMaterial: protectedProcedure.query(async ({ ctx }) => {
-        return await getMostUsedMaterial(ctx.user.id);
-    }),
     lowStockCount: protectedProcedure.query(async ({ ctx }) => {
         return await getMaterialsLowOnStock(ctx.user.id);
     }),
