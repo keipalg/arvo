@@ -22,7 +22,7 @@ export const Switcher = ({
                     onChange={onChange}
                 />
                 <div
-                    className={`relative rounded-full h-8 w-14 p-1 transition-all duration-300 ${checked ? "bg-arvo-blue-100" : "bg-gray-300"}`}
+                    className={`flex-shrink-0 relative rounded-full h-8 w-14 p-1 transition-all duration-300 ${checked ? "bg-arvo-blue-100" : "bg-gray-300"}`}
                 >
                     <div
                         className={`absolute top-1 h-6 w-6 rounded-full transition-all duration-300 bg-white ${checked ? "translate-x-full" : "translate-x-0"}`}

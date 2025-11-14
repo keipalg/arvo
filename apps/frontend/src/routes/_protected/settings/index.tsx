@@ -26,14 +26,14 @@ function Settings() {
                 <PageTitle title="Settings" />
             </div>
             <nav className="py-4">
-                <ul className="flex">
+                <ul className="flex overflow-scroll scrollbar-hide [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {tabs.map((tab, index) => (
                         <li
                             key={index}
                             className={`font-bold py-1 px-5 border-b-2  hover:border-arvo-blue-100 ${activeTab === tab ? "border-arvo-blue-100" : "border-b-gray-300"}`}
                         >
                             <a
-                                className={`cursor-pointer`}
+                                className={`cursor-pointer whitespace-nowrap`}
                                 onClick={() => setActiveTab(tab)}
                             >
                                 {tab}

@@ -12,6 +12,7 @@ export const userRouter = router({
             z.object({
                 name: z.string().optional(),
                 email: z.string().optional(),
+                image: z.string().optional(),
                 phone: z.string().optional(),
                 storeName: z.string().optional(),
                 storeLocation: z.string().optional(),

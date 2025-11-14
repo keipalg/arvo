@@ -8,24 +8,26 @@ const Profile = () => {
 
     const user = userInfo && userInfo.length > 0 ? userInfo[0] : null;
     const storeName = user?.storeName || "Business Name";
+    const image = user?.image || session?.user?.image;
+    const name = user?.name || session?.user?.name;
 
     return (
         <div className="p-4 flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                {session?.user?.image ? (
+                {image ? (
                     <img
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
+                        src={image}
+                        alt={name || "User"}
                         className="w-full h-full object-cover"
                     />
                 ) : (
                     <span className="text-xl font-semibold text-arvo-black-50">
-                        {session?.user?.name?.charAt(0).toUpperCase() || "?"}
+                        {name?.charAt(0).toUpperCase() || "?"}
                     </span>
                 )}
             </div>
             <div className="flex flex-col">
-                <div className="font-semibold">{session?.user?.name}</div>
+                <div className="font-semibold">{name}</div>
                 <div className="text-sm text-gray-600">{storeName}</div>
             </div>
         </div>

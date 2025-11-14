@@ -1,22 +1,30 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { trpc } from "../../utils/trpcClient";
+import { queryClient, trpc } from "../../utils/trpcClient";
 import { SettingsLayout, type SettingsData } from "./SettingsLayout";
 import { useEffect, useState } from "react";
 import { authClient } from "../../auth/auth-client";
+import { uploadFile } from "../../utils/fileUpload";
 
 type SettingsFormData = {
     name?: string;
     email?: string;
     phone?: string;
-    image?: string;
+    imageURL?: string;
+    imageFile?: File;
     storeName?: string;
     storeLocation?: string;
 };
 
 export const SettingsProfile = () => {
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<{
+        kind: "INFO" | "SUCCESS" | "WARN";
+        content: string;
+    }>({ kind: "INFO", content: "" });
     const { data: userInfo, isLoading: isLoadingUserInfo } = useQuery(
         trpc.user.info.queryOptions(),
     );
+
     const [currentPassword, setCurrentPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [settingsForm, setSettingsForm] = useState<SettingsFormData | null>(
@@ -32,6 +40,8 @@ export const SettingsProfile = () => {
                 name: info.name ?? "",
                 email: info.email ?? "",
                 phone: info.phone ?? "",
+                imageURL: info.image ?? "",
+                imageFile: undefined,
                 storeName: info.storeName ?? "",
                 storeLocation: info.storeLocation ?? "",
             });
@@ -40,8 +50,25 @@ export const SettingsProfile = () => {
 
     const updateProfitMutation = useMutation(
         trpc.user.update.mutationOptions({
-            onSuccess: () => {
-                console.log("User info updated successfully");
+            onSuccess: (newUserInfo) => {
+                console.log("User info updated successfully", newUserInfo);
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Success! Profile settings have been updated.",
+                });
+                queryClient.setQueryData(trpc.user.info.queryKey(), [
+                    newUserInfo,
+                ]);
+            },
+            onError: (error) => {
+                console.error("Error updating user info:", error);
+                setVisibleToast(true);
+                setToastMessage({
+                    kind: "WARN",
+                    content:
+                        "Failed to update profile settings. Please try again.",
+                });
             },
         }),
     );
@@ -111,13 +138,26 @@ export const SettingsProfile = () => {
         },
         {
             label: "Profile Photo",
-            type: "text",
-            value: "working on later",
-            handleChange: (e) =>
+            type: "image",
+            value: settingsForm.imageFile || settingsForm.imageURL,
+            handleChange: (e) => {
+                const file = e.target.files?.[0];
+                if (!file) {
+                    setSettingsForm((prev) => ({
+                        ...prev,
+                        imageFile: undefined,
+                        imageURL: undefined,
+                    }));
+                    return;
+                }
+
+                const imageUrl = URL.createObjectURL(file);
                 setSettingsForm((prev) => ({
                     ...prev,
-                    image: e.target.value,
-                })),
+                    imageFile: file,
+                    imageURL: imageUrl,
+                }));
+            },
         },
         {
             label: "Store Name",
@@ -144,8 +184,21 @@ export const SettingsProfile = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        let profileImage: string | undefined = undefined;
+        if (settingsForm.imageFile !== undefined) {
+            profileImage = await uploadFile(settingsForm.imageFile);
+            console.log("Uploaded profile image URL:", profileImage);
+        } else if (typeof settingsForm.imageURL === "string") {
+            profileImage = settingsForm.imageURL;
+        }
+
         updateProfitMutation.mutate({
-            ...settingsForm,
+            name: settingsForm.name,
+            email: settingsForm.email,
+            phone: settingsForm.phone,
+            storeName: settingsForm.storeName,
+            storeLocation: settingsForm.storeLocation,
+            image: profileImage,
         });
 
         if (newPassword && currentPassword) {
@@ -161,6 +214,9 @@ export const SettingsProfile = () => {
             handleSubmit={(e) => {
                 void handleSubmit(e);
             }}
+            visibleToast={visibleToast}
+            setVisibleToast={setVisibleToast}
+            toastMessage={toastMessage}
         />
     );
 };
