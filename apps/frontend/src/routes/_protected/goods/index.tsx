@@ -166,8 +166,6 @@ function GoodsList() {
         );
     };
 
-    console.log("goods", data);
-
     const columns: Array<{
         key: keyof Goods;
         header: string;
@@ -577,7 +575,6 @@ function GoodsList() {
         } else {
             // Existing product editing
             setEditingGoodId(good.id);
-            console.log("editingGoodId", editingGoodId);
             setDrawerOpen(true);
             setName(good.name);
             setProductType(good.typeId || "");

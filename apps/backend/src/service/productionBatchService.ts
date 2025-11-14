@@ -127,7 +127,6 @@ export const processProductionBatchUpdate = async (
     data: ProductionBatchUpdateInput,
 ) => {
     const lastProductionBatch = await getProductionBatchById(userId, data.id);
-    await updateProductionBatch(data.id, data);
 
     // Calculate difference of quantity
     const quantityDiff =
@@ -149,12 +148,12 @@ export const processProductionBatchUpdate = async (
             );
         }
     }
-
     if (quantityDiff > 0) {
         await addGoodQuantity(data.goodId, userId, quantityDiff);
     } else if (quantityDiff < 0) {
         await reduceGoodQuantity(data.goodId, userId, Math.abs(quantityDiff));
     }
+    await updateProductionBatch(data.id, data);
 };
 
 export const deleteProductionBatch = async (

@@ -12,6 +12,7 @@ import {
     userPreference,
     unit,
 } from "../db/schema.js";
+import { createProductLowInventoryNotification } from "./notificationsService.js";
 
 export const getGoodsList = async (userId: string) => {
     const goods = await db
@@ -160,6 +161,14 @@ export const getGoodToMaterialOutputRatio = async (goodId: string) => {
 
 export type GoodInsert = InferInsertModel<typeof good>;
 export const addGood = async (data: GoodInsert) => {
+    if ((data.inventoryQuantity || 0) < (data.minimumStockLevel || 0)) {
+        createProductLowInventoryNotification(
+            data.userId,
+            data.name,
+            data.inventoryQuantity || 0,
+        );
+    }
+
     return await db
         .insert(good)
         .values({
@@ -216,6 +225,14 @@ export const updateGood = async (
     userId: string,
     data: GoodUpdate,
 ) => {
+    if ((data.inventoryQuantity || 0) < (data.minimumStockLevel || 0)) {
+        createProductLowInventoryNotification(
+            userId,
+            data.name || "",
+            data.inventoryQuantity || 0,
+        );
+    }
+
     return await db
         .update(good)
         .set(data)
@@ -329,15 +346,26 @@ export const reduceGoodQuantity = async (
     if (!goodRecord) {
         throw new Error("Good not found");
     }
-    if (goodRecord.inventoryQuantity ?? 0 < quantityToDeduct) {
+
+    if ((goodRecord.inventoryQuantity || 0) < quantityToDeduct) {
         throw new Error(
             `Insufficient quantity. Available: ${goodRecord.inventoryQuantity}, Requested: ${quantityToDeduct}`,
         );
     }
 
-    const newQuantity = (goodRecord.inventoryQuantity ?? 0) - quantityToDeduct;
+    const newQuantity = (goodRecord.inventoryQuantity || 0) - quantityToDeduct;
 
-    return await db
+    if (goodRecord.minimumStockLevel) {
+        if (newQuantity < goodRecord.minimumStockLevel) {
+            await createProductLowInventoryNotification(
+                userId,
+                goodRecord.name,
+                newQuantity,
+            );
+        }
+    }
+
+    const result = await db
         .update(good)
         .set({ inventoryQuantity: newQuantity })
         .where(and(eq(good.id, goodId), eq(good.userId, userId)))
@@ -345,4 +373,8 @@ export const reduceGoodQuantity = async (
             id: good.id,
             inventoryQuantity: good.inventoryQuantity,
         });
+
+    console.log(result);
+
+    return result;
 };
