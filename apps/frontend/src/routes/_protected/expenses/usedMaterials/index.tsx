@@ -305,6 +305,10 @@ function UsedMaterials() {
                     },
                 ]}
                 filterOptions={tableFilterOptions}
+                searchOption={{
+                    key: "materialName",
+                    label: "Material Name",
+                }}
             />
         </BaseLayout>
     );
