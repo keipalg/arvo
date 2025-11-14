@@ -29,6 +29,7 @@ import SaleDetails from "../../../components/table/DataTableDetailSale";
 import ToastNotification from "../../../components/modal/ToastNotification";
 import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 import AddButton from "../../../components/button/AddButton";
+import { formatPrice } from "../../../utils/formatPrice";
 
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
@@ -42,6 +43,7 @@ type Products = {
     quantity: number;
     maxQuantity: number;
     retailPrice: number;
+    cogs: number;
 };
 
 function SalesList() {
@@ -58,6 +60,8 @@ function SalesList() {
     const [discount, setDiscount] = useState(0.0);
     const [shippingFee, setShippingFee] = useState(0.0);
     const [tax, setTax] = useState(0.0);
+    const [profit, setProfit] = useState(0.0);
+    const [cogs, setCogs] = useState(0.0);
     const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
     const [subTotalPrice, setSubTotalPrice] = useState(0.0);
     const [totalPrice, setTotalPrice] = useState(0.0);
@@ -141,7 +145,7 @@ function SalesList() {
             header: "Total Price",
             render: (value) => (
                 <div className="text-arvo-green-100">
-                    ${Number(value).toFixed(2)}
+                    {formatPrice(Number(value))}
                 </div>
             ),
         },
@@ -198,6 +202,8 @@ function SalesList() {
         setDiscount(0.0);
         setShippingFee(0.0);
         setTax(0.0);
+        setProfit(0.0);
+        setCogs(0.0);
         setEditingSaleId(null);
         setFormErrors({});
         setViewOnlyMode(false);
@@ -211,7 +217,13 @@ function SalesList() {
     const addProductRow = () => {
         setProducts([
             ...products,
-            { productId: "", quantity: 0, maxQuantity: 0, retailPrice: 0.0 },
+            {
+                productId: "",
+                quantity: 0,
+                maxQuantity: 0,
+                retailPrice: 0.0,
+                cogs: 0.0,
+            },
         ]);
     };
 
@@ -449,6 +461,8 @@ function SalesList() {
         setDiscount(sale.discount ?? 0.0);
         setShippingFee(sale.shippingFee ?? 0.0);
         setTax(sale.taxPercentage ?? 0.0);
+        setProfit(sale.profit ?? 0.0);
+        setCogs(sale.cogs ?? 0.0);
 
         // Map sale details to products for editing, using latest inventory for maxQuantity
         setProducts(
@@ -463,6 +477,7 @@ function SalesList() {
                     quantity: product.quantity,
                     maxQuantity: availableInventory + product.quantity,
                     retailPrice: product.pricePerItem,
+                    cogs: product.cogs,
                 };
             }),
         );
@@ -659,14 +674,25 @@ function SalesList() {
                                                 <div className="font-semibold">
                                                     {productName}
                                                 </div>
-                                                <div className="font-semibold">
-                                                    {p.quantity}
+                                                <div className="flex justify-between">
+                                                    <span className="font-semibold">
+                                                        {p.quantity}
+                                                    </span>
+                                                    <span>
+                                                        @{" "}
+                                                        {formatPrice(
+                                                            p.retailPrice,
+                                                        )}
+                                                    </span>
                                                 </div>
                                                 <div className="font-semibold text-right">
-                                                    $
-                                                    {Number(
-                                                        p.retailPrice,
-                                                    ).toFixed(2)}
+                                                    {formatPrice(
+                                                        p.retailPrice *
+                                                            p.quantity,
+                                                    )}
+                                                </div>
+                                                <div className="col-span-3 text-right">
+                                                    {formatPrice(p.cogs)} COGS
                                                 </div>
                                             </React.Fragment>
                                         );
@@ -678,38 +704,54 @@ function SalesList() {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="font-semibold">Subtotal</div>
                             <div className="font-semibold text-right">
-                                ${subTotalPrice.toFixed(2)}
+                                ${formatPrice(subTotalPrice)}
                             </div>
 
                             <div className="font-semibold">Discount</div>
                             <div className="font-semibold text-right">
-                                ${discount.toFixed(2)}
+                                {discount ? `${formatPrice(discount)}` : "-"}
                             </div>
 
                             <div className="font-semibold">Shipping Fee</div>
                             <div className="font-semibold text-right">
-                                ${shippingFee.toFixed(2)}
+                                {shippingFee
+                                    ? `${formatPrice(shippingFee)}`
+                                    : "-"}
                             </div>
 
                             <div className="font-semibold">Tax</div>
                             <div className="font-semibold text-right">
-                                {tax}%
+                                {tax ? tax.toFixed(2) + "%" : "-"}
                             </div>
                         </div>
                         <HorizontalRule />
                         <div className="grid grid-cols-2 gap-2">
                             <div className="font-semibold">Total</div>
                             <div className="font-semibold text-right">
-                                ${totalPrice.toFixed(2)}
+                                {formatPrice(totalPrice)}
                             </div>
                         </div>
                         <HorizontalRule />
-
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                            <div className="font-semibold">
+                                Cost of Goods Sold (COGS)
+                            </div>
+                            <div className="font-semibold text-right">
+                                {formatPrice(cogs)}
+                            </div>
+                            <div className="font-semibold">Gross Profit</div>
+                            <div className="font-semibold text-right">
+                                {formatPrice(profit)}
+                            </div>
+                            <div className="font-semibold">Profit Margin</div>
+                            <div className="font-semibold text-right">
+                                {((profit / totalPrice) * 100).toFixed(2)}%
+                            </div>
+                        </div>
                         <div className="font-semibold">Sales Date</div>
                         <div>
                             {date ? new Date(date).toLocaleString() : "-"}
                         </div>
-
                         <div>
                             <div className="font-semibold">
                                 Note : {notes || "-"}

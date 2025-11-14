@@ -30,6 +30,8 @@ export const getSalesList = async (userId: string) => {
             discount: sale.discount,
             shippingFee: sale.shippingFee,
             taxPercentage: sale.taxPercentage,
+            profit: sale.profit,
+            cogs: sale.cogs,
         })
         .from(sale)
         .where(eq(sale.userId, userId))
@@ -47,6 +49,7 @@ export const getSaleDetailsBySaleId = async (
             goodId: saleDetail.goodId,
             quantity: saleDetail.quantity,
             pricePerItem: saleDetail.pricePerItem,
+            cogs: saleDetail.cogs,
         })
         .from(saleDetail)
         .where(eq(saleDetail.saleId, saleId));
