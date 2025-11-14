@@ -22,9 +22,6 @@ export type UsedMaterialPerSales =
     };
 
 function UsedMaterials() {
-    const [topExpense, setTopExpense] = useState<
-        Record<string, number | string> | undefined
-    >(undefined);
     const [totalExpensesThisMonth, setTotalExpensesThisMonth] = useState<
         Record<string, number | string> | undefined
     >(undefined);
@@ -147,25 +144,6 @@ function UsedMaterials() {
         const topCurrentName = calcTopCurrentMaterialName();
         console.log("Top Material Name This Month:", topCurrentName);
 
-        const prevMaterialCost =
-            totalPreviousByMaterial?.[topCurrentName ?? ""] ?? 0;
-        const currentMaterialCost =
-            totalCurrentByMaterial?.[topCurrentName ?? ""] ?? 0;
-        const changePercentForTopMaterial =
-            prevMaterialCost === 0
-                ? currentMaterialCost === 0
-                    ? 0
-                    : 100
-                : ((currentMaterialCost - prevMaterialCost) /
-                      prevMaterialCost) *
-                  100;
-
-        setTopExpense({
-            name: topCurrentName ?? "-",
-            cost: currentMaterialCost,
-            changePercent: changePercentForTopMaterial,
-        });
-
         /*****
          * Calculate total material cost for current month and its change percent compared to previous month
          */
@@ -267,12 +245,6 @@ function UsedMaterials() {
             </div>
             <div className="flex gap-6 py-2">
                 <Metric
-                    value={`${topExpense?.name ?? "-"}`}
-                    changePercent={Number(topExpense?.changePercent) ?? 0}
-                    topText="Top Expense"
-                    bottomText="since last month"
-                />
-                <Metric
                     value={`${totalExpensesThisMonth?.total ? `$${Number(totalExpensesThisMonth.total).toFixed(2)}` : "-"}`}
                     changePercent={
                         totalExpensesThisMonth?.changePercent != null
@@ -281,8 +253,14 @@ function UsedMaterials() {
                               )
                             : 0
                     }
-                    topText="Total Expense"
+                    topText="Monthly Material Expenses"
                     bottomText="compared to last month"
+                    colorVariant={
+                        totalExpensesThisMonth?.changePercent != null &&
+                        Number(totalExpensesThisMonth.changePercent) < 0
+                            ? "positive"
+                            : "negative"
+                    }
                 />
             </div>
             <DataTable

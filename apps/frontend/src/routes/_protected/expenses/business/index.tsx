@@ -159,9 +159,6 @@ function BusinessExpense() {
         },
     ];
 
-    const [topExpense, setTopExpense] = useState<
-        Record<string, number | string> | undefined
-    >(undefined);
     const [totalExpensesThisMonth, setTotalExpensesThisMonth] = useState<
         Record<string, number | string> | undefined
     >(undefined);
@@ -371,24 +368,6 @@ function BusinessExpense() {
 
         const topCurrentName = calcTopCurrentBusinessExpenseName();
         console.log("Top Business Expense Name This Month:", topCurrentName);
-
-        const prevBusinessCost =
-            totalPreviousByBusinessExpense?.[topCurrentName ?? ""] ?? 0;
-        const currentBusinessCost =
-            totalCurrentByBusinessExpense?.[topCurrentName ?? ""] ?? 0;
-        const changePercentForTopBusiness =
-            prevBusinessCost === 0
-                ? currentBusinessCost === 0
-                    ? 0
-                    : 100
-                : ((currentBusinessCost - prevBusinessCost) /
-                      prevBusinessCost) *
-                  100;
-        setTopExpense({
-            name: topCurrentName ?? "-",
-            cost: currentBusinessCost,
-            changePercent: changePercentForTopBusiness,
-        });
 
         /*****
          * Calculate total business expense for current month and its change percent compared to previous month
@@ -919,12 +898,6 @@ function BusinessExpense() {
             </div>
             <div className="flex gap-6 py-2 overflow-x-auto">
                 <Metric
-                    value={`${topExpense?.name ?? "-"}`}
-                    changePercent={Number(topExpense?.changePercent) ?? 0}
-                    topText="Top Expense"
-                    bottomText="since last month"
-                />
-                <Metric
                     value={`${totalExpensesThisMonth?.total ? `$${Number(totalExpensesThisMonth.total).toFixed(2)}` : "-"}`}
                     changePercent={
                         totalExpensesThisMonth?.changePercent != null
@@ -933,8 +906,14 @@ function BusinessExpense() {
                               )
                             : 0
                     }
-                    topText="Total Expense"
+                    topText="Monthly Business Expense"
                     bottomText="compared to last month"
+                    colorVariant={
+                        totalExpensesThisMonth?.changePercent != null &&
+                        Number(totalExpensesThisMonth.changePercent) < 0
+                            ? "positive"
+                            : "negative"
+                    }
                 />
             </div>
             {isLoadingOperational && isLoadingStudio && <div>Loading...</div>}
