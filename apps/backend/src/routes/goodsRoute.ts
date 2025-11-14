@@ -183,6 +183,13 @@ export const goodsRouter = router({
                         "Cannot delete this product because it is used in sales records.",
                 });
             }
+            const materialOutputRatioRecords =
+                await getMaterialOutputRatioByGoodId(ctx.user.id, input.id);
+            if (materialOutputRatioRecords) {
+                for (let mor of materialOutputRatioRecords) {
+                    await deleteMaterialOutputRatio(mor.materialOutputRatioId!);
+                }
+            }
             await deleteGood(input.id);
             return { success: true };
         }),

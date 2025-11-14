@@ -151,6 +151,7 @@ function GoodsList() {
                 }
                 setItemToDelete(null);
                 setIsConfirmationModalOpen(false);
+                closeDrawer();
             },
         }),
     );
