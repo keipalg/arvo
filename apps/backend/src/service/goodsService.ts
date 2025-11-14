@@ -262,14 +262,7 @@ export const deleteGood = async (goodId: string) => {
 export const deleteMaterialOutputRatio = async (
     materialOutputRatioId: string,
 ) => {
-    await db
-        .delete(goodToMaterialOutputRatio)
-        .where(
-            eq(
-                goodToMaterialOutputRatio.materialOutputRatioId,
-                materialOutputRatioId,
-            ),
-        );
+    console.log(materialOutputRatioId);
     await db
         .delete(materialOutputRatio)
         .where(eq(materialOutputRatio.id, materialOutputRatioId));

@@ -370,7 +370,7 @@ function ProductionBatchList() {
 
             setFormErrors({});
             addProductionBatchMutation.mutate(result.data);
-            setDrawerOpen(false);
+            closeDrawer();
             resetForm();
         }
     };
@@ -392,6 +392,7 @@ function ProductionBatchList() {
 
     const handleDelete = (id: string) => {
         deleteProductionBatchMutation.mutate({ id });
+        closeDrawer();
     };
 
     // find material output ratio by selected good id
