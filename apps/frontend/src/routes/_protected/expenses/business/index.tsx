@@ -963,6 +963,10 @@ function BusinessExpense() {
                             },
                         ]}
                         filterOptions={tableFilterOptions}
+                        searchOption={{
+                            key: "name",
+                            label: "Expense Name",
+                        }}
                     />
                 </MoreButtonProvider>
             )}
