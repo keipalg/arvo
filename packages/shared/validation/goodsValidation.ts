@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const goodsInputValidation = z.object({
     name: z.string().nonempty("Product name is required"),
-    productTypeId: z.uuid().nonempty("Product Type is required"),
+    productTypeId: z.uuid().nonempty("Product type is required"),
     image: z.string().optional(),
     inventoryQuantity: z.number().min(0, "Stock level must be at least 0"),
     retailPrice: z.number().min(0.01, "Retail price must be at least $0.01"),
@@ -19,7 +19,7 @@ export const goodsInputValidation = z.object({
     materials: z.array(
         z.object({
             materialId: z.uuid().nonempty("Material ID is required"),
-            amount: z.number().min(0.01, "amount must be at least 1"),
+            amount: z.number().min(0.01, "Amount must be at least 1"),
         }),
     ),
 });

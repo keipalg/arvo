@@ -263,7 +263,7 @@ function GoodsList() {
 
     const resetForm = () => {
         setName("");
-        setProductType(productTypesList?.[0]?.id || "");
+        setProductType("");
         setRetailPrice(0);
         setInventoryQuantity(0);
         setMaterials([]);
@@ -278,7 +278,6 @@ function GoodsList() {
 
     const closeDrawer = () => {
         setDrawerOpen(false);
-        // setDeleteError(null);
         resetForm();
     };
 
@@ -564,7 +563,7 @@ function GoodsList() {
             setEditingGoodId(null);
             setDrawerOpen(true);
             setName("");
-            setProductType(good.typeId || "");
+            setProductType("");
             setRetailPrice(0);
             setInventoryQuantity(0);
             setNote("");
@@ -607,11 +606,11 @@ function GoodsList() {
         }
     };
 
-    useEffect(() => {
-        if (productTypesList && productTypesList.length > 0 && !productType) {
-            setProductType(productTypesList[0].id);
-        }
-    }, [productType, productTypesList]);
+    // useEffect(() => {
+    //     if (productTypesList && productTypesList.length > 0 && !productType) {
+    //         setProductType(productTypesList[0].id);
+    //     }
+    // }, [productType, productTypesList]);
 
     useEffect(() => {
         setOverheadCost(
@@ -759,7 +758,7 @@ function GoodsList() {
                             required={true}
                             value={productType}
                             onChange={setProductType}
-                            error={formErrors.productType}
+                            error={formErrors.productTypeId}
                         />
                         <NumberInput
                             label="Stock Level"
@@ -850,16 +849,23 @@ function GoodsList() {
                                     </div>
                                 </div>
                             ))}
-                            {!editingGoodId ? (
-                                <UnderLinedButton
-                                    type="button"
-                                    value="Add Material"
-                                    icon="/icon/plus-blue.svg"
-                                    onClick={addMaterialRow}
-                                ></UnderLinedButton>
-                            ) : (
-                                ""
-                            )}
+                            <div className="col-span-2 grid grid-cols-2 align-middle">
+                                {!editingGoodId ? (
+                                    <UnderLinedButton
+                                        type="button"
+                                        value="Add Material"
+                                        icon="/icon/plus-blue.svg"
+                                        onClick={addMaterialRow}
+                                    ></UnderLinedButton>
+                                ) : (
+                                    ""
+                                )}
+                                {formErrors.materials && (
+                                    <div className="text-red-500 text-sm translate-y-1">
+                                        {formErrors.materials}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">

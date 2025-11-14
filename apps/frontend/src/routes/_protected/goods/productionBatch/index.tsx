@@ -565,6 +565,7 @@ function ProductionBatchList() {
                             })) || []),
                         ]}
                         onChange={(e) => setGoodId(e.target.value)}
+                        error={formErrors.goodId}
                     ></Select>
 
                     <NumberInput
