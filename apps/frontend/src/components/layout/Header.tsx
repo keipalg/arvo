@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { NotificationBadge } from "../notification/NotificationBadge";
 import { NotificationTray } from "../notification/NotificationTray";
 
@@ -8,6 +8,7 @@ type HeaderProps = {
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
     const [isTrayOpen, setIsTrayOpen] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     const toggleTray = () => {
         setIsTrayOpen(!isTrayOpen);
@@ -33,16 +34,22 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                         />
                     </button>
                 </div>
-                <div className="flex px-2 my-auto gap-4">
+                <div className="flex px-2 my-auto gap-4 mt-3">
                     <div className="relative">
                         <button
+                            ref={buttonRef}
                             type="button"
                             className="cursor-pointer"
                             onClick={toggleTray}
                         >
                             <NotificationBadge isActive={isTrayOpen} />
                         </button>
-                        {isTrayOpen && <NotificationTray onClose={closeTray} />}
+                        {isTrayOpen && (
+                            <NotificationTray
+                                onClose={closeTray}
+                                buttonRef={buttonRef}
+                            />
+                        )}
                     </div>
                 </div>
             </header>
