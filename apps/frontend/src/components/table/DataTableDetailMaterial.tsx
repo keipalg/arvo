@@ -1,6 +1,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import { getFormattedDate } from "../../utils/dateFormatter";
 import type { AppRouter } from "../../utils/trpcClient";
+import InventoryStatus from "../badge/InventoryStatus";
 
 type Materials = inferRouterOutputs<AppRouter>["materials"]["list"][number] & {
     actions: string;
@@ -29,57 +30,8 @@ const MaterialDetails = ({
                 className="px-4 py-3"
             >
                 {isSmUp ? (
-                    // Desktop layout - 5 columns, 2 rows
+                    // Desktop layout - 5 columns
                     <div className="grid grid-cols-5 gap-2">
-                        {/* Row 1 */}
-                        <div className="flex flex-col px-2 py-1">
-                            <div className="font-semibold text-sm text-arvo-black-50">
-                                Material Item
-                            </div>
-                            <div className="text-arvo-black-100">
-                                {row.name}
-                            </div>
-                        </div>
-                        <div className="flex flex-col px-2 py-1">
-                            <div className="font-semibold text-sm text-arvo-black-50">
-                                Material Type
-                            </div>
-                            <div className="text-arvo-black-100">
-                                {row.materialType}
-                            </div>
-                        </div>
-                        <div className="flex flex-col px-2 py-1">
-                            <div className="font-semibold text-sm text-arvo-black-50">
-                                Quantity
-                            </div>
-                            <div className="text-arvo-black-100">
-                                {row.formattedQuantity}
-                            </div>
-                        </div>
-                        <div className="flex flex-col px-2 py-1">
-                            <div className="font-semibold text-sm text-arvo-black-50">
-                                Unit Price
-                            </div>
-                            <div className="text-arvo-black-100">
-                                ${Number(row.costPerUnit).toFixed(2)}
-                            </div>
-                        </div>
-                        <div className="flex flex-col px-2 py-1">
-                            <div className="font-semibold text-sm text-arvo-black-50">
-                                Status
-                            </div>
-                            <div className="text-arvo-black-100">
-                                {row.status === "outOfStock"
-                                    ? "Out of Stock"
-                                    : row.status === "lowStock"
-                                      ? "Low Stock"
-                                      : row.status === "sufficient"
-                                        ? "Sufficient"
-                                        : row.status}
-                            </div>
-                        </div>
-
-                        {/* Row 2 */}
                         <div className="flex flex-col px-2 py-1">
                             <div className="font-semibold text-sm text-arvo-black-50">
                                 Last Purchase Date
@@ -140,12 +92,6 @@ const MaterialDetails = ({
                 ) : (
                     // Mobile layout - stacked label-value pairs
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="font-semibold">Material Item</div>
-                        <div>{row.name}</div>
-
-                        <div className="font-semibold">Material Type</div>
-                        <div>{row.materialType}</div>
-
                         <div className="font-semibold">Quantity</div>
                         <div>{row.formattedQuantity}</div>
 
@@ -154,13 +100,7 @@ const MaterialDetails = ({
 
                         <div className="font-semibold">Status</div>
                         <div>
-                            {row.status === "outOfStock"
-                                ? "Out of Stock"
-                                : row.status === "lowStock"
-                                  ? "Low Stock"
-                                  : row.status === "sufficient"
-                                    ? "Sufficient"
-                                    : row.status}
+                            <InventoryStatus statusKey={row.status} />
                         </div>
 
                         <div className="font-semibold">Last Purchase Date</div>
