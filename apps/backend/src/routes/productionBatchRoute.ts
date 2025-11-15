@@ -7,8 +7,8 @@ import {
 import { z } from "zod";
 import {
     deleteProductionBatch,
-    getMostProducedProductWithComparison,
-    getLeastProducedProductWithComparison,
+    getMonthlyMaterialCostWithComparison,
+    getMonthlyProducedQuantityWithComparison,
     getProductionBatch,
     processProductionBatch,
     processProductionBatchUpdate,
@@ -56,19 +56,19 @@ export const productionBatchRouter = router({
             await deleteProductionBatch(input.id, ctx.user.id);
             return { success: true };
         }),
-    mostProducedProductWithComparison: protectedProcedure
+    monthlyProducedQuantity: protectedProcedure
         .input(batchTimezoneValidation)
         .query(async ({ ctx, input }) => {
-            return await getMostProducedProductWithComparison(
+            return await getMonthlyProducedQuantityWithComparison(
                 ctx.user.id,
                 input.timezone,
             );
         }),
 
-    leastProducedProductWithComparison: protectedProcedure
+    monthlyMaterialCost: protectedProcedure
         .input(batchTimezoneValidation)
         .query(async ({ ctx, input }) => {
-            return await getLeastProducedProductWithComparison(
+            return await getMonthlyMaterialCostWithComparison(
                 ctx.user.id,
                 input.timezone,
             );
