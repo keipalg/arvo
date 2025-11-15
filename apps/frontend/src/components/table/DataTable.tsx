@@ -159,7 +159,7 @@ const DataTable = <T extends { id: number | string }>({
         <>
             <div>
                 <div className="sm:flex sm:justify-between my-2">
-                    <div className="sm:flex gap-2 w-full sm:w-auto">
+                    <div className="flex gap-2 w-full sm:w-auto">
                         <TableSort
                             options={
                                 sortOptions
@@ -183,8 +183,8 @@ const DataTable = <T extends { id: number | string }>({
                         <TableFilter
                             options={tableFilterOptions}
                             onSelect={(option) => {
-                                const parts = option.key.split(":", 2);
-                                if (parts.length === 2) {
+                                const parts = option?.key.split(":", 2);
+                                if (parts && parts.length === 2) {
                                     setSelectedFilter({
                                         columnKey: parts[0] as keyof T,
                                         value: parts[1],
