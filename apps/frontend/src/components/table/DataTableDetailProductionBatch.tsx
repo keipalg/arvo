@@ -77,126 +77,45 @@ const BatchDetails = ({ row, isSmUp }: DataTableDetailBatchProps) => {
         <>
             {isSmUp ? (
                 <>
-                    <td></td>
-                    <td colSpan={4} className="p-0">
-                        <div>
-                            <table className="w-full">
-                                <tbody>
-                                    <tr className="align-text-top border-b border-arvo-black-5">
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Production Date
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.productionDate}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Product Name
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.goodName}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Quantity
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.quantity}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Material Cost
-                                            </div>
-                                            <div className={valueStyle}>
-                                                $
-                                                {Number(
-                                                    row.productionCost,
-                                                ).toFixed(2)}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr className="align-text-top border-b border-arvo-black-5">
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Note
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.notes ? row.notes : "-"}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <td className="px-4 py-3"></td>
+                    <td className="px-4 py-3 align-top" colSpan={4}>
+                        <div className={labelStyle}>Note</div>
+                        <div className={valueStyle}>
+                            {row.notes ? row.notes : "-"}
                         </div>
                     </td>
-                    <td></td>
+                    <td className="px-4 py-3"></td>
                 </>
             ) : (
                 <>
-                    <td></td>
-                    <td colSpan={2} className="p-0">
-                        <div>
-                            <table className="w-full">
-                                <tbody>
-                                    <tr className="align-text-top">
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Production Date
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.productionDate}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Product Name
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.goodName}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr className="align-text-top">
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Quantity
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.quantity}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Material Cost
-                                            </div>
-                                            <div className={valueStyle}>
-                                                $
-                                                {Number(
-                                                    row.productionCost,
-                                                ).toFixed(2)}
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr className="align-text-top">
-                                        <td className="px-4 py-3" colSpan={1}>
-                                            <div className={labelStyle}>
-                                                Note
-                                            </div>
-                                            <div className={valueStyle}>
-                                                {row.notes ? row.notes : "-"}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <td className="px-4 py-3"></td>
+                    <td className="px-4 py-3 align-top" colSpan={2}>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                                <div>
+                                    <div className={labelStyle}>Quantity</div>
+                                    <div className={valueStyle}>
+                                        {row.quantity}
+                                    </div>
+                                </div>
+                                <div className="px-4">
+                                    <div className={labelStyle}>
+                                        Material Cost
+                                    </div>
+                                    <div className={valueStyle}>
+                                        ${Number(row.productionCost).toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div className={labelStyle}>Note</div>
+                                <div className={valueStyle}>
+                                    {row.notes ? row.notes : "-"}
+                                </div>
+                            </div>
                         </div>
                     </td>
-                    <td></td>
+                    <td className="px-4 py-3"></td>
                 </>
             )}
         </>

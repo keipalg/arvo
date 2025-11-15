@@ -13,7 +13,6 @@ import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
 import AddButton from "../../../../components/button/AddButton";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
-import TextInput from "../../../../components/input/TextInput";
 import TextArea from "../../../../components/input/TextArea";
 import PageTitle from "../../../../components/layout/PageTitle";
 import { MoreButton } from "../../../../components/button/MoreButton";
@@ -21,6 +20,7 @@ import { MoreButtonProvider } from "../../../../components/button/MoreButtonProv
 import MaterialCostTable from "../../../../components/pricing/MaterialCostTable";
 import NumberInput from "../../../../components/input/NumberInput";
 import Metric from "../../../../components/metric/Metric";
+import MetricsGroup from "../../../../components/metric/MetricsGroup";
 import BatchDetails from "../../../../components/table/DataTableDetailProductionBatch";
 import ToastNotification from "../../../../components/modal/ToastNotification";
 import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
@@ -30,6 +30,8 @@ import {
 } from "@arvo/shared";
 import type React from "react";
 import { useIsSmUp } from "../../../../utils/screenWidth";
+import DatePicker from "../../../../components/input/DatePicker";
+import { getFormattedDate } from "../../../../utils/dateFormatter";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -152,9 +154,7 @@ function ProductionBatchList() {
         {
             key: "productionDate",
             header: "Production Date",
-            render: (value) => (
-                <>{new Date(value as string).toLocaleDateString()}</>
-            ),
+            render: (value) => <>{getFormattedDate(value as string)}</>,
         },
         {
             key: "goodName",
@@ -486,7 +486,7 @@ function ProductionBatchList() {
                     onClick={() => setDrawerOpen(true)}
                 ></AddButton>
             </div>
-            <div className="flex gap-6 py-2 overflow-x-auto">
+            <MetricsGroup>
                 {monthlyProductionMetrics && (
                     <Metric
                         value={`${monthlyProductionMetrics.currentProduction} Items`}
@@ -507,7 +507,7 @@ function ProductionBatchList() {
                         bottomText="than last month"
                     />
                 )}
-            </div>
+            </MetricsGroup>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
@@ -571,15 +571,15 @@ function ProductionBatchList() {
                         void handleSubmit(e);
                     }}
                 >
-                    <TextInput
+                    <DatePicker
                         label="Production Date"
                         name="productionDate"
                         required={true}
-                        type="date"
                         value={productionDate}
-                        onChange={(e) => setProductionDate(e.target.value)}
+                        onChange={setProductionDate}
                         error={formErrors.productionDate}
-                    ></TextInput>
+                        placeholder="Select date"
+                    ></DatePicker>
                     <Select
                         label="Product Made"
                         required={true}
