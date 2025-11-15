@@ -28,5 +28,11 @@ export const NotificationBadge = ({ isActive }: NotificationBadgeProps) => {
         return "/icon/notification.svg";
     };
 
-    return <img src={getIconPath()} alt="Notification" />;
+    return (
+        <img
+            src={getIconPath()}
+            alt="Notification"
+            className="w-9 h-9 max-sm:w-10 max-sm:h-10"
+        />
+    );
 };
