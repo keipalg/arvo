@@ -549,6 +549,10 @@ function ProductionBatchList() {
                                 order: "asc",
                             },
                         ]}
+                        searchOption={{
+                            key: "goodName",
+                            label: "Product Name",
+                        }}
                     />
                 </MoreButtonProvider>
             )}

@@ -52,7 +52,7 @@ const MaterialCostTable = ({
                                 <td className="text-left py-2.5 px-4">
                                     {item.materialName}
                                 </td>
-                                <td className="text-center py-2.5 px-4">
+                                <td className="text-center py-2.5 px-3">
                                     {item.usedAmount?.toFixed(2)}{" "}
                                     {item.unitAbbreviation}
                                 </td>
