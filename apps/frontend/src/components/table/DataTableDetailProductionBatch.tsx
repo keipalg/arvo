@@ -17,12 +17,7 @@ type DataTableDetailBatchProps = {
     isSmUp: boolean;
 };
 
-const BatchDetails = ({
-    row,
-    columnsLength,
-    visibleMobileColumnsCount,
-    isSmUp,
-}: DataTableDetailBatchProps) => {
+const BatchDetails = ({ row, isSmUp }: DataTableDetailBatchProps) => {
     const [showMaterialsPopup, setShowMaterialsPopup] = useState(false);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -74,83 +69,136 @@ const BatchDetails = ({
     };
     const filteredMaterials = filterMaterials();
     console.log(filteredMaterials);
-    const desktopCols = Math.max(columnsLength, 2);
-    const mobileCols = Math.max(visibleMobileColumnsCount - 1, 1);
-    const gridStyle = {
-        gridTemplateColumns: `repeat(${isSmUp ? desktopCols : mobileCols}, minmax(0, 1fr))`,
-    } as React.CSSProperties;
 
-    const valueSpanDesktop = Math.max(desktopCols - 1, 1);
-    const valueSpanMobile = 1;
-    const valueSpan = isSmUp ? valueSpanDesktop : valueSpanMobile;
-
-    const cellLabelStyle = { gridColumn: "span 1" } as React.CSSProperties;
-    const cellValueStyle = {
-        gridColumn: `span ${valueSpan}`,
-    } as React.CSSProperties;
+    const labelStyle = `${isSmUp ? "text-sm" : "text-xs"} font-semibold text-arvo-black-50`;
+    const valueStyle = `${isSmUp ? "text-sm" : "text-xs"}  text-arvo-black-100`;
 
     return (
         <>
-            <td></td>
-            <td
-                colSpan={
-                    isSmUp ? columnsLength - 1 : visibleMobileColumnsCount - 1
-                }
-                className="px-4 py-3"
-            >
-                <div className="grid w-full" style={gridStyle}>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Production Date
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.productionDate}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Product Name
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.goodName}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold items-center"
-                        style={cellLabelStyle}
-                    >
-                        Quantity
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.quantity}
-                    </div>
+            {isSmUp ? (
+                <>
+                    <td></td>
+                    <td colSpan={4} className="p-0">
+                        <div>
+                            <table className="w-full">
+                                <tbody>
+                                    <tr className="align-text-top border-b border-arvo-black-5">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Production Date
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.productionDate}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Product Name
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.goodName}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Quantity
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.quantity}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Material Cost
+                                            </div>
+                                            <div className={valueStyle}>
+                                                $
+                                                {Number(
+                                                    row.productionCost,
+                                                ).toFixed(2)}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top border-b border-arvo-black-5">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Note
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.notes ? row.notes : "-"}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td></td>
+                </>
+            ) : (
+                <>
+                    <td></td>
+                    <td colSpan={2} className="p-0">
+                        <div>
+                            <table className="w-full">
+                                <tbody>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Production Date
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.productionDate}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Product Name
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.goodName}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Quantity
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.quantity}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Material Cost
+                                            </div>
+                                            <div className={valueStyle}>
+                                                $
+                                                {Number(
+                                                    row.productionCost,
+                                                ).toFixed(2)}
+                                            </div>
+                                        </td>
+                                    </tr>
 
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Material Cost
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        ${Number(row.productionCost).toFixed(2)}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Notes
-                    </div>
-                    <div
-                        className="px-4 py-3 break-words"
-                        style={cellValueStyle}
-                    >
-                        {row.notes}
-                    </div>
-                </div>
-            </td>
-            <td></td>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Note
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.notes ? row.notes : "-"}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td></td>
+                </>
+            )}
         </>
     );
 };

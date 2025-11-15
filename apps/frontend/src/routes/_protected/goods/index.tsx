@@ -655,6 +655,16 @@ function GoodsList() {
                         detailRender={detailsRender}
                         sortOptions={[
                             {
+                                key: "name",
+                                label: "Name (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "name",
+                                label: "Name (Z → A)",
+                                order: "desc",
+                            },
+                            {
                                 key: "createdAt",
                                 label: "Date Created (Oldest → Newest)",
                                 order: "asc",
@@ -666,12 +676,12 @@ function GoodsList() {
                             },
                             {
                                 key: "inventoryQuantity",
-                                label: "Quantity (Highest → Lowest)",
+                                label: "Stock (Highest → Lowest)",
                                 order: "desc",
                             },
                             {
                                 key: "inventoryQuantity",
-                                label: "Quantity (Lowest → Highest)",
+                                label: "Stock (Lowest → Highest)",
                                 order: "asc",
                             },
                         ]}
@@ -857,6 +867,7 @@ function GoodsList() {
                     )}
                     <div className="grid col-auto gap-3">
                         <CostBreakDown
+                            isLabel={true}
                             mor={!mcpu ? "0.00" : mcpu.toFixed(2)}
                             cogs={!cogs ? "0.00" : cogs.toFixed(2)}
                             operatingCosts={
