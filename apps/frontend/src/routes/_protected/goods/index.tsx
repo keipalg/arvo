@@ -685,6 +685,10 @@ function GoodsList() {
                                 order: "asc",
                             },
                         ]}
+                        searchOption={{
+                            key: "name",
+                            label: "Product Name",
+                        }}
                     />
                 </MoreButtonProvider>
             )}
