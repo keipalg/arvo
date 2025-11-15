@@ -187,27 +187,14 @@ export const deleteProductionBatch = async (
         .where(eq(productionBatch.id, productionBatchId));
 };
 
-const getProducedItemByMonth = async (
-    userId: string,
-    timezone: string,
-    order: "ASC" | "DESC" = "DESC",
-    limit: number = 1,
-) => {
+const getProducedItemByMonth = async (userId: string, timezone: string) => {
     const targetMonth = getMonthRangeInTimezone(timezone, 0);
-
-    const orderSql =
-        order === "DESC"
-            ? sql`cast(sum(${productionBatch.quantity}) as int) DESC`
-            : sql`cast(sum(${productionBatch.quantity}) as int) ASC`;
-
     const results = await db
         .select({
-            goodName: good.name,
-            goodId: good.id,
-            totalQuantity: sql<number>`cast(sum(${productionBatch.quantity}) as int)`,
+            totalQuantity: sql<number>`cast(COALESCE(SUM(${productionBatch.quantity}), 0) as int)`,
         })
-        .from(good)
-        .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
+        .from(productionBatch)
+        .innerJoin(good, eq(productionBatch.goodId, good.id))
         .where(
             and(
                 eq(good.userId, userId),
@@ -217,33 +204,22 @@ const getProducedItemByMonth = async (
                     targetMonth.end.toISOString().split("T")[0],
                 ),
             ),
-        )
-        .groupBy(good.name, good.id)
-        .orderBy(orderSql)
-        .limit(limit);
+        );
     return results;
 };
 
-export const getMostProducedProductWithComparison = async (
+export type MonthlyMetric = {
+    currentProduction: number;
+    percentageChange: number;
+};
+
+export const getMonthlyProducedQuantityWithComparison = async (
     userId: string,
     timezone: string,
-) => {
-    const currentMonth = await getProducedItemByMonth(
-        userId,
-        timezone,
-        "DESC",
-        1,
-    );
+): Promise<MonthlyMetric> => {
+    const currentMonth = await getProducedItemByMonth(userId, timezone);
 
-    if (currentMonth.length === 0) {
-        return {
-            productName: "No Production",
-            currentProduction: 0,
-            percentageChange: 0,
-        };
-    }
-
-    const topProduct = currentMonth[0];
+    const totalQuantity = currentMonth[0]?.totalQuantity ?? 0;
     const lastMonth = getMonthRangeInTimezone(timezone, -1);
 
     const lastMonthProduction = await db
@@ -255,7 +231,6 @@ export const getMostProducedProductWithComparison = async (
         .where(
             and(
                 eq(good.userId, userId),
-                eq(good.id, topProduct.goodId),
                 between(
                     productionBatch.productionDate,
                     lastMonth.start.toISOString().split("T")[0],
@@ -264,53 +239,58 @@ export const getMostProducedProductWithComparison = async (
             ),
         );
 
-    const lastMonthQuantity = lastMonthProduction[0]?.goodsProduced ?? 0;
+    const lastMonthQuantity = lastMonthProduction[0]?.goodsProduced || 0;
     const percentageChange =
         lastMonthQuantity === 0
-            ? 100
-            : ((topProduct.totalQuantity - lastMonthQuantity) /
-                  lastMonthQuantity) *
-              100;
+            ? totalQuantity > 0
+                ? 100
+                : 0
+            : ((totalQuantity - lastMonthQuantity) / lastMonthQuantity) * 100;
 
     return {
-        productName: topProduct.goodName,
-        currentProduction: topProduct.totalQuantity,
+        currentProduction: totalQuantity,
         percentageChange: Math.round(percentageChange * 100) / 100,
     };
 };
+const getMaterialCostByMonth = async (userId: string, timezone: string) => {
+    const targetMonth = getMonthRangeInTimezone(timezone, 0);
+    const results = await db
+        .select({
+            totalCost: sql<number>`SUM(${productionBatch.productionCost})`,
+        })
+        .from(productionBatch)
+        .innerJoin(good, eq(productionBatch.goodId, good.id))
+        .where(
+            and(
+                eq(good.userId, userId),
+                between(
+                    productionBatch.productionDate,
+                    targetMonth.start.toISOString().split("T")[0],
+                    targetMonth.end.toISOString().split("T")[0],
+                ),
+            ),
+        );
+    console.log(results);
+    return results;
+};
 
-export const getLeastProducedProductWithComparison = async (
+export const getMonthlyMaterialCostWithComparison = async (
     userId: string,
     timezone: string,
-) => {
-    const currentMonth = await getProducedItemByMonth(
-        userId,
-        timezone,
-        "ASC",
-        1,
-    );
-
-    if (currentMonth.length === 0) {
-        return {
-            productName: "No Production",
-            currentProduction: 0,
-            percentageChange: 0,
-        };
-    }
-
-    const leastProduct = currentMonth[0];
+): Promise<MonthlyMetric> => {
+    const currentMonth = await getMaterialCostByMonth(userId, timezone);
+    const totalCost = currentMonth[0]?.totalCost ?? 0;
     const lastMonth = getMonthRangeInTimezone(timezone, -1);
 
     const lastMonthProduction = await db
         .select({
-            goodsProduced: sql<number>`cast(sum(${productionBatch.quantity}) as int)`,
+            lastMonthTotal: sql<number>`cast(sum(${productionBatch.productionCost}) as int)`,
         })
         .from(good)
         .innerJoin(productionBatch, eq(productionBatch.goodId, good.id))
         .where(
             and(
                 eq(good.userId, userId),
-                eq(good.id, leastProduct.goodId),
                 between(
                     productionBatch.productionDate,
                     lastMonth.start.toISOString().split("T")[0],
@@ -319,17 +299,16 @@ export const getLeastProducedProductWithComparison = async (
             ),
         );
 
-    const lastMonthQuantity = lastMonthProduction[0]?.goodsProduced ?? 0;
+    const lastMonthCost = lastMonthProduction[0]?.lastMonthTotal || 0;
     const percentageChange =
-        lastMonthQuantity === 0
-            ? 100
-            : ((leastProduct.totalQuantity - lastMonthQuantity) /
-                  lastMonthQuantity) *
-              100;
+        lastMonthCost === 0
+            ? totalCost > 0
+                ? 100
+                : 0
+            : ((totalCost - lastMonthCost) / lastMonthCost) * 100;
 
     return {
-        productName: leastProduct.goodName,
-        currentProduction: leastProduct.totalQuantity,
+        currentProduction: totalCost,
         percentageChange: Math.round(percentageChange * 100) / 100,
     };
 };

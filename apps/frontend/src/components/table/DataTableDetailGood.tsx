@@ -1,9 +1,10 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../utils/trpcClient";
-import { calculateMaterialCost } from "../../utils/pricing.ts";
+import { calculateMaterialCost, getCOGS } from "../../utils/pricing.ts";
 import { trpc } from "../../utils/trpcClient";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
+import CostBreakDown from "../pricing/CostBreakDown.tsx";
 
 type Goods = inferRouterOutputs<AppRouter>["goods"]["list"][number] & {
     actions: string;
@@ -16,28 +17,13 @@ type DataTableDetailGoodProps = {
     isSmUp: boolean;
 };
 
-const GoodDetails = ({
-    row,
-    columnsLength,
-    visibleMobileColumnsCount,
-    isSmUp,
-}: DataTableDetailGoodProps) => {
+const GoodDetails = ({ row, isSmUp }: DataTableDetailGoodProps) => {
     const [showMaterialsPopup, setShowMaterialsPopup] = useState(false);
-    const [isNarrowScreen, setIsNarrowScreen] = useState(
-        window.innerWidth < 1000,
-    );
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     const { data: materialOutputRatioData } = useQuery(
         trpc.goods.materialOutputRatio.queryOptions(),
     );
-
-    // Handle window resize
-    useEffect(() => {
-        const handleResize = () => setIsNarrowScreen(window.innerWidth < 1000);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     // Handle click outside to close tooltip
     useEffect(() => {
@@ -82,152 +68,351 @@ const GoodDetails = ({
         }
     };
     const filteredMaterials = filterMaterials();
-    console.log(filteredMaterials);
-    const desktopCols = Math.max(columnsLength, 2);
-    const mobileCols = Math.max(visibleMobileColumnsCount - 1, 1);
-    const gridStyle = {
-        gridTemplateColumns: `repeat(${isSmUp ? desktopCols : mobileCols}, minmax(0, 1fr))`,
-    } as React.CSSProperties;
-
-    const valueSpanDesktop = Math.max(desktopCols - 1, 1);
-    const valueSpanMobile = 1;
-    const valueSpan = isSmUp ? valueSpanDesktop : valueSpanMobile;
-
-    const cellLabelStyle = { gridColumn: "span 1" } as React.CSSProperties;
-    const cellValueStyle = {
-        gridColumn: `span ${valueSpan}`,
-    } as React.CSSProperties;
+    const labelStyle = `${isSmUp ? "text-sm" : "text-xs"} font-semibold text-arvo-black-50`;
+    const valueStyle = `${isSmUp ? "text-sm" : "text-xs"}  text-arvo-black-100`;
 
     return (
         <>
-            <td></td>
-            <td
-                colSpan={
-                    isSmUp ? columnsLength - 1 : visibleMobileColumnsCount - 1
-                }
-                className="px-4 py-3"
-            >
-                <div className="grid w-full" style={gridStyle}>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Name
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.name}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Type
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.type}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold items-center"
-                        style={cellLabelStyle}
-                    >
-                        Stock
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.inventoryQuantity}
-                    </div>
+            {isSmUp ? (
+                <>
+                    <td className="px-4 py-3"></td>
+                    <td className="px-4 py-3"></td>
 
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Unit Price
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        ${Number(row.retailPrice).toFixed(2)}
-                    </div>
-
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Min. Stock
-                    </div>
-                    <div className="px-4 py-3" style={cellValueStyle}>
-                        {row.minimumStockLevel}
-                    </div>
-
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Materials
-                    </div>
-
-                    <div className="px-4 py-3 relative" style={cellValueStyle}>
-                        {isNarrowScreen ? (
-                            <div className="relative" ref={tooltipRef}>
-                                <button
-                                    onClick={() =>
-                                        setShowMaterialsPopup(
-                                            !showMaterialsPopup,
-                                        )
-                                    }
-                                    className="text-arvo-blue-100 underline cursor-pointer font-semibold ml-1.5"
-                                >
-                                    View ({filteredMaterials.length})
-                                </button>
-                                <div
-                                    className={`
-                                        ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
-                                        absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base p-4 z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full mb-2 -left-32
-                                    `}
-                                >
-                                    <div className="space-y-2">
-                                        {filteredMaterials.map((material) => (
-                                            <div
-                                                key={material.materialId}
-                                                className="grid grid-cols-[1fr_auto_auto] gap-2 py-1"
-                                            >
-                                                <div className="font-medium">
-                                                    {material.name}
-                                                </div>
-                                                <div>{material.amount}</div>
-                                                <div>
-                                                    {material.unitAbbreviation}
-                                                </div>
+                    <td colSpan={4} className="p-0">
+                        <div>
+                            <table className=" w-full">
+                                <tbody>
+                                    <tr className="align-text-top border-b border-arvo-black-5">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Product Name
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            filteredMaterials.map((material) => (
-                                <div
-                                    key={material.materialId}
-                                    className="grid grid-cols-[85%_10%_5%] max-w-60 gap-2"
-                                >
-                                    <div>{material.name}</div>
-                                    <div>{material.amount}</div>
-                                    <div>{material.unitAbbreviation}</div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                    <div
-                        className="flex px-4 py-3 font-semibold"
-                        style={cellLabelStyle}
-                    >
-                        Notes
-                    </div>
-                    <div
-                        className="px-4 py-3 break-words"
-                        style={cellValueStyle}
-                    >
-                        {row.note}
-                    </div>
-                </div>
-            </td>
-            <td></td>
+                                            <div className={valueStyle}>
+                                                {row.name}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Product Type
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.type}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Stock Level
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.inventoryQuantity}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Unit Price
+                                            </div>
+                                            <div className={valueStyle}>
+                                                $
+                                                {Number(
+                                                    row.retailPrice,
+                                                ).toFixed(2)}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top border-arvo-black-5">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Min. Stock Level
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.minimumStockLevel}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={2}>
+                                            <div className={labelStyle}>
+                                                Materials per Item
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {filteredMaterials.map(
+                                                    (material) => (
+                                                        <div
+                                                            key={
+                                                                material.materialId
+                                                            }
+                                                            className="flex flex-3 gap-1 grow"
+                                                        >
+                                                            <div className="mr-4">
+                                                                {material.name}
+                                                            </div>
+                                                            <div>
+                                                                {
+                                                                    material.amount
+                                                                }
+                                                            </div>
+                                                            <div>
+                                                                {
+                                                                    material.unitAbbreviation
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    ),
+                                                )}
+                                                {filteredMaterials.length >
+                                                    0 && (
+                                                    <div
+                                                        className="relative"
+                                                        ref={tooltipRef}
+                                                    >
+                                                        <button
+                                                            onClick={() =>
+                                                                setShowMaterialsPopup(
+                                                                    !showMaterialsPopup,
+                                                                )
+                                                            }
+                                                            className={`${valueStyle}  !m-0 text-left text-arvo-blue-100 underline cursor-pointer font-medium ml-1.5`}
+                                                        >
+                                                            View cost Cost Brake
+                                                            Down
+                                                        </button>
+                                                        <div
+                                                            className={`
+                                                                ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
+                                                                absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full -left-32
+                                                                `}
+                                                        >
+                                                            <CostBreakDown
+                                                                mor={
+                                                                    !row.materialCost
+                                                                        ? "0.00"
+                                                                        : row.materialCost.toFixed(
+                                                                              2,
+                                                                          )
+                                                                }
+                                                                cogs={getCOGS(
+                                                                    row.materialCost ??
+                                                                        0,
+                                                                    Number(
+                                                                        row.laborCost,
+                                                                    ),
+                                                                    Number(
+                                                                        row.overheadCost,
+                                                                    ),
+                                                                ).toFixed(2)}
+                                                                operatingCosts={
+                                                                    row.operatingCost
+                                                                        ? Number(
+                                                                              row.operatingCost,
+                                                                          ).toFixed(
+                                                                              2,
+                                                                          )
+                                                                        : "0.00"
+                                                                }
+                                                                profitMargin={
+                                                                    !row.netProfit
+                                                                        ? "0.00"
+                                                                        : Number(
+                                                                              row.netProfit,
+                                                                          ).toFixed(
+                                                                              2,
+                                                                          )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Note
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.note ? row.note : "-"}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td className="px-4 py-3"></td>
+                </>
+            ) : (
+                <>
+                    <td className=""></td>
+                    <td colSpan={2} className="p-0">
+                        <div>
+                            <table className="w-full align-text-top">
+                                <tbody>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3 " colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Product Name
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.name}
+                                            </div>
+                                        </td>
+                                        <td
+                                            className="px-4 pr-3 pl-7"
+                                            colSpan={1}
+                                        >
+                                            <div className={labelStyle}>
+                                                Product Type
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.type}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Stock Level
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.inventoryQuantity}
+                                            </div>
+                                        </td>
+                                        <td
+                                            className="px-4 pr-3 pl-7"
+                                            colSpan={1}
+                                        >
+                                            <div className={labelStyle}>
+                                                Unit Price
+                                            </div>
+                                            <div className={valueStyle}>
+                                                $
+                                                {Number(
+                                                    row.retailPrice,
+                                                ).toFixed(2)}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Min. Stock Level
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.minimumStockLevel}
+                                            </div>
+                                        </td>
+                                        <td
+                                            className="px-4 pr-3 pl-7"
+                                            colSpan={2}
+                                        >
+                                            <div className={labelStyle}>
+                                                Materials per Item
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {filteredMaterials.map(
+                                                    (material) => (
+                                                        <div
+                                                            key={
+                                                                material.materialId
+                                                            }
+                                                            className="flex flex-3 gap-1 grow"
+                                                        >
+                                                            <div className="mr-4">
+                                                                {material.name}
+                                                            </div>
+                                                            <div>
+                                                                {
+                                                                    material.amount
+                                                                }
+                                                            </div>
+                                                            <div>
+                                                                {
+                                                                    material.unitAbbreviation
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    ),
+                                                )}
+                                                {filteredMaterials.length >
+                                                    0 && (
+                                                    <div
+                                                        className="relative"
+                                                        ref={tooltipRef}
+                                                    >
+                                                        <button
+                                                            onClick={() =>
+                                                                setShowMaterialsPopup(
+                                                                    !showMaterialsPopup,
+                                                                )
+                                                            }
+                                                            className={`${valueStyle}  !m-0 text-left text-arvo-blue-100 underline cursor-pointer font-medium ml-1.5`}
+                                                        >
+                                                            Cost Brake Down
+                                                        </button>
+                                                        <div
+                                                            className={`
+                                                                ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
+                                                                absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full -left-32
+                                                                `}
+                                                        >
+                                                            <CostBreakDown
+                                                                mor={
+                                                                    !row.materialCost
+                                                                        ? "0.00"
+                                                                        : row.materialCost.toFixed(
+                                                                              2,
+                                                                          )
+                                                                }
+                                                                cogs={getCOGS(
+                                                                    row.materialCost ??
+                                                                        0,
+                                                                    Number(
+                                                                        row.laborCost,
+                                                                    ),
+                                                                    Number(
+                                                                        row.overheadCost,
+                                                                    ),
+                                                                ).toFixed(2)}
+                                                                operatingCosts={
+                                                                    row.operatingCost
+                                                                        ? Number(
+                                                                              row.operatingCost,
+                                                                          ).toFixed(
+                                                                              2,
+                                                                          )
+                                                                        : "0.00"
+                                                                }
+                                                                profitMargin={
+                                                                    !row.netProfit
+                                                                        ? "0.00"
+                                                                        : Number(
+                                                                              row.netProfit,
+                                                                          ).toFixed(
+                                                                              2,
+                                                                          )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="align-text-top">
+                                        <td className="px-4 py-3" colSpan={1}>
+                                            <div className={labelStyle}>
+                                                Note
+                                            </div>
+                                            <div className={valueStyle}>
+                                                {row.note ? row.note : "-"}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td className=""></td>
+                </>
+            )}
         </>
     );
 };

@@ -30,6 +30,10 @@ export const getGoodsList = async (userId: string) => {
             materialCost: good.materialCost,
             minimumStockLevel: good.minimumStockLevel,
             createdAt: good.createdAt,
+            overheadCost: good.overheadCost,
+            operatingCost: good.operatingCost,
+            laborCost: good.laborCost,
+            netProfit: good.netProfit,
         })
         .from(good)
         .orderBy(asc(good.createdAt))

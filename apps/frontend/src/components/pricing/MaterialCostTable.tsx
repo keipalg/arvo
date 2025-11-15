@@ -53,7 +53,8 @@ const MaterialCostTable = ({
                                     {item.materialName}
                                 </td>
                                 <td className="text-center py-2.5 px-4">
-                                    {item.usedAmount} {item.unitAbbreviation}
+                                    {item.usedAmount?.toFixed(2)}{" "}
+                                    {item.unitAbbreviation}
                                 </td>
                                 <td className="text-center py-2.5 px-4">
                                     {item.inventoryQuantity}{" "}

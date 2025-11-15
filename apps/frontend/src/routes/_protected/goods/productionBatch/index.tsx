@@ -94,13 +94,13 @@ function ProductionBatchList() {
         trpc.materials.materialList.queryOptions(),
     );
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const { data: topProducedMetrics } = useQuery(
-        trpc.productionBatch.mostProducedProductWithComparison.queryOptions({
+    const { data: monthlyProductionMetrics } = useQuery(
+        trpc.productionBatch.monthlyProducedQuantity.queryOptions({
             timezone,
         }),
     );
-    const { data: leastProducedMetrics } = useQuery(
-        trpc.productionBatch.leastProducedProductWithComparison.queryOptions({
+    const { data: monthlyMaterialCostMetrics } = useQuery(
+        trpc.productionBatch.monthlyMaterialCost.queryOptions({
             timezone,
         }),
     );
@@ -192,12 +192,12 @@ function ProductionBatchList() {
             key: "productionDate",
             label: "Production Date",
             values: data
-                ? [...new Set(data.map((batch) => batch.productionDate))].map(
-                      (date) => ({
-                          key: date,
-                          label: new Date(date).toLocaleDateString(),
-                      }),
-                  )
+                ? Array.from(
+                      new Set(data.map((batch) => batch.productionDate)),
+                  ).map((date) => ({
+                      key: date,
+                      label: new Date(date).toLocaleDateString(),
+                  }))
                 : [],
         },
     ];
@@ -487,19 +487,23 @@ function ProductionBatchList() {
                 ></AddButton>
             </div>
             <div className="flex gap-6 py-2 overflow-x-auto">
-                {topProducedMetrics && (
+                {monthlyProductionMetrics && (
                     <Metric
-                        value={topProducedMetrics.productName}
-                        changePercent={topProducedMetrics.percentageChange}
-                        topText="Most produced item"
+                        value={`${monthlyProductionMetrics.currentProduction} Items`}
+                        changePercent={
+                            monthlyProductionMetrics.percentageChange
+                        }
+                        topText="Monthly Produced Quantity"
                         bottomText="than last month"
                     />
                 )}
-                {leastProducedMetrics && (
+                {monthlyMaterialCostMetrics && (
                     <Metric
-                        value={leastProducedMetrics.productName}
-                        changePercent={leastProducedMetrics.percentageChange}
-                        topText="Least produced item"
+                        value={`$${Number(monthlyMaterialCostMetrics.currentProduction).toFixed(2)}`}
+                        changePercent={
+                            monthlyMaterialCostMetrics.percentageChange
+                        }
+                        topText="Monthly Material Cost"
                         bottomText="than last month"
                     />
                 )}
@@ -515,6 +519,16 @@ function ProductionBatchList() {
                         detailRender={detailsRender}
                         sortOptions={[
                             {
+                                key: "goodName",
+                                label: "Material Item (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "goodName",
+                                label: "Material Item (Z → A)",
+                                order: "desc",
+                            },
+                            {
                                 key: "productionDate",
                                 label: "Production Date (Oldest → Newest)",
                                 order: "asc",
@@ -523,6 +537,16 @@ function ProductionBatchList() {
                                 key: "productionDate",
                                 label: "Production Date (Newest → Oldest)",
                                 order: "desc",
+                            },
+                            {
+                                key: "quantity",
+                                label: "Quantity (Highest → Lowest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "quantity",
+                                label: "Quantity (Lowest → Highest)",
+                                order: "asc",
                             },
                         ]}
                     />
@@ -575,7 +599,9 @@ function ProductionBatchList() {
                         min="0"
                         step="1"
                         value={quantity}
-                        max={maxQuantity.toString()}
+                        max={
+                            maxQuantity > 0 ? maxQuantity.toString() : undefined
+                        }
                         onChange={(e) => setQuantity(Number(e.target.value))}
                         error={formErrors.quantity}
                     ></NumberInput>

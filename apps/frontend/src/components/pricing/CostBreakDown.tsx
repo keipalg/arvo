@@ -7,6 +7,7 @@ type CostBreakDownProps = {
     cogs?: string;
     operatingCosts?: string;
     profitMargin?: string;
+    isLabel?: boolean;
 };
 
 const CostBreakDown = ({
@@ -14,21 +15,28 @@ const CostBreakDown = ({
     cogs,
     operatingCosts,
     profitMargin,
+    isLabel,
 }: CostBreakDownProps) => {
     return (
         <div>
-            <FormLabel
-                label="Cost Breakdown per Item"
-                info="To see how your product’s price is built with a breakdown of overall costs: materials, COGS, and operating costs, along with the total profit margin of each product."
-            />
+            {isLabel ? (
+                <FormLabel
+                    label="Cost Breakdown per Item"
+                    info="To see how your product’s price is built with a breakdown of overall costs: materials, COGS, and operating costs, along with the total profit margin of each product."
+                />
+            ) : (
+                ""
+            )}
 
-            <div className="bg-arvo-white-0 py-2.5 px-3 border-solid border border-arvo-black-5 rounded-2xl mt-1.5">
-                <div className="flex flex-2 justify-between text-sm font-medium ">
+            <div
+                className={`bg-arvo-white-0 py-2.5 px-3 ${isLabel ? "border-solid border border-arvo-black-5" : ""} rounded-2xl mt-1.5`}
+            >
+                <div className="flex flex-2 justify-between text-[13px] font-medium ">
                     Raw Materials
                     <span>{mor ? mor : 0}</span>
                 </div>
                 <HorizontalRule />
-                <div className="flex flex-2 justify-between text-sm font-medium ">
+                <div className="flex flex-2 justify-between font-medium text-[13px]">
                     <div className="flex">
                         <span className="pr-2">COGS</span>
                         <ToolTip
@@ -40,7 +48,7 @@ const CostBreakDown = ({
 
                     <span>{cogs ? cogs : 0}</span>
                 </div>
-                <div className="flex flex-2 justify-between text-sm font-medium ">
+                <div className="flex flex-2 justify-between text-[13px] font-medium ">
                     <div className="flex">
                         <span className="pr-2">Operating Cost</span>
                         <ToolTip
@@ -52,7 +60,7 @@ const CostBreakDown = ({
                     <span>{operatingCosts ? operatingCosts : 0}</span>
                 </div>
                 <HorizontalRule />
-                <div className="flex flex-2 justify-between  font-semibold ">
+                <div className="flex flex-2 text-sm justify-between  font-semibold ">
                     Total Costs
                     <span>
                         ${" "}
@@ -62,7 +70,7 @@ const CostBreakDown = ({
                     </span>
                 </div>
                 <HorizontalRule />
-                <div className="flex flex-2 justify-between  font-semibold ">
+                <div className="flex flex-2 justify-between  text-sm font-semibold ">
                     Profit Margin
                     <span>{profitMargin ? profitMargin : 0} %</span>
                 </div>
