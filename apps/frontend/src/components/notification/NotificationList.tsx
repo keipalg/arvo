@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { trpc, queryClient } from "../../utils/trpcClient";
-import { NotificationItem } from "./NotificationItem";
 import { NOTIFICATION_TYPE_ROUTES } from "../../utils/constants/notifications";
+import { queryClient, trpc } from "../../utils/trpcClient";
+import { NotificationItem } from "./NotificationItem";
 
 export const NotificationList = () => {
     const navigate = useNavigate();
@@ -10,12 +10,7 @@ export const NotificationList = () => {
         data: notifications,
         isLoading,
         refetch,
-    } = useQuery(
-        trpc.notification.list.queryOptions({
-            page: 1,
-            limit: 20,
-        }),
-    );
+    } = useQuery(trpc.notification.list.queryOptions());
 
     const markAsReadMutation = useMutation(
         trpc.notification.markAsRead.mutationOptions({
