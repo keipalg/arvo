@@ -605,6 +605,7 @@ function SalesList() {
                         columns={columns}
                         data={tabledData || []}
                         detailRender={detailsRender}
+                        detailVisibility="mobile"
                         mobileVisibleKeys={[
                             "salesNumber",
                             "totalPrice",

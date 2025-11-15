@@ -2,6 +2,7 @@ import React, { useMemo, useState, type ReactNode } from "react";
 import TableSort from "./TableSort";
 import TableFilter from "./TableFilter";
 import TableSearch from "./TableSearch";
+import { useIsSmUp } from "../../utils/screenWidth";
 
 export type FilterOption<T> = {
     key: keyof T;
@@ -33,6 +34,7 @@ type DataTableProps<T> = {
     data: T[];
     columns: Column<T>[];
     detailRender?: (row: T) => ReactNode;
+    detailVisibility?: "both" | "mobile" | "desktop";
     mobileVisibleKeys?: (keyof T)[];
     sortOptions?: SortOption<T>[];
     filterOptions?: FilterOption<T>[];
@@ -43,6 +45,7 @@ const DataTable = <T extends { id: number | string }>({
     data,
     columns,
     detailRender,
+    detailVisibility = "both",
     mobileVisibleKeys,
     sortOptions,
     filterOptions,
@@ -65,7 +68,13 @@ const DataTable = <T extends { id: number | string }>({
         setOpenRows((prev) => ({ ...prev, [key]: !prev[key] }));
     };
 
+    const isSmUp = useIsSmUp();
     const hasDetails = Boolean(detailRender);
+    const showDetails =
+        hasDetails &&
+        (detailVisibility === "both" ||
+            (detailVisibility === "mobile" && !isSmUp) ||
+            (detailVisibility === "desktop" && isSmUp));
     const defaultMobileSet = new Set<keyof T>();
     if (columns[0]) defaultMobileSet.add(columns[0].key);
     if (columns[1]) defaultMobileSet.add(columns[1].key);
@@ -212,7 +221,7 @@ const DataTable = <T extends { id: number | string }>({
                     <table className="w-full">
                         <thead className="bg-arvo-white-100 border-b border-arvo-black-5 sticky top-0 z-10 shadow-md">
                             <tr>
-                                {hasDetails && <th className="px-4 py-3" />}
+                                {showDetails && <th className="px-4 py-3" />}
                                 {columns.map((column) => {
                                     const isHiddenOnMobile = !mobileSet.has(
                                         column.key,
@@ -239,7 +248,7 @@ const DataTable = <T extends { id: number | string }>({
                                     <td
                                         colSpan={
                                             columns.length +
-                                            (hasDetails ? 1 : 0)
+                                            (showDetails ? 1 : 0)
                                         }
                                         className="px-4 py-6 text-center text-arvo-black-50"
                                     >
@@ -261,7 +270,7 @@ const DataTable = <T extends { id: number | string }>({
                                                 key={rowKey}
                                                 data-id={element.id}
                                             >
-                                                {hasDetails && (
+                                                {showDetails && (
                                                     <td className="px-4 py-3">
                                                         <button
                                                             onClick={() =>
