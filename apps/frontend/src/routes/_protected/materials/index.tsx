@@ -691,6 +691,10 @@ function MaterialsList() {
                             },
                         ]}
                         filterOptions={tableFilterOptions}
+                        searchOption={{
+                            key: "name",
+                            label: "item name",
+                        }}
                     />
                 </MoreButtonProvider>
             )}
