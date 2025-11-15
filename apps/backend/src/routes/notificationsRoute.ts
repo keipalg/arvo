@@ -8,16 +8,9 @@ import {
 import { protectedProcedure, router } from "./trpcBase.js";
 
 export const notificationRouter = router({
-    list: protectedProcedure
-        .input(
-            z.object({
-                page: z.number().default(1),
-                limit: z.number().default(10),
-            }),
-        )
-        .query(async ({ ctx, input }) => {
-            return await getNotifications(ctx.user.id, input.page, input.limit);
-        }),
+    list: protectedProcedure.query(async ({ ctx }) => {
+        return await getNotifications(ctx.user.id);
+    }),
     unreadCount: protectedProcedure.query(async ({ ctx }) => {
         return await getUnreadCount(ctx.user.id);
     }),

@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { db } from "../db/client.js";
 import {
@@ -134,20 +134,12 @@ export const createMaterialLowInventoryNotification = async (
 };
 
 /**
- * Get all notifications for user
+ * Get the last 20 notifications for user
  * For notifications tray
  * @param userId user ID
- * @param page optional page (defaults to 1)
- * @param limit optional limit (defaults to 10)
- * @returns list of notifications
+ * @returns list of the last 20 notifications
  */
-export const getNotifications = async (
-    userId: string,
-    page: number = 1,
-    limit: number = 10,
-) => {
-    const offset = (page - 1) * limit;
-
+export const getNotifications = async (userId: string) => {
     const notifications = await db
         .select({
             id: notification.id,
@@ -168,30 +160,32 @@ export const getNotifications = async (
         )
         .where(eq(notification.userId, userId))
         .orderBy(desc(notification.notifiedAt))
-        .limit(limit)
-        .offset(offset);
+        .limit(20);
 
     return notifications;
 };
 
 /**
- * Get unread count of notifications
+ * Get unread count of notifications from the last 20 notifications
  * For notification icon at header
  * @param userId user ID
- * @returns count
+ * @returns count of unread notifications within the last 20
  */
 export const getUnreadCount = async (userId: string): Promise<number> => {
-    const result = await db
-        .select({ count: count() })
+    // Fetch only the last 20 notifications
+    const last20Notifications = await db
+        .select({ id: notification.id, isRead: notification.isRead })
         .from(notification)
-        .where(
-            and(
-                eq(notification.userId, userId),
-                eq(notification.isRead, false),
-            ),
-        );
+        .where(eq(notification.userId, userId))
+        .orderBy(desc(notification.notifiedAt))
+        .limit(20);
 
-    return result[0]?.count || 0;
+    // Count how many are unread
+    const unreadCount = last20Notifications.filter(
+        (n) => n.isRead === false,
+    ).length;
+
+    return unreadCount;
 };
 
 /**
