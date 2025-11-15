@@ -1,11 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { NotificationList } from "./NotificationList";
 
 type NotificationTrayProps = {
     onClose: () => void;
+    buttonRef: RefObject<HTMLButtonElement | null>;
 };
 
-export const NotificationTray = ({ onClose }: NotificationTrayProps) => {
+export const NotificationTray = ({
+    onClose,
+    buttonRef,
+}: NotificationTrayProps) => {
     const trayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -14,7 +18,10 @@ export const NotificationTray = ({ onClose }: NotificationTrayProps) => {
                 // check reference is defined
                 trayRef.current &&
                 // and click (event.target) is outside the tray
-                !trayRef.current.contains(event.target as Node)
+                !trayRef.current.contains(event.target as Node) &&
+                // and click is not on the notification button
+                buttonRef.current &&
+                !buttonRef.current.contains(event.target as Node)
             ) {
                 onClose();
             }
@@ -24,7 +31,7 @@ export const NotificationTray = ({ onClose }: NotificationTrayProps) => {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [onClose]);
+    }, [onClose, buttonRef]);
 
     useEffect(() => {
         const handleEscKey = (event: KeyboardEvent) => {
