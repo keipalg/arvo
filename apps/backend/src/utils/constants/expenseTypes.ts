@@ -26,6 +26,12 @@ export const OperationalExpenseTypes = {
     miscellaneous: {
         label: "Miscellaneous",
     },
+    discount: {
+        label: "Discount",
+    },
+    shipping: {
+        label: "Shipping",
+    },
 } as const;
 
 export const StudioOverheadExpenseTypes = {

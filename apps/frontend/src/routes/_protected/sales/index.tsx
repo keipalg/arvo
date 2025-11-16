@@ -458,8 +458,8 @@ function SalesList() {
         setSalesNumber(sale.salesNumber);
         setEditingSaleId(sale.id);
         setNotes(sale.note || "");
-        setDiscount(sale.discount ?? 0.0);
-        setShippingFee(sale.shippingFee ?? 0.0);
+        setDiscount(sale.discount ? Number(sale.discount) : 0.0);
+        setShippingFee(sale.shippingFee ? Number(sale.shippingFee) : 0.0);
         setTax(sale.taxPercentage ?? 0.0);
         setProfit(sale.profit ?? 0.0);
         setCogs(sale.cogs ?? 0.0);
@@ -705,7 +705,7 @@ function SalesList() {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="font-semibold">Subtotal</div>
                             <div className="font-semibold text-right">
-                                ${formatPrice(subTotalPrice)}
+                                {formatPrice(subTotalPrice)}
                             </div>
 
                             <div className="font-semibold">Discount</div>
