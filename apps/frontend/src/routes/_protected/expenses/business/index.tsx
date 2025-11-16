@@ -1261,6 +1261,7 @@ function BusinessExpense() {
                                         ? 0
                                         : businessExpenseFormData.selectedInventoryLossMaxQuantity,
                                 )}
+                                error={validationError.quantity}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>,
                                 ) => {
@@ -1305,71 +1306,6 @@ function BusinessExpense() {
                                         }
                                     });
                                 }}
-                            />
-                            <TextInput
-                                type="number"
-                                step={
-                                    businessExpenseFormData.selectedInventoryLossOption ===
-                                    "goods_loss"
-                                        ? "1"
-                                        : "0.01"
-                                }
-                                label={
-                                    "Quantity: " +
-                                    (businessExpenseFormData.selectedInventoryLossOption ===
-                                    "goods_loss"
-                                        ? "(item)"
-                                        : materialsList?.find(
-                                              (m) =>
-                                                  m.id ===
-                                                  businessExpenseFormData.materialAndSupply_id,
-                                          )?.unitAbbreviation || "")
-                                }
-                                name="quantity"
-                                value={businessExpenseFormData.quantity}
-                                onChange={(e) => {
-                                    const newQuantity = parseFloat(
-                                        e.target.value,
-                                    );
-                                    setBusinessExpenseFormData((prev) => {
-                                        if (prev.materialAndSupply_id) {
-                                            const selectedMaterial =
-                                                materialsList?.find(
-                                                    (m) =>
-                                                        m.id ===
-                                                        prev.materialAndSupply_id,
-                                                );
-                                            return {
-                                                ...prev,
-                                                quantity: newQuantity,
-                                                cost: selectedMaterial?.costPerUnit
-                                                    ? selectedMaterial.costPerUnit *
-                                                      newQuantity
-                                                    : prev.cost,
-                                            };
-                                        } else if (prev.good_id) {
-                                            const selectedGoods =
-                                                goodsList?.find(
-                                                    (g) =>
-                                                        g.id === prev.good_id,
-                                                );
-                                            return {
-                                                ...structuredClone(prev),
-                                                quantity: newQuantity,
-                                                cost: selectedGoods?.materialCost
-                                                    ? selectedGoods.materialCost *
-                                                      newQuantity
-                                                    : prev.cost,
-                                            };
-                                        } else {
-                                            return {
-                                                ...prev,
-                                                quantity: newQuantity,
-                                            };
-                                        }
-                                    });
-                                }}
-                                error={validationError.quantity}
                             />
                         </>
                     ) : (
