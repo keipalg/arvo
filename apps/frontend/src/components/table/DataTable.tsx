@@ -86,11 +86,11 @@ const DataTable = <T extends { id: number | string }>({
     );
 
     const tableFilterOptions =
-        (filterOptions ?? []).map((opt) => {
+        (filterOptions ?? []).map((opt, index) => {
             const actualKey = String(opt.key).split(":")[0];
 
             return {
-                key: String(opt.key), // Keep the full unique key for UI tracking
+                key: String(opt.key) + `_${index}`, // Keep the full unique key for UI tracking
                 label: opt.label,
                 values:
                     (opt.values ?? []).map((v) => ({
