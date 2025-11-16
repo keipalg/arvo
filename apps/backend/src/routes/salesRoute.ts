@@ -15,6 +15,8 @@ import {
     getMonthlySalesRevenue,
     getMonthlySalesCount,
     updateSaleStatus,
+    updateSaleRefs,
+    getSaleById,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
 import {
@@ -31,6 +33,12 @@ import { isProductsError, isTotalPriceError } from "../utils/salesUtil.js";
 import { TRPCError } from "@trpc/server";
 import { db } from "../db/client.js";
 import { getUsedMaterialPerSales } from "../service/getUsedMaterialPerSales.js";
+import {
+    addOperationalExpense,
+    deleteOperationalExpense,
+    updateOperationalExpense,
+    type OperationalInsert,
+} from "../service/operationalExpenseService.js";
 
 export const salesRouter = router({
     /**
@@ -107,11 +115,53 @@ export const salesRouter = router({
                     statusId: statusInfo!.id,
                     totalPrice: input.totalPrice,
                     note: input.note,
-                    discount: input.discount,
-                    shippingFee: input.shippingFee,
                     taxPercentage: input.taxPercentage,
                 };
                 const saledata = await addSale(inputData, tx);
+
+                let discountRef = null;
+                let shippingFeeRef = null;
+                if (input.discount) {
+                    const inputDiscountExpense: OperationalInsert = {
+                        id: "",
+                        expense_type: "discount",
+                        user_id: ctx.user.id,
+                        name: `Discount for Sale #${String(input.salesNumber).padStart(7, "0")}`,
+                        cost: String(input.discount),
+                        payee: "",
+                        payment_method: "credit",
+                        quantity: "1",
+                        notes: "",
+                        attach_recipt: "",
+                        createdAt: new Date(),
+                    };
+                    const discountRes = await addOperationalExpense(
+                        inputDiscountExpense,
+                        tx,
+                    );
+                    discountRef = discountRes[0].id;
+                }
+
+                if (input.shippingFee) {
+                    const inputShippingFeeExpense: OperationalInsert = {
+                        id: "",
+                        expense_type: "shipping",
+                        user_id: ctx.user.id,
+                        name: `Shipping for Sale #${String(input.salesNumber).padStart(7, "0")}`,
+                        cost: String(input.shippingFee),
+                        payee: "",
+                        payment_method: "credit",
+                        quantity: "1",
+                        notes: "",
+                        attach_recipt: "",
+                        createdAt: new Date(),
+                    };
+                    const shippingFeeRes = await addOperationalExpense(
+                        inputShippingFeeExpense,
+                        tx,
+                    );
+                    shippingFeeRef = shippingFeeRes[0].id;
+                }
 
                 let totalCogs = 0;
                 for (const product of input.products) {
@@ -147,6 +197,8 @@ export const salesRouter = router({
                         id: saledata[0].id,
                         cogs: totalCogs,
                         profit: input.totalPrice - totalCogs,
+                        discountRef: discountRef,
+                        shippingFeeRef: shippingFeeRef,
                     },
                     tx,
                 );
@@ -165,6 +217,7 @@ export const salesRouter = router({
                 ctx.user.id,
                 productList,
             );
+            const existingSale = await getSaleById(input.id, ctx.user.id);
             const existingSaleDetails = await getSaleDetailsBySaleId(input.id);
 
             const dbProducts: {
@@ -238,11 +291,100 @@ export const salesRouter = router({
                     cogs: totalCogs,
                     profit: input.totalPrice - totalCogs,
                     note: input.note,
-                    discount: input.discount,
-                    shippingFee: input.shippingFee,
                     taxPercentage: input.taxPercentage,
                 };
                 await updateSale(updateData, tx);
+
+                let discountRef = null;
+                if (input.discount) {
+                    const inputDiscountExpense: OperationalInsert = {
+                        id: "",
+                        expense_type: "discount",
+                        user_id: ctx.user.id,
+                        name: `Discount for Sale #${String(input.salesNumber).padStart(7, "0")}`,
+                        cost: String(input.discount),
+                        payee: "",
+                        payment_method: "credit",
+                        quantity: "1",
+                        notes: "",
+                        attach_recipt: "",
+                        createdAt: new Date(),
+                    };
+
+                    if (existingSale.discountRef) {
+                        const updateStudioOverheadExpenseRes =
+                            await updateOperationalExpense(
+                                existingSale.discountRef,
+                                inputDiscountExpense,
+                                tx,
+                            );
+                        discountRef = updateStudioOverheadExpenseRes[0].id;
+                    } else {
+                        const addStudioOverheadExpenseRes =
+                            await addOperationalExpense(
+                                inputDiscountExpense,
+                                tx,
+                            );
+                        discountRef = addStudioOverheadExpenseRes[0].id;
+                    }
+                } else {
+                    if (existingSale.discountRef) {
+                        await deleteOperationalExpense(
+                            existingSale.discountRef,
+                            tx,
+                        );
+                    }
+                }
+
+                let shippingFeeRef = null;
+                if (input.shippingFee) {
+                    const inputShippingFeeExpense: OperationalInsert = {
+                        id: "",
+                        expense_type: "shipping",
+                        user_id: ctx.user.id,
+                        name: `Shipping for Sale #${String(input.salesNumber).padStart(7, "0")}`,
+                        cost: String(input.shippingFee),
+                        payee: "",
+                        payment_method: "credit",
+                        quantity: "1",
+                        notes: "",
+                        attach_recipt: "",
+                        createdAt: new Date(),
+                    };
+
+                    if (existingSale.shippingFeeRef) {
+                        const updateStudioOverheadExpenseRes =
+                            await updateOperationalExpense(
+                                existingSale.shippingFeeRef,
+                                inputShippingFeeExpense,
+                                tx,
+                            );
+                        shippingFeeRef = updateStudioOverheadExpenseRes[0].id;
+                    } else {
+                        const addStudioOverheadExpenseRes =
+                            await addOperationalExpense(
+                                inputShippingFeeExpense,
+                                tx,
+                            );
+                        shippingFeeRef = addStudioOverheadExpenseRes[0].id;
+                    }
+                } else {
+                    if (existingSale.shippingFeeRef) {
+                        await deleteOperationalExpense(
+                            existingSale.shippingFeeRef,
+                            tx,
+                        );
+                    }
+                }
+
+                await updateSaleRefs(
+                    {
+                        discountRef: discountRef,
+                        shippingFeeRef: shippingFeeRef,
+                    },
+                    input.id,
+                    tx,
+                );
 
                 await deleteSaleDetailsBySaleId(input.id, tx);
 
@@ -296,8 +438,9 @@ export const salesRouter = router({
      */
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
-        .mutation(async ({ input }) => {
+        .mutation(async ({ ctx, input }) => {
             await db.transaction(async (tx) => {
+                const existingSale = await getSaleById(ctx.user.id, input.id);
                 const saleDetails = await getSaleDetailsBySaleId(input.id, tx);
                 for (const detail of saleDetails) {
                     await increaseDecreaseInventoryQuantity(
@@ -307,6 +450,18 @@ export const salesRouter = router({
                     );
                 }
                 await deleteSale(input.id, tx);
+                if (existingSale.discountRef) {
+                    await deleteOperationalExpense(
+                        existingSale.discountRef,
+                        tx,
+                    );
+                }
+                if (existingSale.shippingFeeRef) {
+                    await deleteOperationalExpense(
+                        existingSale.shippingFeeRef,
+                        tx,
+                    );
+                }
             });
             return { success: true };
         }),

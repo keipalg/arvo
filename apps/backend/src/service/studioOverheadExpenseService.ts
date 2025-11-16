@@ -15,18 +15,23 @@ export type StudioOverheadInsert = InferInsertModel<
 >;
 
 export const addStudioOverheadExpense = async (data: StudioOverheadInsert) => {
-    return await db.insert(studio_overhead_expense).values({
-        id: uuidv7(),
-        user_id: data.user_id,
-        name: data.name,
-        createdAt: data.createdAt,
-        payment_method: data.payment_method,
-        expense_type: data.expense_type,
-        cost: data.cost,
-        payee: data.payee,
-        notes: data.notes,
-        attach_recipt: data.attach_recipt,
-    });
+    return await db
+        .insert(studio_overhead_expense)
+        .values({
+            id: uuidv7(),
+            user_id: data.user_id,
+            name: data.name,
+            createdAt: data.createdAt,
+            payment_method: data.payment_method,
+            expense_type: data.expense_type,
+            cost: data.cost,
+            payee: data.payee,
+            notes: data.notes,
+            attach_recipt: data.attach_recipt,
+        })
+        .returning({
+            id: studio_overhead_expense.id,
+        });
 };
 
 export const deleteStudioOverheadExpense = async (id: string) => {
@@ -42,5 +47,8 @@ export const updateStudioOverheadExpense = async (
     return await db
         .update(studio_overhead_expense)
         .set(data)
-        .where(eq(studio_overhead_expense.id, id));
+        .where(eq(studio_overhead_expense.id, id))
+        .returning({
+            id: studio_overhead_expense.id,
+        });
 };

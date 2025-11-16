@@ -34,6 +34,8 @@ import ToastNotification from "../../../components/modal/ToastNotification";
 import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 import AddButton from "../../../components/button/AddButton";
 import { formatPrice } from "../../../utils/formatPrice";
+import DatePicker from "../../../components/input/DatePicker";
+import { getFormattedDate } from "../../../utils/dateFormatter";
 
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
@@ -162,7 +164,7 @@ function SalesList() {
                     return isNaN(dateObj.getTime()) ? (
                         <></>
                     ) : (
-                        <>{dateObj.toLocaleDateString()}</>
+                        <>{getFormattedDate(dateObj)}</>
                     );
                 }
                 return <></>;
@@ -506,15 +508,13 @@ function SalesList() {
         setDrawerOpen(true);
         setCustomer(sale.customer);
         setChannelId(sale.channelId);
-        setDate(
-            sale.date ? new Date(sale.date).toISOString().slice(0, 16) : "",
-        );
+        setDate(sale.date ? getFormattedDate(new Date(sale.date)) : "");
         setStatus(sale.status);
         setSalesNumber(sale.salesNumber);
         setEditingSaleId(sale.id);
         setNotes(sale.note || "");
-        setDiscount(sale.discount ?? 0.0);
-        setShippingFee(sale.shippingFee ?? 0.0);
+        setDiscount(sale.discount ? Number(sale.discount) : 0.0);
+        setShippingFee(sale.shippingFee ? Number(sale.shippingFee) : 0.0);
         setTax(sale.taxPercentage ?? 0.0);
         setProfit(sale.profit ?? 0.0);
         setCogs(sale.cogs ?? 0.0);
@@ -779,7 +779,7 @@ function SalesList() {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="font-semibold">Subtotal</div>
                             <div className="font-semibold text-right">
-                                ${formatPrice(subTotalPrice)}
+                                {formatPrice(subTotalPrice)}
                             </div>
 
                             <div className="font-semibold">Discount</div>
@@ -825,7 +825,7 @@ function SalesList() {
                         </div>
                         <div className="font-semibold">Sales Date</div>
                         <div>
-                            {date ? new Date(date).toLocaleString() : "-"}
+                            {date ? getFormattedDate(new Date(date)) : "-"}
                         </div>
                         <div>
                             <div className="font-semibold">
@@ -866,14 +866,13 @@ function SalesList() {
                                 onChange={(e) => setChannelId(e.target.value)}
                                 error={formErrors.channelId}
                             ></Select>
-                            <TextInput
-                                label="Sale Date & Time"
-                                type="datetime-local"
-                                name="customer"
+                            <DatePicker
+                                label="Sales Date"
+                                name="date"
                                 value={date}
-                                onChange={(e) => setDate(e.target.value)}
+                                onChange={setDate}
                                 error={formErrors.date}
-                            ></TextInput>
+                            ></DatePicker>
                         </div>
                         <Button
                             type="button"

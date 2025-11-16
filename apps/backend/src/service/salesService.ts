@@ -7,14 +7,30 @@ import {
     type InferInsertModel,
     type InferSelectModel,
 } from "drizzle-orm";
-import { channel, good, sale, saleDetail, status } from "../db/schema.js";
+import {
+    channel,
+    good,
+    operational_expense,
+    sale,
+    saleDetail,
+    status,
+} from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import { getMonthRangeInTimezone } from "../utils/datetimeUtil.js";
 import { createProductLowInventoryNotification } from "./notificationsService.js";
+import { alias } from "drizzle-orm/pg-core";
 
 export type GoodSelect = Partial<InferSelectModel<typeof good>>;
 export type SaleSelect = InferSelectModel<typeof sale>;
+const operationalExpenseDiscountAlias = alias(
+    operational_expense,
+    "oeDiscount",
+);
+const operationalExpenseShippingFeeAlias = alias(
+    operational_expense,
+    "oeShippingFee",
+);
 export const getSalesList = async (userId: string) => {
     return await db
         .select({
@@ -27,8 +43,10 @@ export const getSalesList = async (userId: string) => {
             channel: channel.name,
             status: status.key,
             note: sale.note,
-            discount: sale.discount,
-            shippingFee: sale.shippingFee,
+            // discount: sale.discount,
+            // shippingFee: sale.shippingFee,
+            discount: operationalExpenseDiscountAlias.cost,
+            shippingFee: operationalExpenseShippingFeeAlias.cost,
             taxPercentage: sale.taxPercentage,
             profit: sale.profit,
             cogs: sale.cogs,
@@ -36,7 +54,32 @@ export const getSalesList = async (userId: string) => {
         .from(sale)
         .where(eq(sale.userId, userId))
         .innerJoin(channel, eq(sale.channelId, channel.id))
-        .innerJoin(status, eq(sale.statusId, status.id));
+        .innerJoin(status, eq(sale.statusId, status.id))
+        .leftJoin(
+            operationalExpenseDiscountAlias,
+            eq(sale.discountRef, operationalExpenseDiscountAlias.id),
+        )
+        .leftJoin(
+            operationalExpenseShippingFeeAlias,
+            eq(sale.shippingFeeRef, operationalExpenseShippingFeeAlias.id),
+        );
+};
+
+export const getSaleById = async (
+    userId: string,
+    saleId: string,
+    tx: NeonDbTx = db,
+) => {
+    const result = await tx
+        .select({
+            discountRef: sale.discountRef,
+            shippingFeeRef: sale.shippingFeeRef,
+        })
+        .from(sale)
+        .where(and(eq(sale.id, saleId), eq(sale.userId, userId)))
+        .limit(1);
+
+    return result[0];
 };
 
 export const getSaleDetailsBySaleId = async (
@@ -69,8 +112,6 @@ export const addSale = async (data: SaleInsert, tx: NeonDbTx = db) => {
             statusId: data.statusId,
             totalPrice: data.totalPrice,
             note: data.note,
-            discount: data.discount,
-            shippingFee: data.shippingFee,
             taxPercentage: data.taxPercentage,
             cogs: data.cogs,
             profit: data.profit,
@@ -104,8 +145,8 @@ export const updateSale = async (data: SaleInsert, tx: NeonDbTx = db) => {
             statusId: data.statusId,
             totalPrice: data.totalPrice,
             note: data.note,
-            discount: data.discount,
-            shippingFee: data.shippingFee,
+            discountRef: data.discountRef,
+            shippingFeeRef: data.shippingFeeRef,
             taxPercentage: data.taxPercentage,
             cogs: data.cogs,
             profit: data.profit,
@@ -122,6 +163,23 @@ export const updateSaleStatus = async (
         .update(sale)
         .set({
             statusId: statusId,
+        })
+        .where(eq(sale.id, saleId));
+};
+
+export const updateSaleRefs = async (
+    data: {
+        discountRef: string | null;
+        shippingFeeRef: string | null;
+    },
+    saleId: string,
+    tx: NeonDbTx = db,
+) => {
+    await tx
+        .update(sale)
+        .set({
+            discountRef: data.discountRef,
+            shippingFeeRef: data.shippingFeeRef,
         })
         .where(eq(sale.id, saleId));
 };

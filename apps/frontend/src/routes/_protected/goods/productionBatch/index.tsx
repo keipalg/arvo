@@ -7,7 +7,7 @@ import DataTable, {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../../utils/trpcClient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
@@ -31,7 +31,10 @@ import {
 import type React from "react";
 import { useIsSmUp } from "../../../../utils/screenWidth";
 import DatePicker from "../../../../components/input/DatePicker";
-import { getFormattedDate } from "../../../../utils/dateFormatter";
+import {
+    getFormattedDate,
+    getGroupedDatesByMonth,
+} from "../../../../utils/dateFormatter";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -187,20 +190,52 @@ function ProductionBatchList() {
         },
     ];
 
-    const tableFilterOptions: FilterOption<ProductionBatch>[] = [
-        {
-            key: "productionDate",
-            label: "Production Date",
-            values: data
-                ? Array.from(
-                      new Set(data.map((batch) => batch.productionDate)),
-                  ).map((date) => ({
-                      key: date,
-                      label: new Date(date).toLocaleDateString(),
-                  }))
-                : [],
-        },
-    ];
+    // Generate date filter options grouped by month/year
+    const tableFilterOptions: FilterOption<ProductionBatch>[] = useMemo(() => {
+        if (!data) return [];
+
+        const dates = data.map((batch) => batch.productionDate);
+        const grouped = getGroupedDatesByMonth(dates);
+
+        // Get years sorted newest first
+        const years = Object.keys(grouped).sort(
+            (a, b) => Number(b) - Number(a),
+        );
+
+        // Create hierarchical structure: Year > Month
+        return years
+            .map((year) => {
+                const months = grouped[year];
+                if (!months) return null;
+
+                // Get month keys sorted chronologically (newest first)
+                const monthKeys = Object.keys(months).sort(
+                    (a, b) => Number(b) - Number(a),
+                );
+
+                const monthValues = monthKeys
+                    .map((monthKey) => {
+                        const monthData = months[monthKey];
+                        if (!monthData) return null;
+
+                        // Use YYYY-MM format as the key for partial matching
+                        const yearMonth = `${year}-${monthKey}`;
+
+                        return {
+                            key: yearMonth,
+                            label: `${monthData.monthName} (${monthData.count})`,
+                        };
+                    })
+                    .filter(Boolean) as Array<{ key: string; label: string }>;
+
+                return {
+                    key: `productionDate:${year}`,
+                    label: year,
+                    values: monthValues,
+                };
+            })
+            .filter(Boolean) as FilterOption<ProductionBatch>[];
+    }, [data]);
 
     const resetForm = () => {
         setGoodId("");

@@ -148,3 +148,83 @@ export function getFormattedDateTime(
 export function getDateForInputField(date: string | Date): string {
     return getFormattedDate(date, DateFormats.YYYY_MM_DD);
 }
+
+/**
+ * Groups dates by month and year
+ * @param dates array of dates to group (string or Date objects)
+ * @returns object grouped by year and month with metadata
+ *
+ * @example
+ * const dates = ["2025-10-28", "2025-10-15", "2025-11-05", "2024-12-20"];
+ * getGroupedDatesByMonth(dates);
+ * // Returns:
+ * // {
+ * //   "2025": {
+ * //     "10": { dates: ["2025-10-28", "2025-10-15"], monthName: "October", monthNum: 10, count: 2 },
+ * //     "11": { dates: ["2025-11-05"], monthName: "November", monthNum: 11, count: 1 }
+ * //   },
+ * //   "2024": {
+ * //     "12": { dates: ["2024-12-20"], monthName: "December", monthNum: 12, count: 1 }
+ * //   }
+ * // }
+ */
+export function getGroupedDatesByMonth(dates: (string | Date)[]): Record<
+    string,
+    Record<
+        string,
+        {
+            dates: (string | Date)[];
+            monthName: string;
+            monthNum: number;
+            count: number;
+        }
+    >
+> {
+    const grouped = dates.reduce(
+        (acc, date) => {
+            try {
+                const parsedDate = parseDate(date);
+                const year = parsedDate.getFullYear().toString();
+                const monthNum = parsedDate.getMonth() + 1; // 0-indexed, so add 1
+                const monthKey = monthNum.toString().padStart(2, "0"); // "01", "02", etc.
+                const monthName = parsedDate.toLocaleDateString("en-US", {
+                    month: "long",
+                });
+
+                if (!acc[year]) {
+                    acc[year] = {};
+                }
+                if (!acc[year][monthKey]) {
+                    acc[year][monthKey] = {
+                        dates: [],
+                        monthName,
+                        monthNum,
+                        count: 0,
+                    };
+                }
+
+                acc[year][monthKey].dates.push(date);
+                acc[year][monthKey].count += 1;
+
+                return acc;
+            } catch (error) {
+                console.error(`Error grouping date ${String(date)}:`, error);
+                return acc;
+            }
+        },
+        {} as Record<
+            string,
+            Record<
+                string,
+                {
+                    dates: (string | Date)[];
+                    monthName: string;
+                    monthNum: number;
+                    count: number;
+                }
+            >
+        >,
+    );
+
+    return grouped;
+}

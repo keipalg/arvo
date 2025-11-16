@@ -98,6 +98,8 @@ export const operational_expense_type_enum = pgEnum(
         "storage_fee",
         "inventory_loss",
         "miscellaneous",
+        "discount",
+        "shipping",
     ],
 );
 
@@ -383,6 +385,9 @@ export const sale = pgTable("sale", {
     })
         .default(0)
         .notNull(),
+    discountRef: uuid("discount_ref").references(() => operational_expense.id, {
+        onDelete: "set null",
+    }),
     shippingFee: numeric("shipping_fee", {
         precision: 12,
         scale: 2,
@@ -390,6 +395,10 @@ export const sale = pgTable("sale", {
     })
         .default(0)
         .notNull(),
+    shippingFeeRef: uuid("shipping_fee_ref").references(
+        () => operational_expense.id,
+        { onDelete: "set null" },
+    ),
     taxPercentage: numeric("tax_percentage", {
         precision: 12,
         scale: 2,
