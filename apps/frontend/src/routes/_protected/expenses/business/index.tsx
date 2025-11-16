@@ -45,6 +45,7 @@ type OperationalExpense =
     | "storage_fee"
     | "inventory_loss"
     | "miscellaneous";
+type SalesExpense = "discount" | "shipping";
 type OverheadExpense =
     | "space_rent"
     | "tools_equipment"
@@ -65,7 +66,9 @@ type BusinessExpense = {
         | "space_rent"
         | "tools_equipment"
         | "packaging_supplies"
-        | "miscellaneous";
+        | "miscellaneous"
+        | "discount"
+        | "shipping";
     name: string;
     cost: number;
     payee: string;
@@ -103,6 +106,7 @@ function BusinessExpense() {
         "inventory_loss",
         "miscellaneous",
     ];
+    const SalesExpenseList: SalesExpense[] = ["discount", "shipping"];
     const OverheadExpenseList: OverheadExpense[] = [
         "space_rent",
         "tools_equipment",
@@ -807,49 +811,57 @@ function BusinessExpense() {
         {
             key: "actions",
             header: "Actions",
-            render: (_value, row) => (
-                <>
-                    <MoreButton
-                        id={row.id}
-                        onEdit={() => {
-                            setBusinessExpenseFormData({
-                                ...row,
-                                selectedInventoryLossOption: row.good_id
-                                    ? "goods_loss"
-                                    : "materials_loss",
-                                attach_recipt:
-                                    row.attach_recipt === ""
-                                        ? undefined
-                                        : row.attach_recipt,
-                                cost: Number(row.cost),
-                            });
-                            setDrawerOpen(true);
-                            setSelectedItemForDeletion({
-                                id: row.id,
-                                name: row.name,
-                                expense_category: row.expense_category,
-                            });
-                            if (
-                                row.due_date &&
-                                row.start_date &&
-                                row.repeat_every
-                            ) {
-                                setToggleOpen(true);
-                            } else {
-                                setToggleOpen(false);
-                            }
-                        }}
-                        onDeleteModal={() => {
-                            setIsConfirmationModalOpen(true);
-                            setSelectedItemForDeletion({
-                                expense_category: row.expense_category,
-                                id: row.id,
-                                name: row.name,
-                            });
-                        }}
-                    />
-                </>
-            ),
+            render: (_value, row) => {
+                return (
+                    <>
+                        {SalesExpenseList.includes(
+                            row.expense_type as SalesExpense,
+                        ) ? (
+                            <></>
+                        ) : (
+                            <MoreButton
+                                id={row.id}
+                                onEdit={() => {
+                                    setBusinessExpenseFormData({
+                                        ...row,
+                                        selectedInventoryLossOption: row.good_id
+                                            ? "goods_loss"
+                                            : "materials_loss",
+                                        attach_recipt:
+                                            row.attach_recipt === ""
+                                                ? undefined
+                                                : row.attach_recipt,
+                                        cost: Number(row.cost),
+                                    });
+                                    setDrawerOpen(true);
+                                    setSelectedItemForDeletion({
+                                        id: row.id,
+                                        name: row.name,
+                                        expense_category: row.expense_category,
+                                    });
+                                    if (
+                                        row.due_date &&
+                                        row.start_date &&
+                                        row.repeat_every
+                                    ) {
+                                        setToggleOpen(true);
+                                    } else {
+                                        setToggleOpen(false);
+                                    }
+                                }}
+                                onDeleteModal={() => {
+                                    setIsConfirmationModalOpen(true);
+                                    setSelectedItemForDeletion({
+                                        expense_category: row.expense_category,
+                                        id: row.id,
+                                        name: row.name,
+                                    });
+                                }}
+                            />
+                        )}
+                    </>
+                );
+            },
         },
     ];
 

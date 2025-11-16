@@ -15,24 +15,29 @@ export const addOperationalExpense = async (
     data: OperationalInsert,
     tx: NeonDbTx = db,
 ) => {
-    return await tx.insert(operational_expense).values({
-        id: uuidv7(),
-        user_id: data.user_id,
-        name: data.name,
-        createdAt: data.createdAt,
-        payment_method: data.payment_method,
-        expense_type: data.expense_type,
-        cost: data.cost,
-        payee: data.payee,
-        good_id: data.good_id,
-        materialAndSupply_id: data.materialAndSupply_id,
-        quantity: data.quantity,
-        notes: data.notes,
-        attach_recipt: data.attach_recipt,
-        repeat_every: data.repeat_every,
-        start_date: data.start_date,
-        due_date: data.due_date,
-    });
+    return await tx
+        .insert(operational_expense)
+        .values({
+            id: uuidv7(),
+            user_id: data.user_id,
+            name: data.name,
+            createdAt: data.createdAt,
+            payment_method: data.payment_method,
+            expense_type: data.expense_type,
+            cost: data.cost,
+            payee: data.payee,
+            good_id: data.good_id,
+            materialAndSupply_id: data.materialAndSupply_id,
+            quantity: data.quantity,
+            notes: data.notes,
+            attach_recipt: data.attach_recipt,
+            repeat_every: data.repeat_every,
+            start_date: data.start_date,
+            due_date: data.due_date,
+        })
+        .returning({
+            id: operational_expense.id,
+        });
 };
 
 export const deleteOperationalExpense = async (
@@ -52,7 +57,8 @@ export const updateOperationalExpense = async (
     return await tx
         .update(operational_expense)
         .set(data)
-        .where(eq(operational_expense.id, id));
+        .where(eq(operational_expense.id, id))
+        .returning({ id: operational_expense.id });
 };
 
 export const getOperationalExpenseById = async (
