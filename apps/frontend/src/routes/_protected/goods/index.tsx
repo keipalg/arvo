@@ -40,6 +40,7 @@ import FormLabel from "../../../components/input/FormLabel.tsx";
 import NumberInput from "../../../components/input/NumberInput.tsx";
 import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
 import { uploadFile } from "../../../utils/fileUpload.ts";
+import MetricsGroup from "../../../components/metric/MetricsGroup.tsx";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -621,7 +622,7 @@ function GoodsList() {
                 ></AddButton>
             </div>
 
-            <div className="flex gap-6 py-2  overflow-x-auto">
+            <MetricsGroup>
                 {topProductMetrics ? (
                     <Metric
                         value={topProductMetrics.productName}
@@ -642,7 +643,7 @@ function GoodsList() {
                 ) : (
                     ""
                 )}
-            </div>
+            </MetricsGroup>
 
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
@@ -666,12 +667,12 @@ function GoodsList() {
                             },
                             {
                                 key: "createdAt",
-                                label: "Date Created (Oldest → Newest)",
+                                label: "Oldest → Newest",
                                 order: "asc",
                             },
                             {
                                 key: "createdAt",
-                                label: "Date Created (Newest → Oldest)",
+                                label: "Newest → Oldest",
                                 order: "desc",
                             },
                             {
