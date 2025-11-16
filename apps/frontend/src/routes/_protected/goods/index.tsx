@@ -612,7 +612,7 @@ function GoodsList() {
             />
             <div className="flex justify-between gap-2">
                 <PageTitle
-                    title="Product Inventory"
+                    title="Product List"
                     info="This is your product inventory page. You can manage and see all your products details, price, stock level, and material used all at once"
                 />
                 <AddButton
