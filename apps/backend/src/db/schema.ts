@@ -177,27 +177,27 @@ export const good = pgTable("good", {
     producedQuantity: integer("produced_quantity").default(0),
     materialCost: numeric("material_cost", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     overheadCost: numeric("overhead_cost", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     laborCost: numeric("labor_cost", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     operatingCost: numeric("operating_cost", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     netProfit: numeric("net_profit", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     minimumStockLevel: integer("minimum_stock_level"),
@@ -278,7 +278,7 @@ export const batchRecipe = pgTable("batch_recipe", {
         .notNull(),
     usageAmount: numeric("usage_amount", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -406,14 +406,14 @@ export const sale = pgTable("sale", {
         .notNull(),
     cogs: numeric("cogs", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     })
         .default(0)
         .notNull(),
     profit: numeric("profit", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     })
         .default(0)
@@ -441,7 +441,7 @@ export const saleDetail = pgTable("sale_detail", {
     }).notNull(),
     cogs: numeric("cogs", {
         precision: 12,
-        scale: 2,
+        scale: 6,
         mode: "number",
     })
         .default(0)
@@ -532,7 +532,7 @@ export const materialAndSupply = pgTable(
         }).notNull(),
         costPerUnit: numeric("cost_per_unit", {
             precision: 12,
-            scale: 2,
+            scale: 6,
             mode: "number",
         }).notNull(),
         lastPurchaseDate: date("last_purchase_date").notNull(),
