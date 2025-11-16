@@ -86,15 +86,19 @@ const DataTable = <T extends { id: number | string }>({
     );
 
     const tableFilterOptions =
-        (filterOptions ?? []).map((opt) => ({
-            key: String(opt.key),
-            label: opt.label,
-            values:
-                (opt.values ?? []).map((v) => ({
-                    key: `${String(opt.key)}:${String(v.key)}`,
-                    label: String(v.label),
-                })) ?? [],
-        })) ?? [];
+        (filterOptions ?? []).map((opt) => {
+            const actualKey = String(opt.key).split(":")[0];
+
+            return {
+                key: String(opt.key), // Keep the full unique key for UI tracking
+                label: opt.label,
+                values:
+                    (opt.values ?? []).map((v) => ({
+                        key: `${actualKey}:${String(v.key)}`, // Use actual key for filtering
+                        label: String(v.label),
+                    })) ?? [],
+            };
+        }) ?? [];
 
     const sortedData = useMemo(() => {
         // Apply filter
@@ -104,7 +108,16 @@ const DataTable = <T extends { id: number | string }>({
             const val = selectedFilter.value;
             filtered = data.filter((item) => {
                 const itemVal = item[col];
-                return String(itemVal) === val;
+                const itemValStr = String(itemVal);
+                const valStr = String(val);
+
+                // Support partial matching: if filter value looks like a date prefix (YYYY-MM),
+                // use startsWith for matching. Otherwise use exact match.
+                if (/^\d{4}-\d{2}$/.test(valStr)) {
+                    return itemValStr.startsWith(valStr);
+                }
+
+                return itemValStr === valStr;
             });
         }
 
