@@ -530,6 +530,7 @@ function ProductionBatchList() {
                         }
                         topText="Monthly Produced Quantity"
                         bottomText="than last month"
+                        colorVariant="neutral"
                     />
                 )}
                 {monthlyMaterialCostMetrics && (
@@ -540,6 +541,7 @@ function ProductionBatchList() {
                         }
                         topText="Monthly Material Cost"
                         bottomText="than last month"
+                        colorVariant="neutral"
                     />
                 )}
             </MetricsGroup>
