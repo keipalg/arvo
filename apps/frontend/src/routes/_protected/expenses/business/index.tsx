@@ -30,6 +30,8 @@ import { useIsSmUp } from "../../../../utils/screenWidth";
 import AddButton from "../../../../components/button/AddButton";
 import BusinessExpenseDetails from "../../../../components/table/DataTableDetailBusinessExpense";
 import NumberInput from "../../../../components/input/NumberInput";
+import DatePicker from "../../../../components/input/DatePicker";
+import { getDateForInputField } from "../../../../utils/dateFormatter";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -256,6 +258,10 @@ function BusinessExpense() {
     console.log("combinedExpensesList", combinedExpensesList);
 
     useEffect(() => {
+        if (!toggleOpen) {
+            setDueDateOptions([]);
+            return;
+        }
         if (
             !businessExpenseFormData.start_date ||
             !businessExpenseFormData.repeat_every
@@ -433,7 +439,7 @@ function BusinessExpense() {
                 closeDrawer();
                 setToastMessage({
                     kind: "SUCCESS",
-                    content: `${businessExpenseFormData.name} added successfully!`,
+                    content: `Success! ${businessExpenseFormData.name} has been added.`,
                 });
                 setVisibleToast(true);
             },
@@ -718,7 +724,7 @@ function BusinessExpense() {
                     <div className="flex items-center justify-between gap-2">
                         <span>{value}</span>
                         {row.repeat_every && row.start_date && row.due_date && (
-                            <span>
+                            <span className="w-5 h-5">
                                 <img src="/icon/recurring.svg" />
                             </span>
                         )}
@@ -994,22 +1000,20 @@ function BusinessExpense() {
                         void handleSubmit(e);
                     }}
                 >
-                    <TextInput
-                        type="date"
+                    <DatePicker
                         label="Date*"
-                        value={
-                            businessExpenseFormData.createdAt
-                                ? businessExpenseFormData.createdAt
-                                      .toISOString()
-                                      .substring(0, 10)
-                                : ""
-                        }
-                        onChange={(e) => {
+                        name="createdAt"
+                        value={getDateForInputField(
+                            businessExpenseFormData.createdAt,
+                        )}
+                        onChange={(value) => {
                             setBusinessExpenseFormData((prev) => ({
                                 ...prev,
-                                createdAt: new Date(e.target.value),
+                                createdAt: new Date(value),
                             }));
                         }}
+                        error={validationError.createdAt}
+                        placeholder="Select date"
                     />
                     <Select
                         name="expense_type"

@@ -24,8 +24,8 @@ export const studioOverheadExpenseValidation = z.object({
             "yearly",
         ])
         .nullable(),
-    start_date: z.date().optional(),
-    due_date: z.date().optional(),
+    start_date: z.date().nullable(),
+    due_date: z.date().nullable(),
 });
 
 export type studioOverheadExpenseValidationForm = z.infer<
