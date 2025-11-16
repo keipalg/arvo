@@ -65,6 +65,11 @@ export const salesUpdateValidation = z
         { message: "Products cannot be duplicated", path: ["products"] },
     );
 
+export const salesStatusUpdateValidation = z.object({
+    id: z.uuidv7("Invalid sale ID"),
+    statusKey: z.string(),
+});
+
 export const salesMetricValidation = z.object({
     timezone: z.string().refine((tz) => {
         try {

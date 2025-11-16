@@ -14,11 +14,13 @@ import {
     updateSale,
     getMonthlySalesRevenue,
     getMonthlySalesCount,
+    updateSaleStatus,
 } from "../service/salesService.js";
 import { getStatusByKey } from "../service/statusService.js";
 import {
     salesInputValidation,
     salesMetricValidation,
+    salesStatusUpdateValidation,
     salesUpdateValidation,
 } from "@arvo/shared";
 import {
@@ -271,6 +273,22 @@ export const salesRouter = router({
                 }
             });
 
+            return { success: true };
+        }),
+    updateStatus: protectedProcedure
+        .input(salesStatusUpdateValidation)
+        .mutation(async ({ input }) => {
+            await db.transaction(async (tx) => {
+                const statusInfo = await getStatusByKey(input.statusKey);
+                if (!statusInfo) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Invalid status key",
+                        cause: { field: "statusKey" },
+                    });
+                }
+                await updateSaleStatus(input.id, statusInfo.id, tx);
+            });
             return { success: true };
         }),
     /**
