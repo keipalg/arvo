@@ -169,18 +169,18 @@ function GoodsList() {
             header: "Product Photo",
             render: (value) => {
                 return (
-                    <div className="h-14 flex justify-center  rounded">
+                    <div className="h-16 w-24 flex justify-center m-auto rounded">
                         {value ? (
                             <img
                                 src={value as string}
                                 alt="Product"
-                                className="h-14 object-cover rounded"
+                                className="h-16 w-24 object-cover rounded"
                             />
                         ) : (
                             <img
                                 src="/icon/icon-photo.svg"
                                 alt="No Image"
-                                className="h-14"
+                                className="h-16 w-24 object-contain"
                             />
                         )}
                     </div>
