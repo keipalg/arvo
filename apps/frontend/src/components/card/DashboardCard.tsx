@@ -26,7 +26,7 @@ const DashboardCard = ({
             </div>
             {overview && (
                 <>
-                    <div className="flex gap-4 items-start">
+                    <div className="flex max-w-[650px] gap-4 items-start">
                         <img src="/icon/ai-black.svg" className="mt-2" />
                         <p className="text-arvo-black-100 font-light">
                             {overview}

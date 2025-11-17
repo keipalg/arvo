@@ -6,11 +6,16 @@ import {
     productionInOutOverviewValidation,
 } from "@arvo/shared";
 import {
+    generateDailySalesOverview,
     generateProductionInOutOverview,
     generateRevenueProfitSummary6MonthsOverview,
     generateRevenueProfitSummaryOverview,
 } from "../service/dashboardOverviewService.js";
-import { getMonthlySalesRevenue } from "../service/salesService.js";
+import {
+    getDailyMostSellingProduct,
+    getDailySalesRevenue,
+    getMonthlySalesRevenue,
+} from "../service/salesService.js";
 import {
     getLeastSellingProducts,
     getLeastSellingProductWithComparison,
@@ -53,6 +58,17 @@ export const dashboardRouter = router({
     revenueProfitSummaryOverview: protectedProcedure
         .input(dashboardRevenueProfitSummaryOverviewValidation)
         .query(async ({ ctx, input }) => {
+            if (
+                input.totalRevenue === 0 &&
+                input.totalExpenses === 0 &&
+                input.totalProfit === 0
+            ) {
+                return {
+                    overview:
+                        "Start logging sales and expenses to see your monthly trends here.",
+                };
+            }
+
             const overview = await generateRevenueProfitSummaryOverview({
                 userId: ctx.user.id,
                 totalRevenue: input.totalRevenue,
@@ -120,6 +136,17 @@ export const dashboardRouter = router({
     revenueProfitSummary6MonthsOverview: protectedProcedure
         .input(dashboardRevenueProfitSummary6MonthsOverviewValidation)
         .query(async ({ ctx, input }) => {
+            if (
+                input.revenueProfitSummary6MonthsData.every(
+                    (data) => data.totalRevenue === 0 && data.totalProfit === 0,
+                )
+            ) {
+                return {
+                    overview:
+                        "Start logging sales and expenses to see your monthly trends here.",
+                };
+            }
+
             const overview = await generateRevenueProfitSummary6MonthsOverview(
                 ctx.user.id,
                 input.revenueProfitSummary6MonthsData,
@@ -231,6 +258,13 @@ export const dashboardRouter = router({
     productionInOutOverview: protectedProcedure
         .input(productionInOutOverviewValidation)
         .query(async ({ ctx, input }) => {
+            if (input.totalProduced === 0 && input.totalSold === 0) {
+                return {
+                    overview:
+                        "Start logging products and sales to see how your products are doing.",
+                };
+            }
+
             const overview = await generateProductionInOutOverview(
                 ctx.user.id,
                 input.totalProduced,
@@ -239,5 +273,33 @@ export const dashboardRouter = router({
             return {
                 overview: overview,
             };
+        }),
+    dailyOverviews: protectedProcedure
+        .input(dashboardTimezoneValidation)
+        .query(async ({ ctx, input }) => {
+            const [salesRevenue, yesterdaySalesRevenue, mostSellingProduct] =
+                await Promise.all([
+                    getDailySalesRevenue(ctx.user.id, input.timezone, 0),
+                    getDailySalesRevenue(ctx.user.id, input.timezone, -1),
+                    getDailyMostSellingProduct(ctx.user.id, input.timezone),
+                ]);
+
+            let salesOverview = null;
+
+            if (
+                !salesRevenue.totalRevenue &&
+                !yesterdaySalesRevenue.totalRevenue
+            ) {
+                salesOverview = null;
+            } else {
+                salesOverview = await generateDailySalesOverview(
+                    ctx.user.id,
+                    Number(salesRevenue.totalRevenue),
+                    Number(yesterdaySalesRevenue.totalRevenue),
+                    mostSellingProduct.goodName,
+                );
+            }
+
+            return { salesOverview: salesOverview };
         }),
 });
