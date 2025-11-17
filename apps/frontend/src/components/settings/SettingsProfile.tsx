@@ -40,7 +40,7 @@ export const SettingsProfile = () => {
                 name: info.name ?? "",
                 email: info.email ?? "",
                 phone: info.phone ?? "",
-                imageURL: info.image ?? "",
+                imageURL: info.image ?? undefined,
                 imageFile: undefined,
                 storeName: info.storeName ?? "",
                 storeLocation: info.storeLocation ?? "",

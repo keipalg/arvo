@@ -152,6 +152,7 @@ function SignUp() {
                         error={nameError}
                     />
                     <PasswordInput
+                        label="Password"
                         password={password}
                         handlePasswordChange={handlePasswordChange}
                     />

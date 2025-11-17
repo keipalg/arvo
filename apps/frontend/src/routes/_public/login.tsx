@@ -83,6 +83,7 @@ function Login() {
                         type="email"
                     />
                     <PasswordInput
+                        label="Password"
                         password={password}
                         handlePasswordChange={handlePasswordChange}
                     />
