@@ -260,6 +260,7 @@ function BusinessExpense() {
     useEffect(() => {
         if (!toggleOpen) {
             setDueDateOptions([]);
+            console.log("dueDateOptions", []);
             return;
         }
         if (
@@ -316,6 +317,7 @@ function BusinessExpense() {
     }, [
         businessExpenseFormData.start_date,
         businessExpenseFormData.repeat_every,
+        toggleOpen,
     ]);
 
     useEffect(() => {
@@ -1399,7 +1401,13 @@ function BusinessExpense() {
                             <Switcher
                                 label="Make this a recurring expense?"
                                 checked={toggleOpen}
-                                onChange={() => setToggleOpen((prev) => !prev)}
+                                onChange={() => {
+                                    setToggleOpen((prev) => !prev);
+                                    setBusinessExpenseFormData((prev) => ({
+                                        ...prev,
+                                        due_date: null,
+                                    }));
+                                }}
                             >
                                 <>
                                     <Select
