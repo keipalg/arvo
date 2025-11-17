@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     userPreferenceMaterialTypesValidation,
     type UserPreferencesValidationForm,
@@ -51,16 +51,17 @@ export function SetupStepMaterialTypes({
         data.materialTypes || [],
     );
 
+    // Update parent component when selectedOptions changes
+    useEffect(() => {
+        onUpdate({ ...data, materialTypes: selectedOptions });
+    }, [selectedOptions]);
+
     const handleAddCustomMaterial = (value: string) => {
         // Add the new material to the options list
         setOptions((prev) => [...prev, { value, label: value }]);
 
         // Add the new custom value to selectedOptions and select it
-        setSelectedOptions((prev) => {
-            const updatedOptions = [...prev, value];
-            onUpdate({ ...data, materialTypes: updatedOptions });
-            return updatedOptions;
-        });
+        setSelectedOptions((prev) => [...prev, value]);
     };
 
     const updateMaterialTypesMutation = useMutation(
@@ -72,14 +73,11 @@ export function SetupStepMaterialTypes({
     );
 
     const handleSelectedOptionsChange = (value: string) => {
-        setSelectedOptions((prev) => {
-            const updatedOptions = prev.includes(value)
+        setSelectedOptions((prev) =>
+            prev.includes(value)
                 ? prev.filter((item) => item !== value)
-                : [...prev, value];
-
-            onUpdate({ ...data, materialTypes: updatedOptions });
-            return updatedOptions;
-        });
+                : [...prev, value],
+        );
         setFormErrors({});
     };
 

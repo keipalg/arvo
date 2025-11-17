@@ -4,6 +4,7 @@ type ButtonProps = {
     onClick?: React.ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
     icon?: string;
     disabled?: boolean;
+    className?: string;
 };
 
 const WhiteRoundButton = ({
@@ -12,11 +13,12 @@ const WhiteRoundButton = ({
     onClick,
     icon,
     disabled,
+    className,
 }: ButtonProps) => {
     return (
         <button
             type={type}
-            className="group rounded-xl px-2.5 py-1.5 text-arvo-blue-100 border-solid border-2 font-semibold  hover:bg-arvo-blue-50 hover:text-arvo-black-100 hover:border-arvo-blue-50 cursor-pointer flex items-center gap-2 justify-center disabled:bg-arvo-black-5 disabled:border-0 disabled:not-hover: disabled:text-arvo-black-25"
+            className={`group rounded-xl px-2.5 py-1.5 text-arvo-blue-100 border-solid border-2 font-semibold  hover:bg-arvo-blue-50 hover:text-arvo-black-100 hover:border-arvo-blue-50 cursor-pointer flex items-center gap-2 justify-center disabled:bg-arvo-black-5 disabled:border-0 disabled:not-hover: disabled:text-arvo-black-25 ${className || ""}`}
             onClick={onClick}
             disabled={disabled}
         >

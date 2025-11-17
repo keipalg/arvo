@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     userPreferenceProductTypesValidation,
     type UserPreferencesValidationForm,
@@ -51,16 +51,17 @@ export function SetupStepProductTypes({
         data.productTypes || [],
     );
 
+    // Update parent component when selectedOptions changes
+    useEffect(() => {
+        onUpdate({ ...data, productTypes: selectedOptions });
+    }, [selectedOptions]);
+
     const handleAddCustomProduct = (value: string) => {
         // Add the new product to the options list
         setOptions((prev) => [...prev, { value, label: value }]);
 
         // Add the new custom value to selectedOptions and select it
-        setSelectedOptions((prev) => {
-            const updatedOptions = [...prev, value];
-            onUpdate({ ...data, productTypes: updatedOptions });
-            return updatedOptions;
-        });
+        setSelectedOptions((prev) => [...prev, value]);
     };
 
     const updateProductTypesMutation = useMutation(
@@ -72,14 +73,11 @@ export function SetupStepProductTypes({
     );
 
     const handleSelectedOptionsChange = (value: string) => {
-        setSelectedOptions((prev) => {
-            const updatedOptions = prev.includes(value)
+        setSelectedOptions((prev) =>
+            prev.includes(value)
                 ? prev.filter((item) => item !== value)
-                : [...prev, value];
-
-            onUpdate({ ...data, productTypes: updatedOptions });
-            return updatedOptions;
-        });
+                : [...prev, value],
+        );
         setFormErrors({});
     };
 

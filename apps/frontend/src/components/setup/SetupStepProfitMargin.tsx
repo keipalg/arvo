@@ -22,9 +22,9 @@ export function SetupStepProfitMargin({
     onBack,
 }: SetupStepProfitMarginProps) {
     const options = [
-        { value: "50", label: "50%" },
         { value: "30", label: "30%" },
-        { value: "25", label: "25%" },
+        { value: "40", label: "40%" },
+        { value: "50", label: "50%" },
     ];
     const CUSTOM_INPUT_VALUE = "custom";
     const optionValues = options.map((opt) => parseFloat(opt.value));
@@ -102,7 +102,7 @@ export function SetupStepProfitMargin({
     return (
         <SetupLayout
             title="What is your expected product profit margin?"
-            subtitle="No worries if you don't have a number, we'll set a default of 50%."
+            subtitle="No worries if you don't have a number, let's set a default of 30%."
             onContinue={handleContinue}
             caption="You can always change this later in Settings."
             onBack={onBack}
