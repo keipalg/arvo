@@ -557,16 +557,6 @@ function ProductionBatchList() {
                         detailRender={detailsRender}
                         sortOptions={[
                             {
-                                key: "goodName",
-                                label: "Material Item (A → Z)",
-                                order: "asc",
-                            },
-                            {
-                                key: "goodName",
-                                label: "Material Item (Z → A)",
-                                order: "desc",
-                            },
-                            {
                                 key: "productionDate",
                                 label: "Production Date (Oldest → Newest)",
                                 order: "asc",
@@ -574,6 +564,16 @@ function ProductionBatchList() {
                             {
                                 key: "productionDate",
                                 label: "Production Date (Newest → Oldest)",
+                                order: "desc",
+                            },
+                            {
+                                key: "goodName",
+                                label: "Product Name (A → Z)",
+                                order: "asc",
+                            },
+                            {
+                                key: "goodName",
+                                label: "Product Name (Z → A)",
                                 order: "desc",
                             },
                             {
