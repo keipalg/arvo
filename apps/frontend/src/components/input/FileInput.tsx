@@ -92,13 +92,13 @@ export const FileInput = ({
                     </div>
                 </div>
             )}
-            <div className="relative flex flex-col gap-x-1 justify-center m-auto">
+            <div className="relative flex flex-col gap-x-1 justify-center m-auto w-full">
                 {file instanceof File && (
                     <>
                         <img
                             src={URL.createObjectURL(file)}
                             alt=""
-                            className="h-24 w-80 rounded-xl object-cover"
+                            className="h-24 rounded-xl object-cover w-auto"
                         />
                     </>
                 )}
@@ -107,12 +107,12 @@ export const FileInput = ({
                         <img
                             src={file}
                             alt=""
-                            className="h-24 w-80 rounded-xl object-cover"
+                            className="h-24 rounded-xl object-cover w-auto"
                         />
                     </>
                 )}
                 {(file instanceof File || typeof file === "string") && (
-                    <div className="absolute left-[15%] rounded border-dashed border-2 border-arvo-black-10 bg-arvo-black-5 opacity-80 h-12 w-56 flex justify-center gap-4 mt-2">
+                    <div className="absolute left-[25%] rounded border-dashed border-2 border-arvo-black-10 bg-arvo-black-5 opacity-80 h-12 w-56 flex justify-center gap-4 mt-2">
                         <button
                             type="button"
                             className="text-arvo-blue-100 font-semibold cursor-pointer"
