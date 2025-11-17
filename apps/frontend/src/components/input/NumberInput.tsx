@@ -110,7 +110,9 @@ const NumberInput = ({
                     className="px-2.5 py-2.5 grow disabled:cursor-not-allowed outline-none"
                 />
             </div>
-            {error && <div className="text-red-500 text-sm">{error}</div>}
+            {error && (
+                <div className="text-red-500 text-sm text-center">{error}</div>
+            )}
         </div>
     );
 };
