@@ -106,7 +106,7 @@ const GoodDetails = ({ row, isSmUp }: DataTableDetailGoodProps) => {
                                         }
                                         className={`${valueStyle}  !m-0 text-left text-arvo-blue-100 underline cursor-pointer font-medium ml-1.5`}
                                     >
-                                        View cost Cost Brake Down
+                                        View Cost Breakdown
                                     </button>
                                     <div
                                         className={`
