@@ -8,9 +8,13 @@ import DataTable, {
 import type { inferRouterOutputs } from "@trpc/server";
 import PageTitle from "../../../../components/layout/PageTitle";
 import Metric from "../../../../components/metric/Metric";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useIsSmUp } from "../../../../utils/screenWidth";
 import MaterialExpenseDetails from "../../../../components/table/DataTableDetailMaterialExpense";
+import {
+    getDateForInputField,
+    getGroupedDatesByMonth,
+} from "../../../../utils/dateFormatter";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
@@ -20,6 +24,24 @@ export type UsedMaterialPerSales =
     inferRouterOutputs<AppRouter>["sales"]["usedMaterialPerSales"][number] & {
         actions: string;
     };
+
+export type UsedMaterialPerSalesRow = {
+    id: number;
+    salesId: string;
+    soldDate: string;
+    salesNumber: number;
+    goodID: string;
+    goodName: string;
+    quantity: number;
+    materialOutputRatioId: string;
+    materialOutputRatio: number;
+    materialID: string;
+    materialName: string;
+    costPerUnit: number;
+    unit: string;
+    usedMaterialCost: number;
+    actions: string;
+};
 
 function UsedMaterials() {
     const [totalExpensesThisMonth, setTotalExpensesThisMonth] = useState<
@@ -31,38 +53,68 @@ function UsedMaterials() {
     );
     console.log("usedMaterialPerSales:", usedMaterialPerSales);
 
-    const tableFilterOptions: FilterOption<UsedMaterialPerSales>[] =
-        usedMaterialPerSales && usedMaterialPerSales.length > 0
-            ? [
-                  {
-                      key: "materialName",
-                      label: "Material Name",
-                      values: Array.from(
-                          new Set(
-                              usedMaterialPerSales.map(
-                                  (item) => item.materialName,
-                              ),
-                          ),
-                      ).map((name) => ({
-                          key: name,
-                          label: name
-                              .replace(/_/g, " ")
-                              .toLowerCase()
-                              .replace(/^\w/, (c) => c.toUpperCase()),
-                      })),
-                  },
-              ]
-            : [];
+    const tableFilterOptions: FilterOption<UsedMaterialPerSalesRow>[] =
+        useMemo(() => {
+            if (!usedMaterialPerSales?.length) return [];
+
+            const dates = usedMaterialPerSales.map((usedMaterialPerSale) =>
+                getDateForInputField(usedMaterialPerSale.soldDate),
+            );
+            const grouped = getGroupedDatesByMonth(dates);
+
+            const years = Object.keys(grouped).sort(
+                (a, b) => Number(b) - Number(a),
+            );
+            console.log("grouped dates by month:", grouped);
+
+            return years
+                .map((year) => {
+                    const months = grouped[year];
+                    if (!months) return null;
+
+                    // Get month keys sorted chronologically (newest first)
+                    const monthKeys = Object.keys(months).sort(
+                        (a, b) => Number(b) - Number(a),
+                    );
+
+                    const monthValues = monthKeys
+                        .map((monthKey) => {
+                            const monthData = months[monthKey];
+                            if (!monthData) return null;
+
+                            // Use YYYY-MM format as the key for partial matching
+                            const yearMonth = `${year}-${monthKey}`;
+
+                            return {
+                                key: yearMonth,
+                                label: `${monthData.monthName} (${monthData.count})`,
+                            };
+                        })
+                        .filter(Boolean) as Array<{
+                        key: string;
+                        label: string;
+                    }>;
+
+                    return {
+                        key: `soldDate:${year}`,
+                        label: year,
+                        values: monthValues,
+                    };
+                })
+                .filter(Boolean) as FilterOption<UsedMaterialPerSalesRow>[];
+        }, [usedMaterialPerSales]);
+    console.log("tableFilterOptions:", tableFilterOptions);
+
     const isSmUp = useIsSmUp();
-    const detailsRender = (row: UsedMaterialPerSales) => {
-        const defaultMobileSet = new Set<keyof UsedMaterialPerSales>();
+    const detailsRender = (row: UsedMaterialPerSalesRow) => {
+        const defaultMobileSet = new Set<keyof UsedMaterialPerSalesRow>();
         if (columns[0]) defaultMobileSet.add(columns[0].key);
         if (columns[1]) defaultMobileSet.add(columns[1].key);
         if (columns[2]) defaultMobileSet.add(columns[2].key);
         const actionsCol = columns.find((c) => String(c.key) === "actions");
         if (actionsCol) defaultMobileSet.add(actionsCol.key);
 
-        const mobileSet = new Set<keyof UsedMaterialPerSales>(
+        const mobileSet = new Set<keyof UsedMaterialPerSalesRow>(
             Array.from(defaultMobileSet),
         );
 
@@ -183,11 +235,11 @@ function UsedMaterials() {
     }, [usedMaterialPerSales]);
 
     const columns: Array<{
-        key: keyof UsedMaterialPerSales;
+        key: keyof UsedMaterialPerSalesRow;
         header: string;
         render?: (
-            value: UsedMaterialPerSales[keyof UsedMaterialPerSales],
-            row: UsedMaterialPerSales,
+            value: UsedMaterialPerSalesRow[keyof UsedMaterialPerSalesRow],
+            row: UsedMaterialPerSalesRow,
         ) => React.ReactNode;
     }> = [
         {
@@ -203,20 +255,8 @@ function UsedMaterials() {
             key: "soldDate",
             header: "Sold Date",
             render: (value) => {
-                if (typeof value === "string" || value instanceof Date) {
-                    const dateObj = new Date(value);
-
-                    return isNaN(dateObj.getTime()) ? (
-                        <></>
-                    ) : (
-                        <span className="whitespace-nowrap">
-                            {dateObj.toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })}
-                        </span>
-                    );
+                if (typeof value === "string") {
+                    return <span className="whitespace-nowrap">{value}</span>;
                 }
                 return <></>;
             },
@@ -229,9 +269,12 @@ function UsedMaterials() {
         { key: "goodName", header: "Goods Name" },
     ];
 
-    const tabledData = (usedMaterialPerSales ?? []).map((element, index) => ({
+    const tabledData: UsedMaterialPerSalesRow[] = (
+        usedMaterialPerSales ?? []
+    ).map((element, index) => ({
         id: index,
         ...element,
+        soldDate: getDateForInputField(element.soldDate),
         actions: "",
     }));
 
