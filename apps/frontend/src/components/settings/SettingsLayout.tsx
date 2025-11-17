@@ -87,7 +87,7 @@ export const SettingsLayout = ({
                                 className={`relative w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 ${item.disabled ? "bg-gray-200 cursor-not-allowed" : ""}`}
                             >
                                 <span className="block pr-2 border-r-1 w-10 text-center">
-                                    item
+                                    Item
                                 </span>
                                 <input
                                     type="number"
