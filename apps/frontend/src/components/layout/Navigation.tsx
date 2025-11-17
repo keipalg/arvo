@@ -32,7 +32,7 @@ const tabs: Tab[] = [
             {
                 name: "Batch Production",
                 path: "/goods/productionBatch",
-                icon: "/icon/batch-production.svg",
+                icon: "/icon/batch-menu.svg",
             },
         ],
     },
