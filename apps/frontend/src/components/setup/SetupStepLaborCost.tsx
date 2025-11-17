@@ -22,9 +22,9 @@ export function SetupStepLaborCost({
     onBack,
 }: SetupStepLaborCostProps) {
     const options = [
-        { value: "5", label: "$ 5" },
         { value: "10", label: "$ 10" },
         { value: "15", label: "$ 15" },
+        { value: "20", label: "$ 20" },
     ];
     const CUSTOM_INPUT_VALUE = "custom";
     const optionValues = options.map((opt) => parseFloat(opt.value));
@@ -100,7 +100,7 @@ export function SetupStepLaborCost({
     return (
         <SetupLayout
             title="How much would you pay yourself for making one of your products?"
-            subtitle="Tip: Think of what you’d like to earn for making each item (e.g., $10 per mug)."
+            subtitle="Tip: Think of what you’d like to earn aside from profit for making each item (e.g., $10 per mug)."
             onContinue={handleSaveAndContinue}
             caption="You can always change this later in Settings."
             onBack={onBack}

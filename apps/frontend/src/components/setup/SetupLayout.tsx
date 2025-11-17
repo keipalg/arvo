@@ -1,5 +1,5 @@
-import Button from "../button/Button";
 import Logo from "../logo/Logo";
+import SetupButtonGroup from "./SetupButtonGroup";
 
 type SetupLayoutProps = {
     title: string;
@@ -8,6 +8,7 @@ type SetupLayoutProps = {
     onBack?: () => void;
     onContinue: () => void;
     caption?: string;
+    continueButtonText?: string;
 };
 
 const SetupLayout = ({
@@ -17,6 +18,7 @@ const SetupLayout = ({
     onBack,
     onContinue,
     caption,
+    continueButtonText = "Save & Continue",
 }: SetupLayoutProps) => {
     return (
         <div className="w-full min-h-screen flex flex-col">
@@ -33,10 +35,11 @@ const SetupLayout = ({
 
                 {caption && <p className="text-center">{caption}</p>}
 
-                <div className="flex gap-4 w-full justify-center">
-                    {onBack && <Button value="Back" onClick={onBack} />}
-                    <Button value="Save & Continue" onClick={onContinue} />
-                </div>
+                <SetupButtonGroup
+                    onBack={onBack}
+                    onContinue={onContinue}
+                    continueButtonText={continueButtonText}
+                />
             </div>
         </div>
     );

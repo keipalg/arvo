@@ -8,6 +8,7 @@ import { trpc } from "../../utils/trpcClient";
 import RadioCustom from "../input/RadioCustom";
 import SetupLayout from "./SetupLayout";
 import { useNavigate } from "@tanstack/react-router";
+import ToastNotification from "../modal/ToastNotification";
 
 type SetupStepOverheadCostPercentageProps = {
     data: UserPreferencesValidationForm;
@@ -22,14 +23,19 @@ export function SetupStepoverheadCostPercentage({
     onBack,
 }: SetupStepOverheadCostPercentageProps) {
     const options = [
-        { value: "10", label: "10%" },
-        { value: "20", label: "20%" },
+        { value: "15", label: "15%" },
+        { value: "25", label: "25%" },
         { value: "30", label: "30%" },
     ];
     const navigate = useNavigate();
     const CUSTOM_INPUT_VALUE = "custom";
     const optionValues = options.map((opt) => parseFloat(opt.value));
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [visibleToast, setVisibleToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState({
+        kind: "SUCCESS",
+        content: "",
+    });
     const [selectedOption, setSelectedOption] = useState(() => {
         if (data.overheadCostPercentage === undefined) return options[0].value;
         if (optionValues.includes(data.overheadCostPercentage))
@@ -57,8 +63,17 @@ export function SetupStepoverheadCostPercentage({
 
     const completeSetupMutation = useMutation(
         trpc.userPreferences.completeSetup.mutationOptions({
-            onSuccess: async () => {
-                await navigate({ to: "/" });
+            onSuccess: () => {
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Setup completed! Welcome to Arvo!",
+                });
+                setVisibleToast(true);
+
+                // Wait for toast to show before navigating
+                setTimeout(() => {
+                    void navigate({ to: "/" });
+                }, 1000);
             },
         }),
     );
@@ -111,43 +126,53 @@ export function SetupStepoverheadCostPercentage({
     };
 
     return (
-        <SetupLayout
-            title="About how much extra do small supplies add to each product's material cost?"
-            subtitle="Think: brushes, sponges, boxes, packing tape and other tools. Example: If main material such as clay costs $10, 20% overhead = $2 extra per plate"
-            onContinue={handleContinue}
-            caption="We’ll use this to calculate your product prices. You can always change this later in Settings."
-            onBack={onBack}
-        >
-            <RadioCustom
-                name="overhead"
-                options={options}
-                selectedValue={selectedOption}
-                onChange={handleOptionChange}
-                customInput={
-                    <label className="flex items-center gap-2 cursor-pointer w-full h-full">
-                        <input
-                            type="radio"
-                            name="overhead"
-                            checked={selectedOption === CUSTOM_INPUT_VALUE}
-                            onChange={() =>
-                                setSelectedOption(CUSTOM_INPUT_VALUE)
-                            }
-                            className="cursor-pointer flex-shrink-0"
-                        />
-                        <input
-                            type="number"
-                            value={customValue || ""}
-                            onChange={(e) => handleCustomChange(e.target.value)}
-                            placeholder="Type custom percentage %"
-                            className="flex-1 outline-none bg-transparent h-full"
-                            onClick={() =>
-                                setSelectedOption(CUSTOM_INPUT_VALUE)
-                            }
-                        />
-                    </label>
-                }
-                error={formErrors.overheadCostPercentage}
+        <>
+            <SetupLayout
+                title="About how much extra do small supplies add to each product's material cost?"
+                subtitle="Most solo makers typically add 15-30% overhead on top of clay/glaze costs to cover brushes, sponges, etc. Example: If main material such as clay costs $10, 20% overhead = $2 extra per plate"
+                onContinue={handleContinue}
+                caption="We'll use this to calculate your product prices. You can always change this later in Settings."
+                onBack={onBack}
+                continueButtonText="Complete"
+            >
+                <RadioCustom
+                    name="overhead"
+                    options={options}
+                    selectedValue={selectedOption}
+                    onChange={handleOptionChange}
+                    customInput={
+                        <label className="flex items-center gap-2 cursor-pointer w-full h-full">
+                            <input
+                                type="radio"
+                                name="overhead"
+                                checked={selectedOption === CUSTOM_INPUT_VALUE}
+                                onChange={() =>
+                                    setSelectedOption(CUSTOM_INPUT_VALUE)
+                                }
+                                className="cursor-pointer flex-shrink-0"
+                            />
+                            <input
+                                type="number"
+                                value={customValue || ""}
+                                onChange={(e) =>
+                                    handleCustomChange(e.target.value)
+                                }
+                                placeholder="Type custom percentage %"
+                                className="flex-1 outline-none bg-transparent h-full"
+                                onClick={() =>
+                                    setSelectedOption(CUSTOM_INPUT_VALUE)
+                                }
+                            />
+                        </label>
+                    }
+                    error={formErrors.overheadCostPercentage}
+                />
+            </SetupLayout>
+            <ToastNotification
+                setVisibleToast={setVisibleToast}
+                visibleToast={visibleToast}
+                message={toastMessage}
             />
-        </SetupLayout>
+        </>
     );
 }
