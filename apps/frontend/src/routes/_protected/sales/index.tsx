@@ -54,7 +54,6 @@ type Products = {
 
 function SalesList() {
     const [customer, setCustomer] = useState("");
-    const [channel, setChannel] = useState("");
     const [channelId, setChannelId] = useState("");
     const [date, setDate] = useState("");
     const [status, setStatus] = useState("");
@@ -199,7 +198,6 @@ function SalesList() {
 
     const resetForm = () => {
         setCustomer("");
-        setChannel(channels?.[0]?.id || "");
         setDate("");
         setStatus(statusList?.[0]?.key || "");
         setNotes("");
@@ -553,7 +551,7 @@ function SalesList() {
     };
 
     useEffect(() => {
-        if (channels && channels.length > 0 && !channel) {
+        if (channels && channels.length > 0 && !channelId) {
             setChannelId(channels[0].id);
         }
     }, [channels, channelId]);
