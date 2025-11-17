@@ -8,7 +8,10 @@
         "start": "node dist/index.js",
         "db:seed": "node --import tsx --env-file .env ./scripts/seed.ts",
         "db:setup-materials": "node --import tsx --env-file .env ./scripts/setupMaterials.ts",
-        "db:setup-notifications": "node --import tsx --env-file .env ./scripts/setupNotifications.ts"
+        "db:setup-notifications": "node --import tsx --env-file .env ./scripts/setupNotifications.ts",
+        "shift-dates": "node --import tsx --env-file .env ./scripts/data-management/shift-user-dates.ts",
+        "export-data": "node --import tsx --env-file .env ./scripts/data-management/export-user-data.ts",
+        "import-data": "node --import tsx --env-file .env ./scripts/data-management/import-user-data.ts"
     },
     "dependencies": {
         "@arvo/shared": "file:*",

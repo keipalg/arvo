@@ -1,0 +1,1255 @@
+{
+    "metadata": {
+        "exportedAt": "2025-11-16T10:26:13.905Z",
+        "sourceUserId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+        "month": "2025-11",
+        "recordCount": 77,
+        "version": "1.0"
+    },
+    "referenceData": {
+        "units": [
+            {
+                "id": "0199ffaf-df14-7778-a7fd-dff193ec2e69",
+                "name": "grams",
+                "abbreviation": "g",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.289Z",
+                "updatedAt": "2025-10-20T03:35:40.289Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-ec6dc3c0da40",
+                "name": "ounces",
+                "abbreviation": "oz",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.290Z",
+                "updatedAt": "2025-10-20T03:35:40.290Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-d87ab8733439",
+                "name": "kilograms",
+                "abbreviation": "kg",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.294Z",
+                "updatedAt": "2025-10-20T03:35:40.294Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-e9c294e5f0f4",
+                "name": "grains",
+                "abbreviation": "gr",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.294Z",
+                "updatedAt": "2025-10-20T03:35:40.294Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-0d9f83dc0e58",
+                "name": "yards",
+                "abbreviation": "yd",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.296Z",
+                "updatedAt": "2025-10-20T03:35:40.296Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-ff791bf81be6",
+                "name": "quarts",
+                "abbreviation": "qt",
+                "category": "volume",
+                "createdAt": "2025-10-20T03:35:40.297Z",
+                "updatedAt": "2025-10-20T03:35:40.297Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-f7527e7bf95e",
+                "name": "liters",
+                "abbreviation": "L",
+                "category": "volume",
+                "createdAt": "2025-10-20T03:35:40.299Z",
+                "updatedAt": "2025-10-20T03:35:40.299Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-1564b0a147b9",
+                "name": "centimeters",
+                "abbreviation": "cm",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.302Z",
+                "updatedAt": "2025-10-20T03:35:40.302Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-034c35764288",
+                "name": "pints",
+                "abbreviation": "pt",
+                "category": "volume",
+                "createdAt": "2025-10-20T03:35:40.303Z",
+                "updatedAt": "2025-10-20T03:35:40.303Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-e5211ac8fdfa",
+                "name": "carats",
+                "abbreviation": "ct",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.304Z",
+                "updatedAt": "2025-10-20T03:35:40.304Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-1cd3b8ee20ab",
+                "name": "pieces",
+                "abbreviation": "pcs",
+                "category": "quantity",
+                "createdAt": "2025-10-20T03:35:40.305Z",
+                "updatedAt": "2025-10-20T03:35:40.305Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-123af52fc968",
+                "name": "meters",
+                "abbreviation": "m",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.306Z",
+                "updatedAt": "2025-10-20T03:35:40.306Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-0b9ff650f327",
+                "name": "feet",
+                "abbreviation": "ft",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.312Z",
+                "updatedAt": "2025-10-20T03:35:40.312Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-d472e5035fd4",
+                "name": "pounds",
+                "abbreviation": "lbs",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.312Z",
+                "updatedAt": "2025-10-20T03:35:40.312Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-f1f33814e1f9",
+                "name": "gallons",
+                "abbreviation": "gal",
+                "category": "volume",
+                "createdAt": "2025-10-20T03:35:40.314Z",
+                "updatedAt": "2025-10-20T03:35:40.314Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-e237b665a773",
+                "name": "milligrams",
+                "abbreviation": "mg",
+                "category": "weight",
+                "createdAt": "2025-10-20T03:35:40.314Z",
+                "updatedAt": "2025-10-20T03:35:40.314Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-23660a709d04",
+                "name": "each",
+                "abbreviation": "ea",
+                "category": "quantity",
+                "createdAt": "2025-10-20T03:35:40.317Z",
+                "updatedAt": "2025-10-20T03:35:40.317Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-271212ca34d2",
+                "name": "dozen",
+                "abbreviation": "doz",
+                "category": "quantity",
+                "createdAt": "2025-10-20T03:35:40.318Z",
+                "updatedAt": "2025-10-20T03:35:40.318Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-07903368277c",
+                "name": "inches",
+                "abbreviation": "in",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.312Z",
+                "updatedAt": "2025-10-20T03:35:40.312Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-28f3958a31d0",
+                "name": "boxes",
+                "abbreviation": "box",
+                "category": "quantity",
+                "createdAt": "2025-10-20T03:35:40.323Z",
+                "updatedAt": "2025-10-20T03:35:40.323Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-18d3eaf398b9",
+                "name": "millimeters",
+                "abbreviation": "mm",
+                "category": "length",
+                "createdAt": "2025-10-20T03:35:40.324Z",
+                "updatedAt": "2025-10-20T03:35:40.324Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fe-2e71fb65d6c7",
+                "name": "bags",
+                "abbreviation": "bag",
+                "category": "quantity",
+                "createdAt": "2025-10-20T03:35:40.331Z",
+                "updatedAt": "2025-10-20T03:35:40.331Z"
+            },
+            {
+                "id": "0199ffaf-df14-7778-a7fd-fb7ff7d7e2bd",
+                "name": "milliliters",
+                "abbreviation": "ml",
+                "category": "volume",
+                "createdAt": "2025-10-20T03:35:40.307Z",
+                "updatedAt": "2025-10-20T03:35:40.307Z"
+            }
+        ],
+        "statuses": [
+            {
+                "id": "0199dac5-f9b5-7416-bf3f-ca0912caeaed",
+                "key": "pending",
+                "name": "Pending",
+                "createdAt": "2025-10-12T23:33:51.862Z",
+                "updatedAt": "2025-10-12T23:33:51.862Z"
+            },
+            {
+                "id": "019a1759-e7b6-7967-8889-829bb5b14a21",
+                "key": "inProgress",
+                "name": "In-Progress",
+                "createdAt": "2025-10-24T17:52:46.442Z",
+                "updatedAt": "2025-10-24T17:52:46.442Z"
+            },
+            {
+                "id": "019a6c66-6b7e-7528-b69f-cb0560cbd911",
+                "key": "itemComplete",
+                "name": "Item Complete",
+                "createdAt": "2025-11-10T06:14:02.949Z",
+                "updatedAt": "2025-11-10T06:14:02.949Z"
+            },
+            {
+                "id": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "key": "orderComplete",
+                "name": "Order Complete",
+                "createdAt": "2025-11-10T06:14:02.949Z",
+                "updatedAt": "2025-11-10T06:14:02.949Z"
+            },
+            {
+                "id": "019a6c66-6b7e-7528-b69f-d2d329c33fda",
+                "key": "packaged",
+                "name": "Packaged",
+                "createdAt": "2025-11-10T06:14:02.949Z",
+                "updatedAt": "2025-11-10T06:14:02.949Z"
+            },
+            {
+                "id": "019a6c66-6b7e-7528-b69f-d4fb8d6cb655",
+                "key": "shipped",
+                "name": "Shipped",
+                "createdAt": "2025-11-10T06:14:02.949Z",
+                "updatedAt": "2025-11-10T06:14:02.949Z"
+            },
+            {
+                "id": "019a6c66-6b7e-7528-b69f-db81f27d3061",
+                "key": "arrivalConfirmation",
+                "name": "Arrival Confirmation",
+                "createdAt": "2025-11-10T06:14:02.949Z",
+                "updatedAt": "2025-11-10T06:14:02.949Z"
+            }
+        ],
+        "channels": [
+            {
+                "id": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "name": "Etsy",
+                "createdAt": "2025-10-12T23:33:51.907Z",
+                "updatedAt": "2025-10-12T23:33:51.907Z"
+            },
+            {
+                "id": "019a6f2f-dc0c-7640-8bd4-6ff854be22e2",
+                "name": "Market",
+                "createdAt": "2025-11-10T19:13:18.901Z",
+                "updatedAt": "2025-11-10T19:13:18.901Z"
+            },
+            {
+                "id": "019a6f2f-dc0d-719d-b3aa-c75c4b460e8a",
+                "name": "Instagram",
+                "createdAt": "2025-11-10T19:13:18.901Z",
+                "updatedAt": "2025-11-10T19:13:18.901Z"
+            }
+        ],
+        "productionStatuses": [
+            {
+                "id": "f5a30355-9b47-4e08-8fb4-8d77bfaaea1b",
+                "key": "inProgress",
+                "name": "In-progress",
+                "createdAt": "2025-10-26T00:12:08.944Z",
+                "updatedAt": "2025-10-26T00:12:08.944Z"
+            },
+            {
+                "id": "afe76469-93e4-49c5-bc7e-b7e8e37214ee",
+                "key": "completed",
+                "name": "Completed",
+                "createdAt": "2025-10-26T00:12:08.944Z",
+                "updatedAt": "2025-10-26T00:12:08.944Z"
+            }
+        ],
+        "notificationTypes": [
+            {
+                "id": "019a46f7-18ee-719a-98f2-5609d4256607",
+                "key": "product_low_inventory",
+                "name": "Product Low Inventory",
+                "createdAt": "2025-11-02T23:46:30.453Z",
+                "updatedAt": "2025-11-02T23:46:30.453Z"
+            },
+            {
+                "id": "019a46f7-18ee-719a-98f2-5a5e5fe15c04",
+                "key": "material_low_inventory",
+                "name": "Material Low Inventory",
+                "createdAt": "2025-11-02T23:46:30.518Z",
+                "updatedAt": "2025-11-02T23:46:30.518Z"
+            }
+        ]
+    },
+    "userData": {
+        "productTypes": [
+            {
+                "id": "019a8be9-bad1-71af-99c2-d8f91c6c6bed",
+                "name": "Ring Dishes",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:42.265Z",
+                "updatedAt": "2025-11-16T09:05:42.265Z"
+            },
+            {
+                "id": "019a8be9-bad1-71af-99c2-dc3878f365e7",
+                "name": "Cups",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:42.265Z",
+                "updatedAt": "2025-11-16T09:05:42.265Z"
+            },
+            {
+                "id": "019a8be9-bad1-71af-99c2-e3ba86a74770",
+                "name": "Plates",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:42.265Z",
+                "updatedAt": "2025-11-16T09:05:42.265Z"
+            }
+        ],
+        "materialTypes": [
+            {
+                "id": "019a8be9-ecc1-71cb-ab41-7e91f35b86c8",
+                "name": "Underglaze",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:55.049Z",
+                "updatedAt": "2025-11-16T09:05:55.049Z"
+            },
+            {
+                "id": "019a8be9-ecc1-71cb-ab41-80cb5912b80d",
+                "name": "Stoneware Clay",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:55.049Z",
+                "updatedAt": "2025-11-16T09:05:55.049Z"
+            },
+            {
+                "id": "019a8be9-ecc1-71cb-ab41-846c9f066563",
+                "name": "Dry Glaze",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "createdAt": "2025-11-16T09:05:55.049Z",
+                "updatedAt": "2025-11-16T09:05:55.049Z"
+            }
+        ],
+        "userPreference": {
+            "id": "019a8bc3-60e1-7324-9de6-f7377d2fa930",
+            "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+            "productTypeIds": [],
+            "profitPercentage": 0.3,
+            "estimatedMonthlyOperatingExpenses": 300,
+            "estimatedMonthlyProducedUnits": 25,
+            "operatingCostPercentage": 12,
+            "laborCost": 15,
+            "overheadCostPercentage": 0.25,
+            "lowInventoryAlertForGoods": true,
+            "lowInventoryAlertForMaterials": true,
+            "hasCompletedSetup": true,
+            "createdAt": "2025-11-16T08:23:48.786Z",
+            "updatedAt": "2025-11-16T09:07:45.364Z"
+        },
+        "materialAndSupply": [
+            {
+                "id": "019a8c13-d327-7208-99a4-d9bad0be5c1d",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Mayco Fundamentals - Pastel Blue",
+                "materialTypeId": "019a8be9-ecc1-71cb-ab41-7e91f35b86c8",
+                "unitId": "0199ffaf-df14-7778-a7fd-fb7ff7d7e2bd",
+                "quantity": 120,
+                "purchasePrice": 15,
+                "purchaseQuantity": 120,
+                "costPerUnit": 0.125,
+                "lastPurchaseDate": "2025-11-16",
+                "supplier": "",
+                "supplierUrl": "",
+                "notes": "",
+                "threshold": 0,
+                "createdAt": "2025-11-16T09:51:40.944Z",
+                "updatedAt": "2025-11-16T09:51:40.944Z"
+            },
+            {
+                "id": "019a8c11-a9f3-77e6-89b6-f6127b54e2f2",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Mayco Fundamentals - Pastel Pink",
+                "materialTypeId": "019a8be9-ecc1-71cb-ab41-7e91f35b86c8",
+                "unitId": "0199ffaf-df14-7778-a7fd-fb7ff7d7e2bd",
+                "quantity": 88,
+                "purchasePrice": 15,
+                "purchaseQuantity": 120,
+                "costPerUnit": 0.125,
+                "lastPurchaseDate": "2025-11-16",
+                "supplier": "The Clay Warehouse",
+                "supplierUrl": "https://theclaywarehouse.ca/pages/supplies",
+                "notes": "",
+                "threshold": 0,
+                "createdAt": "2025-11-16T09:49:19.326Z",
+                "updatedAt": "2025-11-16T09:59:24.595Z"
+            },
+            {
+                "id": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Tuckers Mid Smooth Stone Speck",
+                "materialTypeId": "019a8be9-ecc1-71cb-ab41-80cb5912b80d",
+                "unitId": "0199ffaf-df14-7778-a7fd-d87ab8733439",
+                "quantity": 14.35,
+                "purchasePrice": 78,
+                "purchaseQuantity": 22.7,
+                "costPerUnit": 3.436123,
+                "lastPurchaseDate": "2025-11-16",
+                "supplier": "The Clay Warehouse",
+                "supplierUrl": "https://theclaywarehouse.ca/pages/supplies",
+                "notes": "",
+                "threshold": 0,
+                "createdAt": "2025-11-16T09:44:14.125Z",
+                "updatedAt": "2025-11-16T09:59:39.640Z"
+            },
+            {
+                "id": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Tuckers Satin Clear Glaze",
+                "materialTypeId": "019a8be9-ecc1-71cb-ab41-846c9f066563",
+                "unitId": "0199ffaf-df14-7778-a7fd-fb7ff7d7e2bd",
+                "quantity": 226,
+                "purchasePrice": 20.85,
+                "purchaseQuantity": 1000,
+                "costPerUnit": 0.02085,
+                "lastPurchaseDate": "2025-11-16",
+                "supplier": "The Clay Warehouse",
+                "supplierUrl": "https://theclaywarehouse.ca/pages/supplies",
+                "notes": "",
+                "threshold": 0,
+                "createdAt": "2025-11-16T09:45:21.037Z",
+                "updatedAt": "2025-11-16T09:59:39.780Z"
+            }
+        ],
+        "goods": [
+            {
+                "id": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Terra Plate",
+                "productTypeId": "019a8be9-bad1-71af-99c2-e3ba86a74770",
+                "image": null,
+                "retailPrice": 46,
+                "note": "",
+                "inventoryQuantity": 1,
+                "producedQuantity": 0,
+                "materialCost": 1.828143,
+                "overheadCost": 0.457036,
+                "laborCost": 15,
+                "operatingCost": 12,
+                "netProfit": 36.336568,
+                "minimumStockLevel": 0,
+                "createdAt": "2025-11-16T09:58:39.762Z",
+                "updatedAt": "2025-11-16T10:10:12.795Z"
+            },
+            {
+                "id": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Pastel Pink Ring Dish",
+                "productTypeId": "019a8be9-bad1-71af-99c2-d8f91c6c6bed",
+                "image": null,
+                "retailPrice": 45,
+                "note": "",
+                "inventoryQuantity": 1,
+                "producedQuantity": 0,
+                "materialCost": 1.390718,
+                "overheadCost": 0.34768,
+                "laborCost": 15,
+                "operatingCost": 12,
+                "netProfit": 36.136893,
+                "minimumStockLevel": 0,
+                "createdAt": "2025-11-16T09:57:00.476Z",
+                "updatedAt": "2025-11-16T10:13:49.738Z"
+            },
+            {
+                "id": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Speckled Cup",
+                "productTypeId": "019a8be9-bad1-71af-99c2-dc3878f365e7",
+                "image": null,
+                "retailPrice": 47,
+                "note": "",
+                "inventoryQuantity": 1,
+                "producedQuantity": 0,
+                "materialCost": 2.380255,
+                "overheadCost": 0.595064,
+                "laborCost": 15,
+                "operatingCost": 12,
+                "netProfit": 36.222725,
+                "minimumStockLevel": 0,
+                "createdAt": "2025-11-16T09:55:01.931Z",
+                "updatedAt": "2025-11-16T10:13:49.800Z"
+            }
+        ],
+        "materialOutputRatios": [
+            {
+                "id": "019a8c16-e440-758c-b640-653c841ad13a",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "input": 0.45,
+                "createdAt": "2025-11-16T09:55:01.966Z",
+                "updatedAt": "2025-11-16T09:55:01.966Z"
+            },
+            {
+                "id": "019a8c16-e4ad-71e0-9ffb-51fb9a123591",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "input": 40,
+                "createdAt": "2025-11-16T09:55:02.073Z",
+                "updatedAt": "2025-11-16T09:55:02.073Z"
+            },
+            {
+                "id": "019a8c18-b34f-730c-afcd-3d330fcb0b9b",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "input": 0.15,
+                "createdAt": "2025-11-16T09:57:00.508Z",
+                "updatedAt": "2025-11-16T09:57:00.508Z"
+            },
+            {
+                "id": "019a8c18-b38e-771f-903c-93551992ed1b",
+                "materialId": "019a8c11-a9f3-77e6-89b6-f6127b54e2f2",
+                "input": 4,
+                "createdAt": "2025-11-16T09:57:00.573Z",
+                "updatedAt": "2025-11-16T09:57:00.573Z"
+            },
+            {
+                "id": "019a8c18-b3cf-75e4-a06f-39fe88f08ac1",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "input": 18,
+                "createdAt": "2025-11-16T09:57:00.634Z",
+                "updatedAt": "2025-11-16T09:57:00.634Z"
+            },
+            {
+                "id": "019a8c1a-3726-74f9-95ce-461af68cd169",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "input": 0.35,
+                "createdAt": "2025-11-16T09:58:39.794Z",
+                "updatedAt": "2025-11-16T09:58:39.794Z"
+            },
+            {
+                "id": "019a8c1a-376b-739b-b5a3-7aa871c8c94a",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "input": 30,
+                "createdAt": "2025-11-16T09:58:39.863Z",
+                "updatedAt": "2025-11-16T09:58:39.863Z"
+            }
+        ],
+        "goodToMaterialOutputRatios": [
+            {
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "materialOutputRatioId": "019a8c16-e440-758c-b640-653c841ad13a"
+            },
+            {
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "materialOutputRatioId": "019a8c16-e4ad-71e0-9ffb-51fb9a123591"
+            },
+            {
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "materialOutputRatioId": "019a8c18-b34f-730c-afcd-3d330fcb0b9b"
+            },
+            {
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "materialOutputRatioId": "019a8c18-b38e-771f-903c-93551992ed1b"
+            },
+            {
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "materialOutputRatioId": "019a8c18-b3cf-75e4-a06f-39fe88f08ac1"
+            },
+            {
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "materialOutputRatioId": "019a8c1a-3726-74f9-95ce-461af68cd169"
+            },
+            {
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "materialOutputRatioId": "019a8c1a-376b-739b-b5a3-7aa871c8c94a"
+            }
+        ],
+        "productionBatches": [
+            {
+                "id": "019a8c1a-b92c-7119-bf98-89ab4071602e",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "productionDate": "2025-11-02",
+                "statusId": null,
+                "quantity": 12,
+                "productionCost": 28.56,
+                "notes": "",
+                "createdAt": "2025-11-16T09:59:13.191Z",
+                "updatedAt": "2025-11-16T09:59:13.191Z"
+            },
+            {
+                "id": "019a8c1a-e57e-7209-9c0d-bc584bf1c40c",
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "productionDate": "2025-11-09",
+                "statusId": null,
+                "quantity": 8,
+                "productionCost": 11.13,
+                "notes": "",
+                "createdAt": "2025-11-16T09:59:24.533Z",
+                "updatedAt": "2025-11-16T09:59:24.533Z"
+            },
+            {
+                "id": "019a8c1b-20c9-722f-be59-633167db6d9a",
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "productionDate": "2025-11-17",
+                "statusId": null,
+                "quantity": 5,
+                "productionCost": 9.14,
+                "notes": "",
+                "createdAt": "2025-11-16T09:59:39.712Z",
+                "updatedAt": "2025-11-16T09:59:39.712Z"
+            }
+        ],
+        "sales": [
+            {
+                "id": "019a8c1c-7f50-764f-b169-2599d3135c1e",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Sarah Mitchell",
+                "salesNumber": 1,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-02T00:00:00.000Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c1c-7f74-72f4-9376-408071abe224",
+                "taxPercentage": 12,
+                "totalPrice": 122.08,
+                "cogs": 35.950638,
+                "profit": 86.129362,
+                "createdAt": "2025-11-16T10:01:09.306Z",
+                "updatedAt": "2025-11-16T10:01:09.344Z"
+            },
+            {
+                "id": "019a8c20-d0a6-733d-8acb-6fa681adbf98",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Emma Chen",
+                "salesNumber": 4,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-16T10:05:52.166Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c20-d0cd-706f-9b44-f7428fd129ff",
+                "taxPercentage": 12,
+                "totalPrice": 118.72,
+                "cogs": 34.023577,
+                "profit": 84.696423,
+                "createdAt": "2025-11-16T10:05:52.278Z",
+                "updatedAt": "2025-11-16T10:05:52.357Z"
+            },
+            {
+                "id": "019a8c1e-41fb-754a-b2a1-bb0f7260ae5c",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Lucas Brown",
+                "salesNumber": 3,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-04T00:00:00.000Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c1e-421e-77bf-a545-a426fb171858",
+                "taxPercentage": 12,
+                "totalPrice": 170.24,
+                "cogs": 51.452115,
+                "profit": 118.787885,
+                "createdAt": "2025-11-16T10:03:04.680Z",
+                "updatedAt": "2025-11-16T10:03:04.776Z"
+            },
+            {
+                "id": "019a8c21-5b11-71bc-8458-63bb9c05d513",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Olivia Parker",
+                "salesNumber": 5,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-04T00:00:00.000Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c21-5b33-7313-9780-f5830eddb134",
+                "taxPercentage": 12,
+                "totalPrice": 123.2,
+                "cogs": 34.570358,
+                "profit": 88.629642,
+                "createdAt": "2025-11-16T10:06:27.661Z",
+                "updatedAt": "2025-11-16T10:06:27.727Z"
+            },
+            {
+                "id": "019a8c22-373d-71fb-8c53-74980cbbb86d",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "James Wilson",
+                "salesNumber": 6,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-16T10:07:23.964Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c22-375c-75ce-ab51-4eac7c8f0938",
+                "taxPercentage": 12,
+                "totalPrice": 178.08,
+                "cogs": 53.925957,
+                "profit": 124.154043,
+                "createdAt": "2025-11-16T10:07:24.026Z",
+                "updatedAt": "2025-11-16T10:07:24.092Z"
+            },
+            {
+                "id": "019a8c23-3d37-7228-af36-d2a2ac2e1d47",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Ava Thompson",
+                "salesNumber": 7,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-11T00:00:00.000Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c23-3d59-76d5-8ec3-f5fe71c8e017",
+                "taxPercentage": 12,
+                "totalPrice": 220.64,
+                "cogs": 68.190513,
+                "profit": 152.449487,
+                "createdAt": "2025-11-16T10:08:31.090Z",
+                "updatedAt": "2025-11-16T10:08:31.240Z"
+            },
+            {
+                "id": "019a8c24-ca58-731a-99ae-3682f1fbefac",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Noah Garcia",
+                "salesNumber": 8,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-06T00:00:00.000Z",
+                "statusId": "019a6c66-6b7e-7528-b69f-cf75241e2b91",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c24-ca7a-7309-973c-7f92fb23fd0a",
+                "taxPercentage": 12,
+                "totalPrice": 176.96,
+                "cogs": 53.235817,
+                "profit": 123.724183,
+                "createdAt": "2025-11-16T10:10:12.754Z",
+                "updatedAt": "2025-11-16T10:10:12.898Z"
+            },
+            {
+                "id": "019a8c28-19c8-76fb-8b27-8e91170ea83a",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "customer": "Sophie Martin",
+                "salesNumber": 9,
+                "channelId": "019a269c-0737-7773-bd82-e2ae8989c3da",
+                "date": "2025-11-16T10:13:49.640Z",
+                "statusId": "0199dac5-f9b5-7416-bf3f-ca0912caeaed",
+                "note": "",
+                "discount": 0,
+                "discountRef": null,
+                "shippingFee": 0,
+                "shippingFeeRef": "019a8c28-19eb-756f-b8a2-d60f13c3d3fc",
+                "taxPercentage": 12,
+                "totalPrice": 172.48,
+                "cogs": 52.689036,
+                "profit": 119.790964,
+                "createdAt": "2025-11-16T10:13:49.699Z",
+                "updatedAt": "2025-11-16T10:13:49.833Z"
+            }
+        ],
+        "saleDetails": [
+            {
+                "id": "019a8c1c-7f99-73f2-90fc-4f35959fbefc",
+                "saleId": "019a8c1c-7f50-764f-b169-2599d3135c1e",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 2,
+                "pricePerItem": 47,
+                "cogs": 35.950638,
+                "createdAt": "2025-11-16T10:01:09.306Z",
+                "updatedAt": "2025-11-16T10:01:09.306Z"
+            },
+            {
+                "id": "019a8c20-d0ea-72cc-a386-2393e5475630",
+                "saleId": "019a8c20-d0a6-733d-8acb-6fa681adbf98",
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "quantity": 1,
+                "pricePerItem": 45,
+                "cogs": 16.738398,
+                "createdAt": "2025-11-16T10:05:52.278Z",
+                "updatedAt": "2025-11-16T10:05:52.278Z"
+            },
+            {
+                "id": "019a8c20-d128-74e9-9742-db3a0b6d360f",
+                "saleId": "019a8c20-d0a6-733d-8acb-6fa681adbf98",
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "quantity": 1,
+                "pricePerItem": 46,
+                "cogs": 17.285179,
+                "createdAt": "2025-11-16T10:05:52.278Z",
+                "updatedAt": "2025-11-16T10:05:52.278Z"
+            },
+            {
+                "id": "019a8c1e-423f-7708-a075-529bf47d1f9c",
+                "saleId": "019a8c1e-41fb-754a-b2a1-bb0f7260ae5c",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 1,
+                "pricePerItem": 47,
+                "cogs": 17.975319,
+                "createdAt": "2025-11-16T10:03:04.680Z",
+                "updatedAt": "2025-11-16T10:03:04.680Z"
+            },
+            {
+                "id": "019a8c1e-4283-702e-90a5-afe925b80b33",
+                "saleId": "019a8c1e-41fb-754a-b2a1-bb0f7260ae5c",
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "quantity": 2,
+                "pricePerItem": 45,
+                "cogs": 33.476796,
+                "createdAt": "2025-11-16T10:03:04.680Z",
+                "updatedAt": "2025-11-16T10:03:04.680Z"
+            },
+            {
+                "id": "019a8c21-5b53-7141-a404-5ed1675a1e9e",
+                "saleId": "019a8c21-5b11-71bc-8458-63bb9c05d513",
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "quantity": 2,
+                "pricePerItem": 46,
+                "cogs": 34.570358,
+                "createdAt": "2025-11-16T10:06:27.661Z",
+                "updatedAt": "2025-11-16T10:06:27.661Z"
+            },
+            {
+                "id": "019a8c22-377e-751e-9ecf-cbf4f258057a",
+                "saleId": "019a8c22-373d-71fb-8c53-74980cbbb86d",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 3,
+                "pricePerItem": 47,
+                "cogs": 53.925957,
+                "createdAt": "2025-11-16T10:07:24.026Z",
+                "updatedAt": "2025-11-16T10:07:24.026Z"
+            },
+            {
+                "id": "019a8c23-3d7d-752f-9f56-75f344b15605",
+                "saleId": "019a8c23-3d37-7228-af36-d2a2ac2e1d47",
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "quantity": 3,
+                "pricePerItem": 45,
+                "cogs": 50.215194,
+                "createdAt": "2025-11-16T10:08:31.090Z",
+                "updatedAt": "2025-11-16T10:08:31.090Z"
+            },
+            {
+                "id": "019a8c23-3dc2-75ee-8ef2-b1a6c376f9d0",
+                "saleId": "019a8c23-3d37-7228-af36-d2a2ac2e1d47",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 1,
+                "pricePerItem": 47,
+                "cogs": 17.975319,
+                "createdAt": "2025-11-16T10:08:31.090Z",
+                "updatedAt": "2025-11-16T10:08:31.090Z"
+            },
+            {
+                "id": "019a8c24-ca99-7205-8fe7-b66903612b66",
+                "saleId": "019a8c24-ca58-731a-99ae-3682f1fbefac",
+                "goodId": "019a8c1a-3708-7582-a0d3-7d53bb76cd83",
+                "quantity": 1,
+                "pricePerItem": 46,
+                "cogs": 17.285179,
+                "createdAt": "2025-11-16T10:10:12.754Z",
+                "updatedAt": "2025-11-16T10:10:12.754Z"
+            },
+            {
+                "id": "019a8c24-cadc-7203-a328-47e7a65347d5",
+                "saleId": "019a8c24-ca58-731a-99ae-3682f1fbefac",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 2,
+                "pricePerItem": 47,
+                "cogs": 35.950638,
+                "createdAt": "2025-11-16T10:10:12.754Z",
+                "updatedAt": "2025-11-16T10:10:12.754Z"
+            },
+            {
+                "id": "019a8c28-1a0a-750b-8cc6-7d3fd5c3d808",
+                "saleId": "019a8c28-19c8-76fb-8b27-8e91170ea83a",
+                "goodId": "019a8c18-b331-717b-94f1-0f5edd749fc5",
+                "quantity": 1,
+                "pricePerItem": 45,
+                "cogs": 16.738398,
+                "createdAt": "2025-11-16T10:13:49.699Z",
+                "updatedAt": "2025-11-16T10:13:49.699Z"
+            },
+            {
+                "id": "019a8c28-1a4a-72ac-bf63-84a0babdb0e7",
+                "saleId": "019a8c28-19c8-76fb-8b27-8e91170ea83a",
+                "goodId": "019a8c16-e3ad-7697-b6a1-6250c371ce39",
+                "quantity": 2,
+                "pricePerItem": 47,
+                "cogs": 35.950638,
+                "createdAt": "2025-11-16T10:13:49.699Z",
+                "updatedAt": "2025-11-16T10:13:49.699Z"
+            }
+        ],
+        "studioOverheadExpenses": [
+            {
+                "id": "019a8c2c-7568-721d-aea5-384fa751ed2d",
+                "expense_type": "space_rent",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Studio Rent (on-demand)",
+                "cost": "250",
+                "payee": "CraftShare Spaces",
+                "payment_method": "credit",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:18:14.734Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c2c-f476-70ce-a3d2-f7e73bce56f4",
+                "expense_type": "packaging_supplies",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping Tools",
+                "cost": "55",
+                "payee": "Dollarama",
+                "payment_method": "credit",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:18:37.449Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c2e-cf12-75a6-bf92-7f289f1d64d0",
+                "expense_type": "tools_equipment",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Extra brushes, towels",
+                "cost": "30",
+                "payee": "Dollarama",
+                "payment_method": "credit",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:19:09.934Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            }
+        ],
+        "operationalExpenses": [
+            {
+                "id": "019a8c2b-6765-74cb-832a-2ff18c328a2a",
+                "expense_type": "marketing",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Advertising (Instagram)",
+                "cost": "50",
+                "payee": "Instagram",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "0",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:17:02.399Z",
+                "repeat_every": null,
+                "start_date": "2025-11-16T10:17:02.399Z",
+                "due_date": "2025-12-16T00:00:00.000Z"
+            },
+            {
+                "id": "019a8c1c-7f74-72f4-9376-408071abe224",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000001",
+                "cost": "15",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:01:09.235Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c1e-421e-77bf-a545-a426fb171858",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000003",
+                "cost": "15",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:03:04.606Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c20-d0cd-706f-9b44-f7428fd129ff",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000004",
+                "cost": "15",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:05:52.205Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c21-5b33-7313-9780-f5830eddb134",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000005",
+                "cost": "18",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:06:27.635Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c22-375c-75ce-ab51-4eac7c8f0938",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000006",
+                "cost": "18",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:07:23.995Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c23-3d59-76d5-8ec3-f5fe71c8e017",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000007",
+                "cost": "15",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:08:31.065Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c24-ca7a-7309-973c-7f92fb23fd0a",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000008",
+                "cost": "18",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:10:12.729Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c28-19eb-756f-b8a2-d60f13c3d3fc",
+                "expense_type": "shipping",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Shipping for Sale #0000009",
+                "cost": "15",
+                "payee": "",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "1",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:13:49.674Z",
+                "repeat_every": null,
+                "start_date": null,
+                "due_date": null
+            },
+            {
+                "id": "019a8c2b-09d3-72ca-ae6e-529f2412b323",
+                "expense_type": "storage_fee",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Storage Fee for Products",
+                "cost": "60",
+                "payee": "Store & Store Co.",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "0",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:15:57.666Z",
+                "repeat_every": null,
+                "start_date": "2025-11-16T10:15:57.666Z",
+                "due_date": "2025-12-16T00:00:00.000Z"
+            },
+            {
+                "id": "019a8c2a-051a-76c8-9a47-f1973329008b",
+                "expense_type": "business_fee",
+                "user_id": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "name": "Etsy Fees & Listing",
+                "cost": "85",
+                "payee": "Etsy",
+                "payment_method": "credit",
+                "good_id": null,
+                "materialAndSupply_id": null,
+                "quantity": "0",
+                "notes": "",
+                "attach_recipt": "",
+                "createdAt": "2025-11-16T10:14:10.565Z",
+                "repeat_every": null,
+                "start_date": "2025-11-16T10:14:10.565Z",
+                "due_date": "2025-12-16T00:00:00.000Z"
+            }
+        ],
+        "materialInventoryTransactions": [
+            {
+                "id": "019a8c13-d348-77ce-9b8f-f44a945f8a8f",
+                "materialId": "019a8c13-d327-7208-99a4-d9bad0be5c1d",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": 120,
+                "quantityBefore": 0,
+                "quantityAfter": 120,
+                "createdAt": "2025-11-16T09:51:40.944Z"
+            },
+            {
+                "id": "019a8c11-aa12-71aa-b1eb-06eb896b98ae",
+                "materialId": "019a8c11-a9f3-77e6-89b6-f6127b54e2f2",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": 120,
+                "quantityBefore": 0,
+                "quantityAfter": 120,
+                "createdAt": "2025-11-16T09:49:19.326Z"
+            },
+            {
+                "id": "019a8c1a-e6d5-7225-975e-6bda40c66ad1",
+                "materialId": "019a8c11-a9f3-77e6-89b6-f6127b54e2f2",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -32,
+                "quantityBefore": 120,
+                "quantityAfter": 88,
+                "createdAt": "2025-11-16T09:59:24.397Z"
+            },
+            {
+                "id": "019a8c0d-01d6-769b-b37e-f270152c70df",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": 22.7,
+                "quantityBefore": 0,
+                "quantityAfter": 22.7,
+                "createdAt": "2025-11-16T09:44:14.125Z"
+            },
+            {
+                "id": "019a8c1a-ba36-736e-934a-85475b3bd4ed",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -5.4,
+                "quantityBefore": 22.7,
+                "quantityAfter": 17.3,
+                "createdAt": "2025-11-16T09:59:13.050Z"
+            },
+            {
+                "id": "019a8c1a-e64f-7579-b103-91197a8a34e7",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -1.2,
+                "quantityBefore": 17.3,
+                "quantityAfter": 16.1,
+                "createdAt": "2025-11-16T09:59:24.397Z"
+            },
+            {
+                "id": "019a8c1b-219d-75da-8c31-e3827abf0b59",
+                "materialId": "019a8c0d-01b5-76ad-859a-13705d899b14",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -1.75,
+                "quantityBefore": 16.1,
+                "quantityAfter": 14.35,
+                "createdAt": "2025-11-16T09:59:39.573Z"
+            },
+            {
+                "id": "019a8c0e-0744-70b9-b95f-91a09bdacde2",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": 1000,
+                "quantityBefore": 0,
+                "quantityAfter": 1000,
+                "createdAt": "2025-11-16T09:45:21.037Z"
+            },
+            {
+                "id": "019a8c1a-babb-741d-b357-c41c943ae867",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -480,
+                "quantityBefore": 1000,
+                "quantityAfter": 520,
+                "createdAt": "2025-11-16T09:59:13.050Z"
+            },
+            {
+                "id": "019a8c1a-e75f-76cc-8a84-f08dc8fe9f45",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -144,
+                "quantityBefore": 520,
+                "quantityAfter": 376,
+                "createdAt": "2025-11-16T09:59:24.397Z"
+            },
+            {
+                "id": "019a8c1b-2225-713a-a794-68016eec40be",
+                "materialId": "019a8c0e-0721-7662-9e28-de09cec61143",
+                "userId": "019a8bc3-5f46-77c4-b2c4-e461c6c6557b",
+                "quantityChange": -150,
+                "quantityBefore": 376,
+                "quantityAfter": 226,
+                "createdAt": "2025-11-16T09:59:39.573Z"
+            }
+        ]
+    }
+}
