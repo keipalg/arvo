@@ -268,6 +268,14 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.materialList.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyProducedQuantity.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyMaterialCost.queryKey(),
+                });
                 setToastMessage({
                     kind: "SUCCESS",
                     content: `Added batch production successfully!`,
@@ -292,6 +300,14 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.materials.materialList.queryKey(),
                 });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyProducedQuantity.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyMaterialCost.queryKey(),
+                });
                 setToastMessage({
                     kind: "SUCCESS",
                     content: `Updated batch production successfully!`,
@@ -314,7 +330,17 @@ function ProductionBatchList() {
                 await queryClient.invalidateQueries({
                     queryKey: trpc.productionBatch.list.queryKey(),
                 });
-
+                await queryClient.invalidateQueries({
+                    queryKey: trpc.materials.materialList.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyProducedQuantity.queryKey(),
+                });
+                await queryClient.invalidateQueries({
+                    queryKey:
+                        trpc.productionBatch.monthlyMaterialCost.queryKey(),
+                });
                 setToastMessage({
                     kind: "SUCCESS",
                     content: `Deleted batch production successfully!`,
