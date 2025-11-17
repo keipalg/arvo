@@ -78,6 +78,27 @@ export const generateProductionInOutOverview = async (
     return overview;
 };
 
+export const generateDailySalesOverview = async (
+    userId: string,
+    todayRevenue: number,
+    yesterdaySalesRevenue: number,
+    mostSellingProduct: string | null,
+) => {
+    const prompt = `Generate a concise overview based on the following daily sales data:
+        Today's Revenue: $${todayRevenue.toFixed(2)}
+        Yesterday's Revenue: $${yesterdaySalesRevenue.toFixed(2)}
+        Most Selling Product Today: ${mostSellingProduct ?? "N/A"}
+    `;
+
+    let overview = await checkDashboardOverviewCache(userId, prompt);
+    if (!overview) {
+        overview = await generateDashboardOverview(prompt);
+        await storeDashboardOverviewCache(userId, prompt, overview);
+    }
+
+    return overview;
+};
+
 export const generateDashboardOverview = async (prompt: string) => {
     const overview = `Generate a concise dashboard overview in 2, 3 sentences based on the following prompt: ${prompt}`;
     const response = await openai.responses.create({

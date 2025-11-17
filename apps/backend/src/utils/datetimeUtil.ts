@@ -14,3 +14,19 @@ export function getMonthRangeInTimezone(tz: string, offset: number = 0) {
 
     return { start: startUtc, end: endUtc };
 }
+
+export function getDayRangeInTimezone(tz: string, offset: number = 0) {
+    const now = toZonedTime(new Date(), tz);
+
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const day = now.getDate() + offset;
+
+    const startLocal = new Date(year, month, day, 0, 0, 0, 0);
+    const endLocal = new Date(year, month, day, 23, 59, 59, 999);
+
+    const startUtc = fromZonedTime(startLocal, tz);
+    const endUtc = fromZonedTime(endLocal, tz);
+
+    return { start: startUtc, end: endUtc };
+}

@@ -23,6 +23,8 @@ import { trpc } from "../../../utils/trpcClient";
 import DashboardCard from "../../../components/card/DashboardCard";
 import TopSellingTable from "../../../components/table/TopSellingTable";
 import ChartContainer from "../../../components/chart/ChartContainer";
+import DashboardCardDailyOverview from "../../../components/card/DashboardCardDailyOverview";
+import MetricsGroup from "../../../components/metric/MetricsGroup";
 
 export const Route = createFileRoute("/_protected/dashboard/")({
     component: RouteComponent,
@@ -205,12 +207,14 @@ function RouteComponent() {
         ),
     );
 
-    const { data: metricRevenue } = useQuery(
+    const { data: metricRevenue, isLoading: metricRevenueIsLoading } = useQuery(
         trpc.sales.metricTotalRevenue.queryOptions({ timezone }),
     );
-    const { data: metricSalesCount } = useQuery(
-        trpc.sales.metricTotalSalesCount.queryOptions({ timezone }),
-    );
+    const { data: metricSalesCount, isLoading: metricSalesCountIsLoading } =
+        useQuery(trpc.sales.metricTotalSalesCount.queryOptions({ timezone }));
+
+    const { data: dailyOverviews, isLoading: dailyOverviewsIsLoading } =
+        useQuery(trpc.dashboard.dailyOverviews.queryOptions({ timezone }));
 
     const revenueProfitSummaryChartData = {
         labels: ["Revenue", "Expenses", "Profit"],
@@ -325,13 +329,20 @@ function RouteComponent() {
         ],
     };
 
+    const noMetricsAvailable =
+        !metricRevenueIsLoading &&
+        !metricSalesCountIsLoading &&
+        !metricRevenue?.totalProfit &&
+        !metricRevenue?.totalRevenue &&
+        !metricSalesCount?.totalSalesCount;
+
     return (
         <BaseLayout title="Dashboard">
             <PageTitle title={`Hello ${session ? session.user.name : ""}`} />
             <p className="font-semibold text-arvo-black-50 mt-4">
                 Let’s take a look at how your business is growing.
             </p>
-            <div className="flex gap-6 py-2 mt-6 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            <MetricsGroup noMetricsAvailable={noMetricsAvailable}>
                 <Metric
                     value={
                         metricRevenue
@@ -365,25 +376,12 @@ function RouteComponent() {
                     bottomText="compared to last month"
                     showPercentage={metricSalesCount?.change != null}
                 />
-            </div>
+            </MetricsGroup>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-                <DashboardCard className="bg-arvo-blue-20 border-arvo-blue-100 border">
-                    <div className="flex flex-col">
-                        <div className="flex gap-2 border-arvo-blue-100 border rounded-4xl px-6 py-2">
-                            <img src="/icon/ai-blue.svg" />
-                            <span className="font-semibold text-arvo-blue-100">
-                                Today’s info
-                            </span>
-                        </div>
-                        <p className="text-2xl py-8 font-semibold text-arvo-blue-100">
-                            Sales grew 15% today, with Daisy Mugs leading again.
-                            <br />
-                            <br />
-                            Keep the momentum going!
-                            <br />
-                        </p>
-                    </div>
-                </DashboardCard>
+                <DashboardCardDailyOverview
+                    salesOverview={dailyOverviews?.salesOverview ?? null}
+                    isLoading={dailyOverviewsIsLoading}
+                ></DashboardCardDailyOverview>
                 <DashboardCard
                     title="Your Monthly Sales, Costs & Earnings"
                     description="Your finances at a glance — earnings, costs, and profit all in one place."

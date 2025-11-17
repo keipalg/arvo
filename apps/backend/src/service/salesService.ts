@@ -17,7 +17,10 @@ import {
 } from "../db/schema.js";
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
-import { getMonthRangeInTimezone } from "../utils/datetimeUtil.js";
+import {
+    getDayRangeInTimezone,
+    getMonthRangeInTimezone,
+} from "../utils/datetimeUtil.js";
 import { createProductLowInventoryNotification } from "./notificationsService.js";
 import { alias } from "drizzle-orm/pg-core";
 
@@ -283,6 +286,59 @@ export const getMonthlySalesCount = async (
             ),
         );
     return summary[0].count ?? 0;
+};
+
+export const getDailySalesRevenue = async (
+    userId: string,
+    timezone: string,
+    offset: number = 0,
+) => {
+    const { start: startOfDay, end: endOfDay } = getDayRangeInTimezone(
+        timezone,
+        offset,
+    );
+
+    const result = await db
+        .select({
+            totalRevenue: sql<number>`cast(sum(${sale.totalPrice}) as int)`,
+            totalProfit: sql<number>`cast(sum(${sale.profit}) as int)`,
+        })
+        .from(sale)
+        .where(
+            and(
+                eq(sale.userId, userId),
+                between(sale.date, startOfDay, endOfDay),
+            ),
+        );
+    return result[0] ?? { totalRevenue: 0, totalProfit: 0 };
+};
+
+export const getDailyMostSellingProduct = async (
+    userId: string,
+    timezone: string,
+) => {
+    const targetDay = getDayRangeInTimezone(timezone, 0);
+
+    const results = await db
+        .select({
+            goodId: saleDetail.goodId,
+            goodName: good.name,
+            goodsSold: sql<number>`cast(sum(${saleDetail.quantity}) as int)`,
+        })
+        .from(sale)
+        .innerJoin(saleDetail, eq(sale.id, saleDetail.saleId))
+        .innerJoin(good, eq(saleDetail.goodId, good.id))
+        .where(
+            and(
+                eq(sale.userId, userId),
+                between(sale.date, targetDay.start, targetDay.end),
+            ),
+        )
+        .groupBy(saleDetail.goodId, good.name)
+        .orderBy(sql`cast(sum(${saleDetail.quantity}) as int) DESC`)
+        .limit(1);
+
+    return results[0];
 };
 
 // Check the sales is used or not
