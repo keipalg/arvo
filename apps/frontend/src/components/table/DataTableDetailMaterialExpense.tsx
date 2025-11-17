@@ -1,7 +1,7 @@
-import type { UsedMaterialPerSales } from "../../routes/_protected/expenses/usedMaterials";
+import type { UsedMaterialPerSalesRow } from "../../routes/_protected/expenses/usedMaterials";
 
 type DataTableDetailMaterialExpenseProps = {
-    row: UsedMaterialPerSales;
+    row: UsedMaterialPerSalesRow;
     columnsLength: number;
     visibleMobileColumnsCount: number;
     isSmUp: boolean;

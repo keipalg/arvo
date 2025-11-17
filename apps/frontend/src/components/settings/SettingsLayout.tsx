@@ -132,7 +132,7 @@ export const SettingsLayout = ({
                                     type="text"
                                     onChange={item.handleChange}
                                     value={item.value as string | undefined}
-                                    className="pl-2 pr-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    className="pl-2 pr-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
                                 />
                             </div>
                         )}
