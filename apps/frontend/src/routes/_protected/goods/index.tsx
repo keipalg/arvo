@@ -12,7 +12,6 @@ import RightDrawer from "../../../components/drawer/RightDrawer";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
-import WeightWithUnit from "../../../components/input/WeightWithUnit.tsx";
 import PageTitle from "../../../components/layout/PageTitle.tsx";
 import Metric from "../../../components/metric/Metric.tsx";
 import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
@@ -783,11 +782,12 @@ function GoodsList() {
                                         }
                                     />
                                     <div className=" grid grid-cols-[85%_15%] gap-2">
-                                        <WeightWithUnit
+                                        <NumberInput
                                             value={row.amount}
                                             step="0.01"
                                             min="0.00"
                                             unit={row.unitAbbreviation}
+                                            unitPosition="right"
                                             disabled={
                                                 !editingGoodId ? false : true
                                             }
@@ -798,7 +798,7 @@ function GoodsList() {
                                                     Number(e.target.value),
                                                 )
                                             }
-                                        ></WeightWithUnit>
+                                        ></NumberInput>
                                         {!editingGoodId ? (
                                             <button
                                                 type="button"
