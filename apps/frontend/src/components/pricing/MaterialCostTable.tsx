@@ -13,11 +13,13 @@ type Material = {
 type MaterialCostTableProps = {
     materials?: Material[];
     totalCost?: string;
+    isEditing?: boolean;
 };
 
 const MaterialCostTable = ({
     materials,
     totalCost,
+    isEditing,
 }: MaterialCostTableProps) => {
     const [isError, setIsError] = useState(false);
 
@@ -29,7 +31,7 @@ const MaterialCostTable = ({
     return (
         <div className="flex flex-col">
             <FormLabel label="Material Cost" />
-            {isError && (
+            {isError && !isEditing && (
                 <div className="text-sm text-red-500">
                     * Your inventory is insufficient
                 </div>
@@ -40,9 +42,6 @@ const MaterialCostTable = ({
                         <tr>
                             <th className="text-left py-3 px-4 ">Material</th>
                             <th className="text-center py-3 px-4 ">Used</th>
-                            <th className="text-center py-3 px-4 ">
-                                Inventory
-                            </th>
                             <th className="text-right py-3 px-4 ">Cost</th>
                         </tr>
                     </thead>
@@ -56,13 +55,6 @@ const MaterialCostTable = ({
                                     {item.usedAmount?.toFixed(2)}{" "}
                                     {item.unitAbbreviation}
                                 </td>
-                                <td className="text-center py-2.5 px-4">
-                                    {item.inventoryQuantity}{" "}
-                                    {item.unitAbbreviation}
-                                    {item.errorCondition && (
-                                        <span className="text-red-500">*</span>
-                                    )}
-                                </td>
                                 <td className="text-right py-2.5 px-4">
                                     ${item.cost?.toFixed(2)}
                                 </td>
@@ -72,7 +64,7 @@ const MaterialCostTable = ({
                     <tfoot className=" border-t-2 border-arvo-black-5">
                         <tr>
                             <td
-                                colSpan={3}
+                                colSpan={2}
                                 className="text-left py-3 px-4 font-bold"
                             >
                                 Total Cost

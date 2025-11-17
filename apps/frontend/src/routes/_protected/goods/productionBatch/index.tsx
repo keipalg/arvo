@@ -80,6 +80,7 @@ function ProductionBatchList() {
     >([]);
     const [editingBatchId, setEditingBatchId] = useState<string>("");
     const [maxQuantity, setMaxQuantity] = useState(0);
+    const [quantityIsTouched, setQuantityIsTouched] = useState(false);
     const [selectedItemForDeletion, setSelectedItemForDeletion] = useState("");
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
         useState(false);
@@ -246,6 +247,7 @@ function ProductionBatchList() {
         setMaterialOutputRatios([]);
         setEditingBatchId("");
         setNote("");
+        setQuantityIsTouched(false);
     };
 
     const closeDrawer = () => {
@@ -346,8 +348,7 @@ function ProductionBatchList() {
 
                 if (wouldGoNegative) {
                     setFormErrors({
-                        quantity:
-                            "Reducing quantity would make inventory negative",
+                        quantity: "This change would make inventory negative",
                     });
                     return;
                 }
@@ -641,10 +642,34 @@ function ProductionBatchList() {
                         step="1"
                         value={quantity}
                         max={
-                            maxQuantity > 0 ? maxQuantity.toString() : undefined
+                            maxQuantity.toString() && !editingBatchId
+                                ? maxQuantity.toString()
+                                : undefined
                         }
-                        onChange={(e) => setQuantity(Number(e.target.value))}
-                        error={formErrors.quantity}
+                        onChange={(e) => {
+                            const newQuantity = Number(e.target.value);
+                            setQuantity(newQuantity);
+
+                            // Only set touched state if user has actually changed the value
+                            // Set touched state if quantity reaches max or max is 0
+                            if (
+                                maxQuantity >= 0 &&
+                                newQuantity >= maxQuantity
+                            ) {
+                                setQuantityIsTouched(true);
+                            } else {
+                                // Reset touched state if quantity goes below max
+                                setQuantityIsTouched(false);
+                            }
+                        }}
+                        error={
+                            formErrors.quantity ||
+                            (!editingBatchId &&
+                            quantityIsTouched &&
+                            maxQuantity >= 0
+                                ? `You can make a maximum of ${maxQuantity} with your inventory.`
+                                : undefined)
+                        }
                     ></NumberInput>
                     <MaterialCostTable
                         materials={materialOutputRatios.map((ratio) => ({
@@ -657,6 +682,7 @@ function ProductionBatchList() {
                                 ratio.input * quantity > ratio.currentQuantity,
                         }))}
                         totalCost={`$${Number(productionCost).toFixed(2)}`}
+                        isEditing={editingBatchId ? true : false}
                     />
 
                     <TextArea

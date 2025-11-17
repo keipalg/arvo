@@ -111,7 +111,7 @@ const GoodDetails = ({ row, isSmUp }: DataTableDetailGoodProps) => {
                                     <div
                                         className={`
                                             ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
-                                            absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full -left-32
+                                            absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out -bottom-45 left-10
                                             `}
                                     >
                                         <CostBreakDown
@@ -231,7 +231,7 @@ const GoodDetails = ({ row, isSmUp }: DataTableDetailGoodProps) => {
                                                 <div
                                                     className={`
                                                         ${showMaterialsPopup ? "visible opacity-100" : "invisible opacity-0"}
-                                                        absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out bottom-full -left-32
+                                                        absolute w-72 bg-arvo-white-0 border border-arvo-black-5 rounded-2xl font-semibold text-base overflow-visible z-10 shadow-lg transition-all duration-300 ease-in-out -left-32 -bottom-10
                                                         `}
                                                 >
                                                     <CostBreakDown
