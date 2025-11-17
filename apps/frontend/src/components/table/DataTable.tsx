@@ -230,7 +230,7 @@ const DataTable = <T extends { id: number | string }>({
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto overflow-y-auto max-h-[800px] max-w-full rounded-2xl border border-arvo-black-5 overflow-clip">
+                <div className="overflow-x-auto overflow-y-auto max-h-[800px] max-w-full rounded-2xl border border-arvo-black-5">
                     <table className="w-full">
                         <thead className="bg-arvo-white-100 border-b border-arvo-black-5 sticky top-0 z-10 shadow-md">
                             <tr>
