@@ -78,7 +78,7 @@ const DatePicker = ({
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
                 />
             </div>
-            {error && <div className="text-arvo-red-100 text-sm">{error}</div>}
+            {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
     );
 };
