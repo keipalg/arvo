@@ -13,7 +13,11 @@ import TextInput from "../../../components/input/TextInput";
 import Button from "../../../components/button/Button";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
-import { salesInputValidation, salesUpdateValidation } from "@arvo/shared";
+import {
+    salesInputValidation,
+    salesStatusUpdateValidation,
+    salesUpdateValidation,
+} from "@arvo/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SalesStatus from "../../../components/badge/SalesStatus";
 import PageTitle from "../../../components/layout/PageTitle";
@@ -321,6 +325,26 @@ function SalesList() {
         }),
     );
 
+    const updateSaleStatusMutation = useMutation(
+        trpc.sales.updateStatus.mutationOptions({
+            onSuccess: async () => {
+                await invalidateAllQueries();
+                setToastMessage({
+                    kind: "SUCCESS",
+                    content: "Updated sales status successfully!",
+                });
+                setVisibleToast(true);
+            },
+            onError: () => {
+                setToastMessage({
+                    kind: "WARN",
+                    content: `Error updating sales status`,
+                });
+                setVisibleToast(true);
+            },
+        }),
+    );
+
     const deleteSaleMutation = useMutation(
         trpc.sales.delete.mutationOptions({
             onSuccess: async () => {
@@ -437,6 +461,37 @@ function SalesList() {
 
             setFormErrors({});
             addSaleMutation.mutate(result.data, {
+                onSuccess: () => {
+                    closeDrawer();
+                    setProducts([]);
+                },
+                onError: (error) => {
+                    console.error("Error adding sale:", error);
+                },
+            });
+        }
+    };
+
+    const handleStatusSubmit = (newStatus: string) => {
+        if (editingSaleId) {
+            const result = salesStatusUpdateValidation.safeParse({
+                id: editingSaleId,
+                statusKey: newStatus,
+            });
+
+            if (!result.success) {
+                const errors: Record<string, string> = {};
+                result.error.issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        errors[issue.path[0] as string] = issue.message;
+                    }
+                });
+                console.log(errors);
+                setFormErrors(errors);
+                return;
+            }
+            setFormErrors({});
+            updateSaleStatusMutation.mutate(result.data, {
                 onSuccess: () => {
                     closeDrawer();
                     setProducts([]);
@@ -650,8 +705,27 @@ function SalesList() {
                 {viewOnlyMode ? (
                     <div className="flex flex-col gap-4 mt-4">
                         <div className="grid grid-cols-1 gap-2">
-                            <div className="font-semibold">Status</div>
-                            <SalesStatus statusKey={status} />
+                            <SelectCustom
+                                label="Status"
+                                name="status"
+                                value={status}
+                                options={
+                                    statusList
+                                        ? statusList.map((statusOption) => ({
+                                              value: statusOption.key,
+                                              label: statusOption.name,
+                                              render: (
+                                                  <SalesStatus
+                                                      statusKey={String(
+                                                          statusOption.key,
+                                                      )}
+                                                  ></SalesStatus>
+                                              ),
+                                          }))
+                                        : []
+                                }
+                                onChange={handleStatusSubmit}
+                            ></SelectCustom>
                         </div>
                         <div className="pt-2">
                             <div className="mt-2 space-y-2">

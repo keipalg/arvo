@@ -154,6 +154,19 @@ export const updateSale = async (data: SaleInsert, tx: NeonDbTx = db) => {
         .where(eq(sale.id, data.id));
 };
 
+export const updateSaleStatus = async (
+    saleId: string,
+    statusId: string,
+    tx: NeonDbTx = db,
+) => {
+    await tx
+        .update(sale)
+        .set({
+            statusId: statusId,
+        })
+        .where(eq(sale.id, saleId));
+};
+
 export const updateSaleRefs = async (
     data: {
         discountRef: string | null;
