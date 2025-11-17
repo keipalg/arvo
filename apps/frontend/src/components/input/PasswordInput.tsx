@@ -1,22 +1,28 @@
 import { useState } from "react";
 import FormLabel from "./FormLabel";
 
+const errorStyles = "border-arvo-red-100 text-arvo-red-100";
+
 export function PasswordInput({
+    label = "Password",
     password,
     handlePasswordChange,
     className = "",
+    error,
 }: {
+    label?: string;
     password: string;
     handlePasswordChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     className?: string;
+    error?: boolean;
 }) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div>
-            <FormLabel label="Password" />
+            <FormLabel label={label} />
             <div
-                className={`flex items-center border rounded-xl focus-within:ring-1 focus-within:ring-arvo-blue-100 focus-within:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 ${className}`}
+                className={`flex items-center border rounded-xl focus-within:ring-1 focus-within:ring-arvo-blue-100 focus-within:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 ${className} ${error ? errorStyles : "border-arvo-black-5"}`}
             >
                 <input
                     type={showPassword ? "text" : "password"}
@@ -64,6 +70,7 @@ export function PasswordInput({
                     </svg>
                 )}
             </div>
+            {error && <div className={errorStyles}>Passwords do not match</div>}
         </div>
     );
 }
