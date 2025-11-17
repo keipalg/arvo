@@ -4,7 +4,7 @@ import FormLabel from "./FormLabel";
 const errorStyles = "border-arvo-red-100 text-arvo-red-100";
 
 export function PasswordInput({
-    label = "Password",
+    label,
     password,
     handlePasswordChange,
     className = "",
@@ -19,7 +19,7 @@ export function PasswordInput({
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div>
+        <div className="w-full flex flex-col">
             <FormLabel label={label} />
             <div
                 className={`flex items-center border rounded-xl focus-within:ring-1 focus-within:ring-arvo-blue-100 focus-within:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 ${className} ${error ? errorStyles : "border-arvo-black-5"}`}
