@@ -76,6 +76,13 @@ export const operationalExpenseValidation = z
                     path: ["payee"],
                 });
             }
+            if (!data.cost || data.cost <= 0) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Cost must be greater than 0",
+                    path: ["cost"],
+                });
+            }
         }
     });
 
