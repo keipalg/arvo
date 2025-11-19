@@ -46,7 +46,8 @@ type OperationalExpense =
     | "labor"
     | "storage_fee"
     | "inventory_loss"
-    | "miscellaneous";
+    | "miscellaneous"
+    | "event_fees";
 type SalesExpense = "discount" | "shipping";
 type OverheadExpense =
     | "space_rent"
@@ -70,7 +71,8 @@ type BusinessExpense = {
         | "packaging_supplies"
         | "miscellaneous"
         | "discount"
-        | "shipping";
+        | "shipping"
+        | "event_fees";
     name: string;
     cost: number;
     payee: string;
@@ -107,6 +109,7 @@ function BusinessExpense() {
         "storage_fee",
         "inventory_loss",
         "miscellaneous",
+        "event_fees",
     ];
     const SalesExpenseList: SalesExpense[] = ["discount", "shipping"];
     const OverheadExpenseList: OverheadExpense[] = [

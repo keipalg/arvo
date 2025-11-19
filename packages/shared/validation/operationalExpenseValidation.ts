@@ -12,6 +12,7 @@ export const operationalExpenseValidation = z
             "storage_fee",
             "inventory_loss",
             "miscellaneous",
+            "event_fees",
         ]),
         name: z.string(),
         cost: z.number(),
