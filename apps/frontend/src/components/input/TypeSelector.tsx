@@ -85,7 +85,7 @@ const TypeSelector = ({
     };
 
     useEffect(() => {
-        if (inputValue && !value) {
+        if (inputValue && !value && isOpen) {
             const matchingItem = items.find(
                 (item) => item.name.toLowerCase() === inputValue.toLowerCase(),
             );
@@ -93,7 +93,7 @@ const TypeSelector = ({
                 onChange(matchingItem.id);
             }
         }
-    }, [items, inputValue, value, onChange]);
+    }, [items, inputValue, value, onChange, isOpen]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -114,6 +114,12 @@ const TypeSelector = ({
             setInputValue(selectedType.name);
         }
     }, [selectedType, isOpen, inputValue]);
+
+    useEffect(() => {
+        if (!value) {
+            setInputValue("");
+        }
+    }, [value]);
 
     return (
         <div>
