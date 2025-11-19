@@ -217,7 +217,7 @@ export const salesRouter = router({
                 ctx.user.id,
                 productList,
             );
-            const existingSale = await getSaleById(input.id, ctx.user.id);
+            const existingSale = await getSaleById(ctx.user.id, input.id);
             const existingSaleDetails = await getSaleDetailsBySaleId(input.id);
 
             const dbProducts: {
@@ -312,10 +312,14 @@ export const salesRouter = router({
                     };
 
                     if (existingSale.discountRef) {
+                        const updateData: Partial<OperationalInsert> = {
+                            ...inputDiscountExpense,
+                        };
+                        delete (updateData as any).id;
                         const updateStudioOverheadExpenseRes =
                             await updateOperationalExpense(
                                 existingSale.discountRef,
-                                inputDiscountExpense,
+                                updateData,
                                 tx,
                             );
                         discountRef = updateStudioOverheadExpenseRes[0].id;
@@ -353,10 +357,14 @@ export const salesRouter = router({
                     };
 
                     if (existingSale.shippingFeeRef) {
+                        const updateData: Partial<OperationalInsert> = {
+                            ...inputShippingFeeExpense,
+                        };
+                        delete (updateData as any).id;
                         const updateStudioOverheadExpenseRes =
                             await updateOperationalExpense(
                                 existingSale.shippingFeeRef,
-                                inputShippingFeeExpense,
+                                updateData,
                                 tx,
                             );
                         shippingFeeRef = updateStudioOverheadExpenseRes[0].id;

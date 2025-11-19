@@ -338,7 +338,11 @@ export const getDailyMostSellingProduct = async (
         .orderBy(sql`cast(sum(${saleDetail.quantity}) as int) DESC`)
         .limit(1);
 
-    return results[0];
+    return {
+        goodId: results[0]?.goodId ?? null,
+        goodName: results[0]?.goodName ?? null,
+        goodsSold: results[0]?.goodsSold ?? 0,
+    };
 };
 
 // Check the sales is used or not

@@ -277,29 +277,33 @@ export const dashboardRouter = router({
     dailyOverviews: protectedProcedure
         .input(dashboardTimezoneValidation)
         .query(async ({ ctx, input }) => {
-            const [salesRevenue, yesterdaySalesRevenue, mostSellingProduct] =
-                await Promise.all([
+            try {
+                const [
+                    salesRevenue,
+                    yesterdaySalesRevenue,
+                    mostSellingProduct,
+                ] = await Promise.all([
                     getDailySalesRevenue(ctx.user.id, input.timezone, 0),
                     getDailySalesRevenue(ctx.user.id, input.timezone, -1),
                     getDailyMostSellingProduct(ctx.user.id, input.timezone),
                 ]);
 
-            let salesOverview = null;
+                let salesOverview = null;
+                if (salesRevenue.totalRevenue == null) {
+                    salesOverview = null;
+                } else {
+                    salesOverview = await generateDailySalesOverview(
+                        ctx.user.id,
+                        Number(salesRevenue.totalRevenue),
+                        Number(yesterdaySalesRevenue.totalRevenue),
+                        mostSellingProduct.goodName,
+                    );
+                }
 
-            if (
-                !salesRevenue.totalRevenue &&
-                !yesterdaySalesRevenue.totalRevenue
-            ) {
-                salesOverview = null;
-            } else {
-                salesOverview = await generateDailySalesOverview(
-                    ctx.user.id,
-                    Number(salesRevenue.totalRevenue),
-                    Number(yesterdaySalesRevenue.totalRevenue),
-                    mostSellingProduct.goodName,
-                );
+                return { salesOverview: salesOverview };
+            } catch (error) {
+                console.error("Error generating daily overviews:", error);
+                return { salesOverview: null };
             }
-
-            return { salesOverview: salesOverview };
         }),
 });
