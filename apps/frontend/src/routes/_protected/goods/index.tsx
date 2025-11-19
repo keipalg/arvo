@@ -205,7 +205,7 @@ function GoodsList() {
         },
         {
             key: "actions",
-            header: "",
+            header: "Actions",
             render: (_value, row) => (
                 <>
                     <MoreButton
