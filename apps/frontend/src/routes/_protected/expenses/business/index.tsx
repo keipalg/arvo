@@ -32,6 +32,8 @@ import BusinessExpenseDetails from "../../../../components/table/DataTableDetail
 import NumberInput from "../../../../components/input/NumberInput";
 import DatePicker from "../../../../components/input/DatePicker";
 import { getDateForInputField } from "../../../../utils/dateFormatter";
+import { useDevAutofill } from "../../../../hooks/useDevAutofill.ts";
+import { demoData } from "../../../../config/demoData.ts";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -708,6 +710,102 @@ function BusinessExpense() {
             deleteStudioOverheadExpenseMutation.mutate({ id });
         }
     };
+
+    // ===========================================================
+    // START: Code for Dev Autofill
+    // ===========================================================
+    useDevAutofill(() => {
+        if (!drawerOpen || businessExpenseFormData.id) return;
+
+        const config = demoData.businessExpense;
+
+        // Autofill basic fields only if provided
+        if (config.name !== undefined) {
+            setBusinessExpenseFormData((prev) => ({
+                ...prev,
+                name: config.name!,
+            }));
+        }
+
+        if (config.cost !== undefined) {
+            setBusinessExpenseFormData((prev) => ({
+                ...prev,
+                cost: config.cost!,
+            }));
+        }
+
+        if (config.payee !== undefined) {
+            setBusinessExpenseFormData((prev) => ({
+                ...prev,
+                payee: config.payee!,
+            }));
+        }
+
+        if (config.notes !== undefined) {
+            setBusinessExpenseFormData((prev) => ({
+                ...prev,
+                notes: config.notes!,
+            }));
+        }
+
+        // Set date (handle "today" keyword)
+        if (config.date !== undefined) {
+            if (config.date.toLowerCase() === "today") {
+                setBusinessExpenseFormData((prev) => ({
+                    ...prev,
+                    start_date: new Date(),
+                }));
+            }
+        }
+
+        // Set recurring toggle
+        if (config.recurring !== undefined) {
+            setToggleOpen(config.recurring);
+            if (config.recurring) {
+                setBusinessExpenseFormData((prev) => ({
+                    ...prev,
+                    repeat_every: "monthly",
+                }));
+            }
+        }
+
+        // Find and set expense type by name
+        if (config.expenseType) {
+            // Check in operational expenses
+            const matchingOperationalType = OperationalExpenseList.find(
+                (type) =>
+                    type
+                        .toLowerCase()
+                        .includes(config.expenseType!.toLowerCase()),
+            );
+
+            if (matchingOperationalType) {
+                setBusinessExpenseFormData((prev) => ({
+                    ...prev,
+                    expense_category: "Operational Expenses",
+                    expense_type: matchingOperationalType,
+                }));
+            } else {
+                // Check in overhead expenses
+                const matchingOverheadType = OverheadExpenseList.find((type) =>
+                    type
+                        .toLowerCase()
+                        .includes(config.expenseType!.toLowerCase()),
+                );
+
+                if (matchingOverheadType) {
+                    setBusinessExpenseFormData((prev) => ({
+                        ...prev,
+                        expense_category: "Overhead Expenses",
+                        expense_type: matchingOverheadType,
+                    }));
+                }
+            }
+        }
+    }, [drawerOpen, businessExpenseFormData.id]);
+    // ===========================================================
+    // END: Code for Dev Autofill
+    // ===========================================================
 
     const columns: Array<{
         key: keyof BusinessExpenseWithActions;

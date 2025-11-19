@@ -41,6 +41,8 @@ import {
     getDateForInputField,
 } from "../../../utils/dateFormatter";
 import { useIsSmUp } from "../../../utils/screenWidth";
+import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
+import { demoData } from "../../../config/demoData.ts";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -595,6 +597,53 @@ function MaterialsList() {
             setLastPurchaseDate(getDateForInputField(new Date()));
         }
     }, [drawerOpen, editingMaterialId, lastPurchaseDate]);
+
+    // ===========================================================
+    // START: Code for Dev Autofill
+    // ===========================================================
+    useDevAutofill(() => {
+        if (!drawerOpen || editingMaterialId) return;
+
+        const config = demoData.materials;
+
+        // Autofill basic fields only if provided
+        if (config.name !== undefined) setItemName(config.name);
+        if (config.quantity !== undefined) setQuantity(config.quantity);
+        if (config.purchasePrice !== undefined)
+            setPurchasePrice(config.purchasePrice);
+        if (config.supplier !== undefined) setSupplier(config.supplier);
+        if (config.supplierUrl !== undefined)
+            setSupplierUrl(config.supplierUrl);
+        if (config.minStockLevel !== undefined)
+            setMinStockLevel(config.minStockLevel);
+        if (config.notes !== undefined) setNotes(config.notes);
+
+        // Find and set material type by name
+        if (config.materialType && materialTypesList) {
+            const matchingType = materialTypesList.find((type) =>
+                type.name
+                    .toLowerCase()
+                    .includes(config.materialType!.toLowerCase()),
+            );
+            if (matchingType) {
+                setMaterialType(matchingType.id);
+            }
+        }
+
+        // Find and set unit by name
+        if (config.unit && unitsList) {
+            const matchingUnit = unitsList.find((u) =>
+                u.name.toLowerCase().includes(config.unit!.toLowerCase()),
+            );
+            if (matchingUnit) {
+                setUnit(matchingUnit.name);
+                setUnitAbbreviation(matchingUnit.abv);
+            }
+        }
+    }, [drawerOpen, editingMaterialId, materialTypesList, unitsList]);
+    // ===========================================================
+    // END: Code for Dev Autofill
+    // ===========================================================
 
     return (
         <BaseLayout title="Materials List">

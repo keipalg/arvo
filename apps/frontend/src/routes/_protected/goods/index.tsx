@@ -40,6 +40,8 @@ import NumberInput from "../../../components/input/NumberInput.tsx";
 import ProductTypeSelector from "../../../components/input/ProductTypeSelector";
 import { uploadFile } from "../../../utils/fileUpload.ts";
 import MetricsGroup from "../../../components/metric/MetricsGroup.tsx";
+import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
+import { demoData } from "../../../config/demoData.ts";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -595,6 +597,83 @@ function GoodsList() {
             console.log(canSuggest);
         }
     }, [mcpu, productType, setDrawerOpen]);
+
+    // ===========================================================
+    // START: Code for Dev Autofill
+    // ===========================================================
+    useDevAutofill(() => {
+        if (!drawerOpen || editingGoodId) return;
+
+        const config = demoData.goods;
+
+        // Autofill basic fields only if provided
+        if (config.name !== undefined) setName(config.name);
+        if (config.inventoryQuantity !== undefined)
+            setInventoryQuantity(config.inventoryQuantity);
+        if (config.minimumStockLevel !== undefined)
+            setMinimumStockLevel(config.minimumStockLevel);
+        if (config.retailPrice !== undefined)
+            setRetailPrice(config.retailPrice);
+        if (config.note !== undefined) setNote(config.note);
+
+        // Find and set product type by name
+        if (config.productType && productTypesList) {
+            const matchingProductType = productTypesList.find((type) =>
+                type.name
+                    .toLowerCase()
+                    .includes(config.productType!.toLowerCase()),
+            );
+            if (matchingProductType) {
+                setProductType(matchingProductType.id);
+            }
+        }
+
+        // Autofill materials only if provided
+        if (config.materials && config.materials.length > 0) {
+            const demoMaterials: Materials[] = [];
+            let totalMaterialCost = 0;
+
+            for (const configMaterial of config.materials as Array<{
+                name: string;
+                amount: number;
+            }>) {
+                // Find matching material from the list
+                const matchingMaterial = (materialList || []).find((mat) => {
+                    const matWithUnit = mat as MaterialWithUnit;
+                    return matWithUnit.name
+                        .toLowerCase()
+                        .includes(configMaterial.name.toLowerCase());
+                }) as MaterialWithUnit | undefined;
+
+                if (matchingMaterial) {
+                    const materialCost = calculateMaterialCost(
+                        configMaterial.amount,
+                        matchingMaterial.costPerUnit,
+                    );
+
+                    demoMaterials.push({
+                        materialId: matchingMaterial.id,
+                        name: matchingMaterial.name,
+                        amount: configMaterial.amount,
+                        unitAbbreviation: matchingMaterial.unit.abbreviation,
+                        costPerUnit: matchingMaterial.costPerUnit,
+                        materialCost: materialCost,
+                    });
+
+                    totalMaterialCost += materialCost;
+                }
+            }
+
+            // Update materials states if matches found
+            if (demoMaterials.length > 0) {
+                setMaterials(demoMaterials);
+                setMcpu(totalMaterialCost);
+            }
+        }
+    }, [drawerOpen, editingGoodId, productTypesList, materialList]);
+    // ===========================================================
+    // END: Code for Dev Autofill
+    // ===========================================================
 
     return (
         <BaseLayout title="Product List">
