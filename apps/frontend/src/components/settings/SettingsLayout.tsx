@@ -153,7 +153,7 @@ export const SettingsLayout = ({
                         )}
                     </div>
                 ))}
-                <div className="flex flex-col justify-center px-20 mt-10">
+                <div className="flex justify-center px-20 mt-10">
                     <Button type="submit" value="Save Change" />
                 </div>
             </form>
