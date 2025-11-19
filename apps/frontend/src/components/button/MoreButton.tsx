@@ -39,7 +39,7 @@ export const MoreButton = ({
                 </div>
             </button>
             <div
-                className={`flex flex-col w-25 absolute right-4/5 -bottom-3 bg-white rounded-md shadow-2xl ${isOpen ? "block" : "hidden"}`}
+                className={`flex flex-col w-25 absolute right-4/5 -bottom-3 bg-white rounded-md shadow-md/30 ${isOpen ? "block" : "hidden"}`}
             >
                 <button
                     className="flex gap-1 p-1.5 items-center rounded-t-md hover:bg-arvo-blue-50 cursor-pointer"
