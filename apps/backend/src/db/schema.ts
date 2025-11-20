@@ -100,6 +100,7 @@ export const operational_expense_type_enum = pgEnum(
         "miscellaneous",
         "discount",
         "shipping",
+        "event_fees",
     ],
 );
 

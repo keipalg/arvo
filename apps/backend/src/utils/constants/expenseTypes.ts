@@ -32,6 +32,9 @@ export const OperationalExpenseTypes = {
     shipping: {
         label: "Shipping",
     },
+    event_fees: {
+        label: "Event Fees",
+    },
 } as const;
 
 export const StudioOverheadExpenseTypes = {

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."operational_expense_type" ADD VALUE 'event_fees';
