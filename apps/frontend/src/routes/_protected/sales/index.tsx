@@ -188,7 +188,7 @@ function SalesList() {
         },
         {
             key: "actions",
-            header: "Edit",
+            header: "Actions",
             render: (_value, row) => (
                 <>
                     <MoreButton
