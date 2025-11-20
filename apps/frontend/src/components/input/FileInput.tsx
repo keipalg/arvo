@@ -1,15 +1,21 @@
 import { useRef, useState } from "react";
 import FormLabel from "./FormLabel";
 
+type FileType = "image" | "pdf";
+
+type FileInputProps = {
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    label?: string;
+    file: File | string | undefined;
+    acceptedFileTypes?: FileType[];
+};
+
 export const FileInput = ({
     onChange,
     label,
     file,
-}: {
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    label?: string;
-    file: File | string | undefined;
-}) => {
+    acceptedFileTypes = ["image"],
+}: FileInputProps) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [dragActive, setDragActive] = useState(false);
 
@@ -27,6 +33,28 @@ export const FileInput = ({
         }
     };
 
+    const getAcceptedMimeTypes = () => {
+        const types: string[] = [];
+        if (acceptedFileTypes.includes("image")) {
+            types.push("image/");
+        }
+        if (acceptedFileTypes.includes("pdf")) {
+            types.push("application/pdf");
+        }
+        return types;
+    };
+
+    const getAcceptString = () => {
+        const accepts: string[] = [];
+        if (acceptedFileTypes.includes("image")) {
+            accepts.push("image/*");
+        }
+        if (acceptedFileTypes.includes("pdf")) {
+            accepts.push("application/pdf");
+        }
+        return accepts.join(",");
+    };
+
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -34,7 +62,11 @@ export const FileInput = ({
         const files = e.dataTransfer.files;
         if (files && files.length > 0) {
             const first = files[0];
-            if (first.type.startsWith("image/")) {
+            const acceptedMimeTypes = getAcceptedMimeTypes();
+            const isAccepted = acceptedMimeTypes.some(
+                (type) => first.type.startsWith(type) || first.type === type,
+            );
+            if (isAccepted) {
                 const event = {
                     target: {
                         files: files,
@@ -75,7 +107,7 @@ export const FileInput = ({
                         ref={inputRef}
                         type="file"
                         className="hidden"
-                        accept="image/*"
+                        accept={getAcceptString()}
                         onChange={onChange}
                     />
                     <div className="flex items-center gap-5">
@@ -93,7 +125,7 @@ export const FileInput = ({
                 </div>
             )}
             <div className="relative flex flex-col gap-x-1 justify-center m-auto w-full">
-                {file instanceof File && (
+                {file instanceof File && file.type.startsWith("image/") && (
                     <>
                         <img
                             src={URL.createObjectURL(file)}
@@ -101,6 +133,22 @@ export const FileInput = ({
                             className="h-40 rounded-xl object-cover w-auto"
                         />
                     </>
+                )}
+                {file instanceof File && !file.type.startsWith("image/") && (
+                    <div className="bg-arvo-white-0 rounded-xl h-40 flex items-start justify-center px-4 pt-4">
+                        <div className="flex flex-col gap-0.5 items-center">
+                            <a
+                                href={URL.createObjectURL(file)}
+                                download={file.name}
+                                className="font-semibold text-m text-arvo-blue-100 hover:text-arvo-blue-80 underline truncate max-w-[300px] cursor-pointer"
+                            >
+                                {file.name}
+                            </a>
+                            <div className="text-xs text-arvo-black-50">
+                                {(file.size / 1024).toFixed(2)} KB
+                            </div>
+                        </div>
+                    </div>
                 )}
                 {typeof file === "string" && (
                     <>
@@ -131,7 +179,7 @@ export const FileInput = ({
                             ref={inputRef}
                             type="file"
                             className="hidden"
-                            accept="image/*"
+                            accept={getAcceptString()}
                             onChange={onChange}
                         />
                     </div>

@@ -1475,6 +1475,7 @@ function BusinessExpense() {
                             <FileInput
                                 label="Attach Receipt"
                                 file={businessExpenseFormData.attach_recipt}
+                                acceptedFileTypes={["image", "pdf"]}
                                 onChange={(e) => {
                                     setBusinessExpenseFormData((prev) => ({
                                         ...prev,
