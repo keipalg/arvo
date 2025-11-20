@@ -12,6 +12,7 @@ type GoodsDemoData = {
     minimumStockLevel?: number;
     retailPrice?: number;
     note?: string;
+    image?: string;
     materials?: Array<{ name: string; amount: number }>;
 };
 
@@ -65,6 +66,7 @@ export const demoData: DemoDataConfig = {
         minimumStockLevel: 10,
         retailPrice: 44.99,
         note: "Hand-molded and painted speckled ceramic mug with Santa Claus design.",
+        image: "/demo/product-demo.webp",
         materials: [
             {
                 name: "Mayco Fundamentals - Flame Red",

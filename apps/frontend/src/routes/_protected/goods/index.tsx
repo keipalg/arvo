@@ -616,6 +616,21 @@ function GoodsList() {
             setRetailPrice(config.retailPrice);
         if (config.note !== undefined) setNote(config.note);
 
+        // Autofill image from public folder
+        if (config.image !== undefined) {
+            void fetch(config.image)
+                .then((res) => res.blob())
+                .then((blob) => {
+                    const file = new File([blob], "product-demo.webp", {
+                        type: "image/webp",
+                    });
+                    setProductImage(file);
+                })
+                .catch((err) => {
+                    console.error("[DEV] Failed to load demo image:", err);
+                });
+        }
+
         // Find and set product type by name
         if (config.productType && productTypesList) {
             const matchingProductType = productTypesList.find((type) =>
