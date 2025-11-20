@@ -35,7 +35,12 @@ import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 import AddButton from "../../../components/button/AddButton";
 import { formatPrice } from "../../../utils/formatPrice";
 import DatePicker from "../../../components/input/DatePicker";
-import { getFormattedDate } from "../../../utils/dateFormatter";
+import {
+    getFormattedDate,
+    getDateForInputField,
+} from "../../../utils/dateFormatter";
+import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
+import { demoData } from "../../../config/demoData.ts";
 
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
@@ -578,6 +583,91 @@ function SalesList() {
             (subtotal - discount + shippingFee) * (1 + tax / 100);
         setTotalPrice(Number(calculatedTotalPrice.toFixed(2)));
     }, [products, discount, shippingFee, tax]);
+
+    // ===========================================================
+    // START: Code for Dev Autofill
+    // ===========================================================
+    useDevAutofill(() => {
+        // Execute only when drawer is open and not editing
+        if (!drawerOpen || editingSaleId || viewOnlyMode) return;
+
+        const config = demoData.sales;
+
+        // Autofill basic fields only if provided
+        if (config.customer !== undefined) setCustomer(config.customer);
+        if (config.notes !== undefined) setNotes(config.notes);
+        if (config.discount !== undefined) setDiscount(config.discount);
+        if (config.shipping !== undefined) setShippingFee(config.shipping);
+        if (config.tax !== undefined) setTax(config.tax);
+
+        // Set sales date today
+        if (config.salesDate !== undefined) {
+            if (config.salesDate.toLowerCase() === "today") {
+                setDate(getDateForInputField(new Date()));
+            } else {
+                setDate(config.salesDate);
+            }
+        }
+
+        // Find and set channel by name
+        if (config.channel && channels) {
+            const matchingChannel = channels.find((c) =>
+                c.name.toLowerCase().includes(config.channel!.toLowerCase()),
+            );
+            if (matchingChannel) {
+                setChannelId(matchingChannel.id);
+            }
+        }
+
+        // Find and set status by name
+        if (config.status && statusList) {
+            const matchingStatus = statusList.find((s) =>
+                s.name.toLowerCase().includes(config.status!.toLowerCase()),
+            );
+            if (matchingStatus) {
+                setStatus(matchingStatus.key);
+            }
+        }
+
+        // Autofill products only if provided
+        if (config.products && config.products.length > 0 && productList) {
+            const demoProducts: Products[] = [];
+
+            for (const configProduct of config.products) {
+                // Find matching product from the list
+                const matchingProduct = productList.find((prod) =>
+                    prod.name
+                        .toLowerCase()
+                        .includes(configProduct.name.toLowerCase()),
+                );
+
+                if (matchingProduct) {
+                    demoProducts.push({
+                        productId: matchingProduct.id,
+                        quantity: configProduct.quantity,
+                        maxQuantity: matchingProduct.inventoryQuantity || 0,
+                        retailPrice: matchingProduct.retailPrice || 0,
+                        cogs: 0,
+                    });
+                }
+            }
+
+            // Update products state only if matches found
+            if (demoProducts.length > 0) {
+                setProducts(demoProducts);
+            }
+        }
+    }, [
+        drawerOpen,
+        editingSaleId,
+        viewOnlyMode,
+        channels,
+        statusList,
+        productList,
+    ]);
+    // ===========================================================
+    // END: Code for Dev Autofill
+    // ===========================================================
 
     const tableFilterOptions: FilterOption<Sales>[] = [
         {
