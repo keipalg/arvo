@@ -28,22 +28,20 @@ export const LogoutButton = () => {
     // Return React component for logout button.
     return (
         <>
-            <div className="px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-50 hover:rounded-xl cursor-pointer">
+            <button
+                onClick={() => void handleLogout()}
+                disabled={isLoggingOut}
+                className="w-full px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-50 hover:rounded-xl cursor-pointer text-left"
+            >
                 <img
                     src="/icon/logout.svg"
                     className="w-8 h-8 max-sm:w-10 max-sm:h-10"
                 ></img>
-                <button
-                    // Event handler
-                    onClick={() => void handleLogout()}
-                    //  If logout is successed,button will be disabled
-                    disabled={isLoggingOut}
-                    className="text-left cursor-pointer"
-                >
+                <div>
                     {/*If expression for during logging out and before logging out*/}
                     {isLoggingOut ? "Logging Out..." : "Logout"}
-                </button>
-            </div>
+                </div>
+            </button>
         </>
     );
 };

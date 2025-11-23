@@ -1,7 +1,6 @@
 import Navigation from "./Navigation";
 import Logo from "../logo/Logo";
 import { LogoutButton } from "./Logout";
-import Settings from "./Settings";
 import Profile from "./Profile";
 
 type SideBarProps = {
@@ -36,10 +35,9 @@ const Sidebar = ({ isOpen, onToggleSidebar }: SideBarProps) => {
             </div>
             <div className="flex flex-col gap-0.5">
                 <div className="mb-8">
-                    <Settings />
                     <LogoutButton />
                 </div>
-                <div className="mb-8 border-t border-gray-200">
+                <div className="mb-8 border-t-2 border-arvo-black-5">
                     <Profile />
                 </div>
             </div>
