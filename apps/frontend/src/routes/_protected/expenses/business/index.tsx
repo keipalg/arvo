@@ -846,7 +846,9 @@ function BusinessExpense() {
                           ? parseFloat(value) || 0
                           : 0;
 
-                return <span>${num.toFixed(2)}</span>;
+                return (
+                    <span className="text-arvo-red-100">${num.toFixed(2)}</span>
+                );
             },
         },
         {

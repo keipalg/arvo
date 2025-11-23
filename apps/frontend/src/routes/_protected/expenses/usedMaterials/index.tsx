@@ -249,7 +249,11 @@ function UsedMaterials() {
         {
             key: "usedMaterialCost",
             header: "Total Cost",
-            render: (value) => <>${Number(value).toFixed(2)}</>,
+            render: (value) => (
+                <span className="text-arvo-red-100">
+                    ${Number(value).toFixed(2)}
+                </span>
+            ),
         },
         {
             key: "soldDate",
