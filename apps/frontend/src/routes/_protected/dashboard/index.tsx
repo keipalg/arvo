@@ -12,6 +12,7 @@ import {
     Title,
     Tooltip,
     Legend,
+    type TooltipItem,
 } from "chart.js";
 import { Bar, Chart, Doughnut } from "react-chartjs-2";
 import BaseLayout from "../../../components/BaseLayout";
@@ -25,6 +26,7 @@ import TopSellingTable from "../../../components/table/TopSellingTable";
 import ChartContainer from "../../../components/chart/ChartContainer";
 import DashboardCardDailyOverview from "../../../components/card/DashboardCardDailyOverview";
 import MetricsGroup from "../../../components/metric/MetricsGroup";
+import { formatPrice } from "../../../utils/formatPrice";
 
 export const Route = createFileRoute("/_protected/dashboard/")({
     component: RouteComponent,
@@ -76,6 +78,13 @@ const revenueProfitSummaryChartOptions = {
         legend: {
             display: false,
         },
+        tooltip: {
+            callbacks: {
+                label: (context: TooltipItem<"bar">) => {
+                    return `${formatPrice(context.parsed.y ?? 0)}`;
+                },
+            },
+        },
     },
     scales: {
         x: {
@@ -97,6 +106,13 @@ const revenueProfitSummary6MonthsChartOptions = {
     plugins: {
         legend: {
             position: "top" as const,
+        },
+        tooltip: {
+            callbacks: {
+                label: (context: TooltipItem<"bar" | "line">) => {
+                    return `${formatPrice(context.parsed.y ?? 0)}`;
+                },
+            },
         },
     },
     scales: {
@@ -128,6 +144,13 @@ const expenseBreakdownChartOptions = {
                     family: "National Park, system-ui, Avenir, Helvetica, Arial, sans-serif",
                     size: 14,
                     weight: "bold" as const,
+                },
+            },
+        },
+        tooltip: {
+            callbacks: {
+                label: (context: TooltipItem<"doughnut">) => {
+                    return `${formatPrice(context.parsed)}`;
                 },
             },
         },
@@ -305,6 +328,7 @@ function RouteComponent() {
                     "#EE60E0",
                 ],
                 pointStyle: "circle",
+                unit: "$",
             },
         ],
     };
