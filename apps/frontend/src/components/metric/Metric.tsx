@@ -91,6 +91,13 @@ const Metric = (props: MetricProps) => {
                 ? "/icon/arrow-trend-downward.svg"
                 : "/icon/arrow-trend-upward.svg";
 
+    const changePercentDisp =
+        changePercent === undefined
+            ? 0
+            : Number.isFinite(changePercent)
+              ? changePercent
+              : 0;
+
     const style: MetricStyleType = {
         ...metricStyles[posneg],
         trendIconSrc: trendIcon ?? metricStyles[posneg].trendIconSrc,
@@ -119,14 +126,14 @@ const Metric = (props: MetricProps) => {
                                     className="w-3 icon-white"
                                 />
                                 <div>
-                                    {changePercent > 0
+                                    {changePercentDisp > 0
                                         ? "+"
-                                        : changePercent < 0
+                                        : changePercentDisp < 0
                                           ? "-"
                                           : ""}
-                                    {changePercent % 1 === 0
-                                        ? `${Math.abs(changePercent)}%`
-                                        : `${Math.abs(changePercent).toFixed(1)}%`}
+                                    {changePercentDisp % 1 === 0
+                                        ? `${Math.abs(changePercentDisp)}%`
+                                        : `${Math.abs(changePercentDisp).toFixed(1)}%`}
                                 </div>
                             </div>
                         )}
