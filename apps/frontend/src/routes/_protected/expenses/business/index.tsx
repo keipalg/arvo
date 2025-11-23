@@ -31,7 +31,10 @@ import AddButton from "../../../../components/button/AddButton";
 import BusinessExpenseDetails from "../../../../components/table/DataTableDetailBusinessExpense";
 import NumberInput from "../../../../components/input/NumberInput";
 import DatePicker from "../../../../components/input/DatePicker";
-import { getDateForInputField } from "../../../../utils/dateFormatter";
+import {
+    getDateForInputField,
+    getFormattedDate,
+} from "../../../../utils/dateFormatter";
 import { useDevAutofill } from "../../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../../config/demoData.ts";
 
@@ -303,8 +306,9 @@ function BusinessExpense() {
                     break;
             }
 
-            const formatted = nextDate.toISOString().substring(0, 10);
-            options.push({ label: formatted, value: formatted });
+            const valueFormatted = nextDate.toISOString().substring(0, 10);
+            const labelFormatted = getFormattedDate(nextDate);
+            options.push({ label: labelFormatted, value: valueFormatted });
         }
 
         setDueDateOptions(options);
@@ -1552,23 +1556,23 @@ function BusinessExpense() {
                                             },
                                         ]}
                                     />
-                                    <TextInput
-                                        type="date"
+                                    <DatePicker
                                         label="Start Date"
+                                        name="start_date"
                                         value={
                                             businessExpenseFormData.start_date
-                                                ? businessExpenseFormData.start_date
-                                                      .toISOString()
-                                                      .substring(0, 10)
+                                                ? getDateForInputField(
+                                                      businessExpenseFormData.start_date,
+                                                  )
                                                 : ""
                                         }
-                                        onChange={(e) => {
+                                        onChange={(value) => {
                                             setBusinessExpenseFormData(
                                                 (prev) => ({
                                                     ...prev,
-                                                    start_date: new Date(
-                                                        e.target.value,
-                                                    ),
+                                                    start_date: value
+                                                        ? new Date(value)
+                                                        : null,
                                                 }),
                                             );
                                         }}
@@ -1578,9 +1582,9 @@ function BusinessExpense() {
                                         label="Due Date"
                                         value={
                                             businessExpenseFormData.due_date
-                                                ? businessExpenseFormData.due_date
-                                                      .toISOString()
-                                                      .substring(0, 10)
+                                                ? getDateForInputField(
+                                                      businessExpenseFormData.due_date,
+                                                  )
                                                 : ""
                                         }
                                         onChange={(e) => {
