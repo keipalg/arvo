@@ -91,8 +91,8 @@ const TableFilter = ({ options, onSelect }: TableFilterProps) => {
                     >
                         <span>Clear</span>
                         <img
-                            src="/icon/table-filter-dark.svg"
-                            className="pl-1 w-5"
+                            src="/icon/close.svg"
+                            className="pl-1 pr-1 w-4.5"
                         />
                     </div>
                     {options.map((option, index) => (
