@@ -41,6 +41,7 @@ import {
 } from "../../../utils/dateFormatter";
 import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../config/demoData.ts";
+import MetricsGroup from "../../../components/metric/MetricsGroup.tsx";
 
 export const Route = createFileRoute("/_protected/sales/")({
     component: SalesList,
@@ -379,6 +380,12 @@ function SalesList() {
             queryClient.invalidateQueries({
                 queryKey: trpc.sales.nextSalesNumber.queryKey(),
             }),
+            queryClient.invalidateQueries({
+                queryKey: trpc.sales.metricTotalRevenue.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+                queryKey: trpc.sales.metricTotalSalesCount.queryKey(),
+            }),
         ]);
     };
 
@@ -716,7 +723,7 @@ function SalesList() {
                     icon="/icon/plus.svg"
                 ></AddButton>
             </div>
-            <div className="flex gap-6 py-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            <MetricsGroup noMetricsAvailable={!data || data.length === 0}>
                 <Metric
                     value={
                         metricRevenue
@@ -724,7 +731,7 @@ function SalesList() {
                             : "-"
                     }
                     changePercent={metricRevenue?.change ?? 0}
-                    topText="Total Revenue"
+                    topText="Total Monthly Revenue"
                     bottomText="compared to last month"
                     showPercentage={metricRevenue?.change != null}
                 />
@@ -735,11 +742,11 @@ function SalesList() {
                             : "-"
                     }
                     changePercent={metricSalesCount?.change ?? 0}
-                    topText="Total Sales"
+                    topText="Total Monthly Sales"
                     bottomText="compared to last month"
                     showPercentage={metricSalesCount?.change != null}
                 />
-            </div>
+            </MetricsGroup>
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
