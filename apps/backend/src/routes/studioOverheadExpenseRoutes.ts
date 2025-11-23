@@ -74,6 +74,8 @@ export const studioOverheadExpenseRouter = router({
             if (input.notes !== undefined) updates.notes = input.notes;
             if (input.attach_recipt !== undefined)
                 updates.attach_recipt = input.attach_recipt;
+            if (input.createdAt !== undefined)
+                updates.createdAt = input.createdAt;
             if (input.repeat_every !== undefined)
                 updates.repeat_every = input.repeat_every;
             if (input.start_date !== undefined)
