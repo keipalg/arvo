@@ -42,10 +42,10 @@ const MaterialExpenseDetails = ({
                         </div>
                         <div className="flex flex-col px-2 py-1">
                             <div className="font-semibold text-sm text-arvo-black-50">
-                                Sold Goods Number
+                                Sold Product Quantity
                             </div>
                             <div className="text-arvo-black-100">
-                                {row.quantity} unit sold
+                                {row.quantity} units sold
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@ const MaterialExpenseDetails = ({
                         <div className="font-semibold">Sales Number</div>
                         <div>{`#${String(row.salesNumber).padStart(7, "0")}`}</div>
 
-                        <div className="font-semibold">Goods Name</div>
+                        <div className="font-semibold">Product Name</div>
                         <div>{row.goodName}</div>
 
                         <div className="font-semibold">Cost Per Unit</div>
@@ -67,7 +67,9 @@ const MaterialExpenseDetails = ({
                             {row.materialOutputRatio} {row.unit}
                         </div>
 
-                        <div className="font-semibold">Sold Goods Quantity</div>
+                        <div className="font-semibold">
+                            Sold Product Quantity
+                        </div>
                         <div>{row.quantity} unit sold</div>
                     </div>
                 )}

@@ -1223,7 +1223,7 @@ function BusinessExpense() {
                                                 );
                                             }}
                                         />
-                                        <span>Goods Loss</span>
+                                        <span>Product Loss</span>
                                     </label>
                                     <label
                                         htmlFor="inventory_loss_option_materials_loss"
@@ -1250,7 +1250,7 @@ function BusinessExpense() {
                                                 );
                                             }}
                                         />
-                                        <span>Materials Loss</span>
+                                        <span>Material Loss</span>
                                     </label>
                                 </div>
                             </div>
@@ -1258,7 +1258,7 @@ function BusinessExpense() {
                             "goods_loss" ? (
                                 <Select
                                     name="goods"
-                                    label="Goods"
+                                    label="Product"
                                     value={
                                         businessExpenseFormData.good_id ?? ""
                                     }
@@ -1296,7 +1296,7 @@ function BusinessExpense() {
                                                 };
                                             })
                                             .concat({
-                                                label: "-- Select Goods --",
+                                                label: "-- Select Product --",
                                                 value: "",
                                             }) ?? []
                                     }
@@ -1304,7 +1304,7 @@ function BusinessExpense() {
                             ) : (
                                 <Select
                                     name="materials"
-                                    label="Materials"
+                                    label="Material"
                                     value={
                                         businessExpenseFormData.materialAndSupply_id ??
                                         ""
