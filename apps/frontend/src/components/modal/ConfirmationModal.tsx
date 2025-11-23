@@ -15,7 +15,7 @@ const ConfirmationModal = ({
                 id="confirmation-overlay"
                 className={`fixed inset-0 bg-arvo-black-100/50 z-50 ${isConfirmationModalOpen ? "block" : "hidden"}`}
             >
-                <div className="flex items-center justify-center min-h-screen px-4 text-xl">
+                <div className="flex items-center justify-center min-h-screen px-4 text-lg">
                     <div className="bg-arvo-red-20 border-2 border-arvo-red-100 rounded-3xl shadow-lg w-full max-w-md">
                         <div className="p-10">
                             <h2 className="font-semibold mb-6">

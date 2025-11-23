@@ -494,6 +494,11 @@ function BusinessExpense() {
                     content: `${selectedItemForDeletion.name} deleted successfully!`,
                 });
                 setVisibleToast(true);
+                setSelectedItemForDeletion({
+                    id: "",
+                    expense_category: "",
+                    name: "",
+                });
             },
             onError: (error) => {
                 setToastMessage({
@@ -562,6 +567,11 @@ function BusinessExpense() {
                     content: `${selectedItemForDeletion.name} deleted successfully!`,
                 });
                 setVisibleToast(true);
+                setSelectedItemForDeletion({
+                    id: "",
+                    expense_category: "",
+                    name: "",
+                });
             },
             onError: (error) => {
                 setToastMessage({
@@ -989,7 +999,7 @@ function BusinessExpense() {
                 message={toastMessage}
             />
             <ConfirmationModal
-                confirmationMessage={`Are you sure you want to delete "${selectedItemForDeletion.name}"?`}
+                confirmationMessage={`Are you sure you want to delete ${selectedItemForDeletion.name}?`}
                 isConfirmationModalOpen={isConfirmationModalOpen}
                 setIsConfirmationModalOpen={setIsConfirmationModalOpen}
                 onConfirm={() => {
@@ -997,11 +1007,6 @@ function BusinessExpense() {
                         selectedItemForDeletion.expense_category,
                         selectedItemForDeletion.id,
                     );
-                    setSelectedItemForDeletion({
-                        id: "",
-                        expense_category: "",
-                        name: "",
-                    });
                     setDrawerOpen(false);
                 }}
             />
