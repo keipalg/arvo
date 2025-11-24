@@ -72,7 +72,7 @@ export function SetupStepoverheadCostPercentage({
 
                 // Wait for toast to show before navigating
                 setTimeout(() => {
-                    void navigate({ to: "/" });
+                    void navigate({ to: "/dashboard" });
                 }, 1000);
             },
         }),
