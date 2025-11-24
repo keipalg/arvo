@@ -50,11 +50,18 @@ type BusinessExpenseDemoData = {
     recurring?: boolean;
 };
 
+type SignupDemoData = {
+    email?: string;
+    name?: string;
+    password?: string;
+};
+
 type DemoDataConfig = {
     goods: GoodsDemoData;
     materials: MaterialsDemoData;
     sales: SalesDemoData;
     businessExpense: BusinessExpenseDemoData;
+    signup: SignupDemoData;
 };
 
 export const demoData: DemoDataConfig = {
@@ -122,5 +129,11 @@ export const demoData: DemoDataConfig = {
         payee: "Indie Ceramics Community",
         notes: "Monthly membership",
         recurring: true,
+    },
+
+    signup: {
+        email: `lya${Math.floor(10000 + Math.random() * 90000)}@arvo.com`,
+        name: "Lya Artist",
+        password: "password",
     },
 };
