@@ -12,24 +12,26 @@ const Profile = () => {
     const name = user?.name || session?.user?.name;
 
     return (
-        <div className="p-4 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                {image ? (
-                    <img
-                        src={image}
-                        alt={name || "User"}
-                        className="w-full h-full object-cover"
-                    />
-                ) : (
-                    <span className="text-xl font-semibold text-arvo-black-50">
-                        {name?.charAt(0).toUpperCase() || "?"}
-                    </span>
-                )}
-            </div>
-            <div className="flex flex-col">
+        <div className="pt-4 pl-2 flex items-center gap-3">
+            <a href="/settings" className="cursor-pointer">
+                <div className="w-12 h-12 rounded-full bg-arvo-black-5 flex items-center justify-center overflow-hidden">
+                    {image ? (
+                        <img
+                            src={image}
+                            alt={name || "User"}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <span className="text-xl font-semibold text-arvo-black-50">
+                            {name?.charAt(0).toUpperCase() || "?"}
+                        </span>
+                    )}
+                </div>
+            </a>
+            <a href="/settings" className="flex flex-col cursor-pointer">
                 <div className="font-semibold">{name}</div>
-                <div className="text-sm text-gray-600">{storeName}</div>
-            </div>
+                <div className="text-sm text-arvo-black-100">{storeName}</div>
+            </a>
         </div>
     );
 };
