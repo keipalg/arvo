@@ -13,6 +13,7 @@ import { useIsSmUp } from "../../../../utils/screenWidth";
 import MaterialExpenseDetails from "../../../../components/table/DataTableDetailMaterialExpense";
 import {
     getDateForInputField,
+    getFormattedDate,
     getGroupedDatesByMonth,
 } from "../../../../utils/dateFormatter";
 
@@ -257,10 +258,14 @@ function UsedMaterials() {
         },
         {
             key: "soldDate",
-            header: "Sold Date",
+            header: "Date Sold",
             render: (value) => {
                 if (typeof value === "string") {
-                    return <span className="whitespace-nowrap">{value}</span>;
+                    return (
+                        <span className="whitespace-nowrap">
+                            {getFormattedDate(value)}
+                        </span>
+                    );
                 }
                 return <></>;
             },
