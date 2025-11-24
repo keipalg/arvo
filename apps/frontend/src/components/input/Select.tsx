@@ -50,8 +50,13 @@ const Select = ({
     };
 
     const selectedLabel = getSelectedLabel();
+
+    // Automatically determine arrow position based on whether there's a label
+    const defaultArrowPosition = label ? "top-[62%]" : "top-1/3";
+    const arrowPosition = style ? style : defaultArrowPosition;
+
     return (
-        <div className="relative flex flex-col">
+        <div className="relative flex flex-col pb-2">
             <FormLabel label={label} required={required} />
             <select
                 className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 pr-10 outline-none appearance-none disabled:border-0 disabled:py-0.5  disabled:bg-arvo-blue-20 ... truncate`}
@@ -90,7 +95,7 @@ const Select = ({
                       ))}
             </select>
             <div
-                className={`absolute right-3 ${style ? style : "top-4/6"} pointer-events-none bg-arvo-white-0`}
+                className={`absolute right-3 ${arrowPosition} pointer-events-none bg-arvo-white-0`}
             >
                 {!disabled && (
                     <img src="/icon/alt-arrow-down.svg " className="w-4 h-4" />

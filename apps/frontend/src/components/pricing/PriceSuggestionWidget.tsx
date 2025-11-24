@@ -71,6 +71,8 @@ export const PriceSuggestionWidget: React.FC<Props> = ({
                     icon={
                         !canSuggest ? "/icon/ai-black.svg" : "/icon/ai-blue.svg"
                     }
+                    compact={true}
+                    iconSize="1.6em"
                 />
             </div>
 

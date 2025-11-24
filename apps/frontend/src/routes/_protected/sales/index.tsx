@@ -11,6 +11,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import TextInput from "../../../components/input/TextInput";
 import Button from "../../../components/button/Button";
+import WhiteRoundButton from "../../../components/button/WhiteRoundButton";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import {
@@ -720,7 +721,18 @@ function SalesList() {
                 />
                 <AddButton
                     value="Add New Sales"
-                    onClick={() => setDrawerOpen(true)}
+                    onClick={() => {
+                        setProducts([
+                            {
+                                productId: "",
+                                quantity: 0,
+                                maxQuantity: 0,
+                                retailPrice: 0.0,
+                                cogs: 0.0,
+                            },
+                        ]);
+                        setDrawerOpen(true);
+                    }}
                     icon="/icon/plus.svg"
                 ></AddButton>
             </div>
@@ -970,15 +982,10 @@ function SalesList() {
                                 error={formErrors.date}
                             ></DatePicker>
                         </div>
-                        <Button
-                            type="button"
-                            value="Add Product"
-                            onClick={addProductRow}
-                        ></Button>
                         {products.map((row, index) => (
                             <div
                                 key={index}
-                                className="sm:flex gap-y-2 justify-between items-center"
+                                className="grid grid-cols-[1fr_24px] gap-x-2 gap-y-2 sm:flex sm:gap-y-2 sm:justify-between sm:items-center"
                             >
                                 <Select
                                     label="Product"
@@ -1000,56 +1007,11 @@ function SalesList() {
                                         )
                                     }
                                 ></Select>
-                                <NumberInput
-                                    label="Price per item"
-                                    value={row.retailPrice}
-                                    step="0.01"
-                                    min="0"
-                                    required={true}
-                                    disabled={true}
-                                    unit="$"
-                                    onChange={(e) =>
-                                        updateProductRow(
-                                            index,
-                                            "retailPrice",
-                                            e.target.value,
-                                        )
-                                    }
-                                ></NumberInput>
 
-                                <NumberInput
-                                    label="Quantity"
-                                    value={row.quantity}
-                                    min="0"
-                                    max={String(row.maxQuantity)}
-                                    onChange={(e) =>
-                                        updateProductRow(
-                                            index,
-                                            "quantity",
-                                            Number(e.target.value),
-                                        )
-                                    }
-                                    onBlur={(e) => {
-                                        if (
-                                            Number(e.target.value) >
-                                            row.maxQuantity
-                                        ) {
-                                            updateProductRow(
-                                                index,
-                                                "quantity",
-                                                row.maxQuantity,
-                                            );
-                                        }
-                                    }}
-                                ></NumberInput>
-                                <DisplayValue label="Price" unit="$">
-                                    {(row.retailPrice * row.quantity).toFixed(
-                                        2,
-                                    )}
-                                </DisplayValue>
                                 <button
                                     type="button"
                                     onClick={() => removeProductRow(index)}
+                                    className="self-center mt-6 col-start-2 sm:order-last sm:mt-6"
                                 >
                                     <img
                                         src="/icon/close.svg"
@@ -1057,8 +1019,67 @@ function SalesList() {
                                         className="w-4 cursor-pointer"
                                     />
                                 </button>
+
+                                <div className="col-span-2 grid grid-cols-3 gap-x-2 sm:contents">
+                                    <NumberInput
+                                        label="Quantity"
+                                        value={row.quantity}
+                                        min="0"
+                                        max={String(row.maxQuantity)}
+                                        onChange={(e) =>
+                                            updateProductRow(
+                                                index,
+                                                "quantity",
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                        onBlur={(e) => {
+                                            if (
+                                                Number(e.target.value) >
+                                                row.maxQuantity
+                                            ) {
+                                                updateProductRow(
+                                                    index,
+                                                    "quantity",
+                                                    row.maxQuantity,
+                                                );
+                                            }
+                                        }}
+                                    ></NumberInput>
+
+                                    <NumberInput
+                                        label="Price per item"
+                                        value={row.retailPrice}
+                                        step="0.01"
+                                        min="0"
+                                        required={true}
+                                        disabled={true}
+                                        unit="$"
+                                        onChange={(e) =>
+                                            updateProductRow(
+                                                index,
+                                                "retailPrice",
+                                                e.target.value,
+                                            )
+                                        }
+                                    ></NumberInput>
+
+                                    <DisplayValue label="Price" unit="$">
+                                        {(
+                                            row.retailPrice * row.quantity
+                                        ).toFixed(2)}
+                                    </DisplayValue>
+                                </div>
                             </div>
                         ))}
+                        <div>
+                            <WhiteRoundButton
+                                type="button"
+                                value="Add Product"
+                                icon="/icon/plus-blue.svg"
+                                onClick={addProductRow}
+                            ></WhiteRoundButton>
+                        </div>
                         {formErrors.products && (
                             <div className="text-red-500 text-sm">
                                 {formErrors.products}
