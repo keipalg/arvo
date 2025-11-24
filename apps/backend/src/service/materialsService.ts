@@ -537,7 +537,7 @@ export const reduceMaterialQuantity = async (
         quantityAfter: newQuantity,
     });
 
-    await _checkAndNotifyLowInventory(materialId, userId);
+    await _checkAndNotifyLowInventory(materialId, userId, tx);
 
     return result;
 };
