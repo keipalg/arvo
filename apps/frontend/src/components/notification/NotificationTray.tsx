@@ -1,4 +1,6 @@
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, type RefObject } from "react";
+import { queryClient, trpc } from "../../utils/trpcClient";
 import { NotificationList } from "./NotificationList";
 
 type NotificationTrayProps = {
@@ -11,6 +13,23 @@ export const NotificationTray = ({
     buttonRef,
 }: NotificationTrayProps) => {
     const trayRef = useRef<HTMLDivElement>(null);
+
+    const markAllAsReadMutation = useMutation(
+        trpc.notification.markAllAsRead.mutationOptions({
+            onSuccess: () => {
+                void queryClient.invalidateQueries({
+                    queryKey: trpc.notification.list.queryKey(),
+                });
+                void queryClient.invalidateQueries({
+                    queryKey: trpc.notification.unreadCount.queryKey(),
+                });
+            },
+        }),
+    );
+
+    const handleMarkAllAsRead = () => {
+        markAllAsReadMutation.mutate();
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -56,6 +75,17 @@ export const NotificationTray = ({
                 <h3 className="text-xl font-semibold text-gray-900">
                     Your Notifications
                 </h3>
+                <button
+                    onClick={handleMarkAllAsRead}
+                    className="flex items-center gap-2 text-arvo-blue-100 hover:text-arvo-blue-75 cursor-pointer"
+                >
+                    <img
+                        src="/icon/notification-mark-all-as-read.svg"
+                        alt=""
+                        className="h-5 w-5"
+                    />
+                    Mark all as read
+                </button>
             </div>
             <div className="pt-4">
                 <NotificationList />

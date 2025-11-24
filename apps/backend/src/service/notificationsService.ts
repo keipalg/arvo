@@ -75,12 +75,22 @@ export const createProductLowInventoryNotification = async (
         return; // Off - Don't send product notification
     }
 
-    const typeId = await _getNotificationTypeId(
-        NOTIFICATION_TYPES.PRODUCT_LOW_INVENTORY,
-    );
-
-    const title = `Low Stock: ${productName}`;
-    const message = `There are only ${remainingQuantity} ${productName} left. Time to plan a new batch.`;
+    let typeId;
+    let title;
+    let message;
+    if (remainingQuantity === 0) {
+        typeId = await _getNotificationTypeId(
+            NOTIFICATION_TYPES.PRODUCT_OUT_OF_STOCK_INVENTORY,
+        );
+        title = `Out of Stock: ${productName}`;
+        message = `Inventory update: ${productName} are at 0. Time to schedule a new batch.`;
+    } else {
+        typeId = await _getNotificationTypeId(
+            NOTIFICATION_TYPES.PRODUCT_LOW_INVENTORY,
+        );
+        title = `Low Stock: ${productName}`;
+        message = `Low stock alert: ${productName} are almost gone. Time to plan a new batch.`;
+    }
 
     await _insertNotification(userId, typeId, title, message);
 };
@@ -98,6 +108,7 @@ export const createMaterialLowInventoryNotification = async (
     materialType: string,
     materialName: string,
     minimumStockLevel: number,
+    remainingQuantity: number,
     unitAbv: string,
 ) => {
     console.log("createMaterialLowInventoryNotification called:", {
@@ -121,12 +132,22 @@ export const createMaterialLowInventoryNotification = async (
         return; // Off - Don't send material notification
     }
 
-    const typeId = await _getNotificationTypeId(
-        NOTIFICATION_TYPES.MATERIAL_LOW_INVENTORY,
-    );
-
-    const title = `Low Material: ${materialType}`;
-    const message = `Time to restock! Your ${materialName} has reached ${minimumStockLevel} ${unitAbv}.`;
+    let typeId;
+    let title;
+    let message;
+    if (remainingQuantity === 0) {
+        typeId = await _getNotificationTypeId(
+            NOTIFICATION_TYPES.MATERIAL_OUT_OF_STOCK_INVENTORY,
+        );
+        title = `Out of Stock: ${materialName}`;
+        message = `Material stock hit zero. Add ${materialName} to your purchase list.`;
+    } else {
+        typeId = await _getNotificationTypeId(
+            NOTIFICATION_TYPES.MATERIAL_LOW_INVENTORY,
+        );
+        title = `Low Material: ${materialType}`;
+        message = `Heads up! Your ${materialName} has reached ${minimumStockLevel} ${unitAbv}.`;
+    }
 
     console.log("Inserting notification:", { title, message });
     await _insertNotification(userId, typeId, title, message);
