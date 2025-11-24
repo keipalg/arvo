@@ -43,6 +43,7 @@ import {
 import { useIsSmUp } from "../../../utils/screenWidth";
 import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../config/demoData.ts";
+import LoadingSpinner from "../../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_protected/materials/")({
     component: MaterialsList,
@@ -698,7 +699,7 @@ function MaterialsList() {
                     }
                 />
             </MetricsGroup>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <MoreButtonProvider>

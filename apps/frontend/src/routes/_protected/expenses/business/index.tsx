@@ -37,6 +37,7 @@ import {
 } from "../../../../utils/dateFormatter";
 import { useDevAutofill } from "../../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../../config/demoData.ts";
+import LoadingSpinner from "../../../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_protected/expenses/business/")({
     component: BusinessExpense,
@@ -1051,57 +1052,63 @@ function BusinessExpense() {
                     }
                 />
             </div>
-            {isLoadingOperational && isLoadingStudio && <div>Loading...</div>}
-            {errorOperational && errorStudio && (
-                <div>Error: {errorOperational.message}</div>
+            {(isLoadingOperational || isLoadingStudio) && <LoadingSpinner />}
+            {(errorOperational || errorStudio) && (
+                <div>
+                    Error: {errorOperational?.message || errorStudio?.message}
+                </div>
             )}
-            {!errorStudio && !errorOperational && tabledData && (
-                <MoreButtonProvider>
-                    <DataTable<BusinessExpenseWithActions>
-                        columns={columns}
-                        data={tabledData}
-                        detailRender={detailsRender}
-                        mobileVisibleKeys={["name", "cost", "actions"]}
-                        sortOptions={[
-                            {
-                                key: "createdAt",
-                                label: "Date (Newest → Oldest)",
-                                order: "desc",
-                            },
-                            {
-                                key: "createdAt",
-                                label: "Date (Oldest → Newest)",
-                                order: "asc",
-                            },
-                            {
+            {!errorStudio &&
+                !errorOperational &&
+                !isLoadingOperational &&
+                !isLoadingStudio &&
+                tabledData && (
+                    <MoreButtonProvider>
+                        <DataTable<BusinessExpenseWithActions>
+                            columns={columns}
+                            data={tabledData}
+                            detailRender={detailsRender}
+                            mobileVisibleKeys={["name", "cost", "actions"]}
+                            sortOptions={[
+                                {
+                                    key: "createdAt",
+                                    label: "Date (Newest → Oldest)",
+                                    order: "desc",
+                                },
+                                {
+                                    key: "createdAt",
+                                    label: "Date (Oldest → Newest)",
+                                    order: "asc",
+                                },
+                                {
+                                    key: "name",
+                                    label: "Name (A → Z)",
+                                    order: "asc",
+                                },
+                                {
+                                    key: "name",
+                                    label: "Name (Z → A)",
+                                    order: "desc",
+                                },
+                                {
+                                    key: "cost",
+                                    label: "Cost (High → Low)",
+                                    order: "desc",
+                                },
+                                {
+                                    key: "cost",
+                                    label: "Cost (Low → High)",
+                                    order: "asc",
+                                },
+                            ]}
+                            filterOptions={tableFilterOptions}
+                            searchOption={{
                                 key: "name",
-                                label: "Name (A → Z)",
-                                order: "asc",
-                            },
-                            {
-                                key: "name",
-                                label: "Name (Z → A)",
-                                order: "desc",
-                            },
-                            {
-                                key: "cost",
-                                label: "Cost (High → Low)",
-                                order: "desc",
-                            },
-                            {
-                                key: "cost",
-                                label: "Cost (Low → High)",
-                                order: "asc",
-                            },
-                        ]}
-                        filterOptions={tableFilterOptions}
-                        searchOption={{
-                            key: "name",
-                            label: "Expense Name",
-                        }}
-                    />
-                </MoreButtonProvider>
-            )}
+                                label: "Expense Name",
+                            }}
+                        />
+                    </MoreButtonProvider>
+                )}
 
             <RightDrawer
                 narrower={true}

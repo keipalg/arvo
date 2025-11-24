@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { trpc } from "../../utils/trpcClient";
 import { SettingsLayout, type SettingsData } from "./SettingsLayout";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../loading/LoadingSpinner";
 
 type SettingsFormData = {
     estimatedMonthlyOperatingExpenses: number;
@@ -70,7 +71,7 @@ export const SettingsBusiness = () => {
         }
     }, [userPreferences]);
 
-    if (isLoadingUserPreferences) return <div>Loading...</div>;
+    if (isLoadingUserPreferences) return <LoadingSpinner />;
     if (!userPreferences) return <div>No user preferences found.</div>;
 
     const settingsData: SettingsData = [

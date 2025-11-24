@@ -15,6 +15,7 @@ import {
     getDateForInputField,
     getGroupedDatesByMonth,
 } from "../../../../utils/dateFormatter";
+import LoadingSpinner from "../../../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_protected/expenses/usedMaterials/")({
     component: UsedMaterials,
@@ -48,7 +49,7 @@ function UsedMaterials() {
         Record<string, number | string> | undefined
     >(undefined);
 
-    const { data: usedMaterialPerSales } = useQuery(
+    const { data: usedMaterialPerSales, isLoading } = useQuery(
         trpc.sales.usedMaterialPerSales.queryOptions(),
     );
     console.log("usedMaterialPerSales:", usedMaterialPerSales);
@@ -310,53 +311,56 @@ function UsedMaterials() {
                     }
                 />
             </div>
-            <DataTable
-                columns={columns}
-                data={tabledData}
-                detailRender={detailsRender}
-                mobileVisibleKeys={[
-                    "materialName",
-                    "usedMaterialCost",
-                    "soldDate",
-                ]}
-                sortOptions={[
-                    {
-                        key: "soldDate",
-                        label: "Date (Newest → Oldest)",
-                        order: "desc",
-                    },
-                    {
-                        key: "soldDate",
-                        label: "Date (Oldest → Newest)",
-                        order: "asc",
-                    },
-                    {
+            {isLoading && <LoadingSpinner />}
+            {!isLoading && (
+                <DataTable
+                    columns={columns}
+                    data={tabledData}
+                    detailRender={detailsRender}
+                    mobileVisibleKeys={[
+                        "materialName",
+                        "usedMaterialCost",
+                        "soldDate",
+                    ]}
+                    sortOptions={[
+                        {
+                            key: "soldDate",
+                            label: "Date (Newest → Oldest)",
+                            order: "desc",
+                        },
+                        {
+                            key: "soldDate",
+                            label: "Date (Oldest → Newest)",
+                            order: "asc",
+                        },
+                        {
+                            key: "materialName",
+                            label: "Name (A → Z)",
+                            order: "asc",
+                        },
+                        {
+                            key: "materialName",
+                            label: "Name (Z → A)",
+                            order: "desc",
+                        },
+                        {
+                            key: "usedMaterialCost",
+                            label: "Cost (High → Low)",
+                            order: "desc",
+                        },
+                        {
+                            key: "usedMaterialCost",
+                            label: "Cost (Low → High)",
+                            order: "asc",
+                        },
+                    ]}
+                    filterOptions={tableFilterOptions}
+                    searchOption={{
                         key: "materialName",
-                        label: "Name (A → Z)",
-                        order: "asc",
-                    },
-                    {
-                        key: "materialName",
-                        label: "Name (Z → A)",
-                        order: "desc",
-                    },
-                    {
-                        key: "usedMaterialCost",
-                        label: "Cost (High → Low)",
-                        order: "desc",
-                    },
-                    {
-                        key: "usedMaterialCost",
-                        label: "Cost (Low → High)",
-                        order: "asc",
-                    },
-                ]}
-                filterOptions={tableFilterOptions}
-                searchOption={{
-                    key: "materialName",
-                    label: "Material Name",
-                }}
-            />
+                        label: "Material Name",
+                    }}
+                />
+            )}
         </BaseLayout>
     );
 }
