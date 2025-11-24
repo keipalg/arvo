@@ -37,7 +37,7 @@ function Login() {
                 setError(result.error.message || "Login failed");
             } else {
                 setError(null);
-                window.location.href = "/";
+                window.location.href = "/dashboard";
             }
         },
     });

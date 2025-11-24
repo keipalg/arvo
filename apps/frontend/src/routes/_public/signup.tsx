@@ -97,7 +97,7 @@ function SignUp() {
                 } else {
                     // navigate to home page after successful login
                     updateUserMutation.mutate({ name });
-                    await navigate({ to: "/" });
+                    await navigate({ to: "/dashboard" });
                 }
             }
         } catch (err) {
