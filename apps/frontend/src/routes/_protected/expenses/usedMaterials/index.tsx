@@ -270,7 +270,7 @@ function UsedMaterials() {
             header: "Sales Number",
             render: (value) => <>{`#${String(value).padStart(7, "0")}`}</>,
         },
-        { key: "goodName", header: "Goods Name" },
+        { key: "goodName", header: "Product Name" },
     ];
 
     const tabledData: UsedMaterialPerSalesRow[] = (
