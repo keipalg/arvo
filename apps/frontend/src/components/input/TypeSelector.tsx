@@ -46,27 +46,33 @@ const TypeSelector = ({
         }
     };
 
+    const handleAdd = async () => {
+        if (!inputValue.trim() || !canAdd) return;
+
+        const existingItem = items.find(
+            (item) => item.name.toLowerCase() === inputValue.toLowerCase(),
+        );
+
+        if (existingItem) {
+            onChange(existingItem.id);
+            setInputValue(existingItem.name);
+            setIsOpen(false);
+        } else {
+            const result = await onAdd({ name: inputValue.trim() });
+            if (result?.id) {
+                onChange(result.id);
+                setInputValue(inputValue.trim());
+                setIsOpen(false);
+            }
+        }
+    };
+
     const handleInputKeyDown = async (
         e: React.KeyboardEvent<HTMLInputElement>,
     ) => {
         if (e.key === "Enter" && inputValue.trim() && canAdd) {
             e.preventDefault();
-            const existingItem = items.find(
-                (item) => item.name.toLowerCase() === inputValue.toLowerCase(),
-            );
-
-            if (existingItem) {
-                onChange(existingItem.id);
-                setInputValue(existingItem.name);
-                setIsOpen(false);
-            } else {
-                const result = await onAdd({ name: inputValue.trim() });
-                if (result?.id) {
-                    onChange(result.id);
-                    setInputValue(inputValue.trim());
-                    setIsOpen(false);
-                }
-            }
+            await handleAdd();
         }
     };
 
@@ -102,12 +108,15 @@ const TypeSelector = ({
                 !selectorRef.current.contains(event.target as Node)
             ) {
                 setIsOpen(false);
+                if (!value) {
+                    setInputValue("");
+                }
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () =>
             document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [value]);
 
     useEffect(() => {
         if (!isOpen && selectedType && !inputValue) {
@@ -169,11 +178,23 @@ const TypeSelector = ({
                                     item.name.toLowerCase() ===
                                     inputValue.toLowerCase(),
                             ) && (
-                                <div className="p-2 text-arvo-blue-100 border-t border-arvo-black-5">
-                                    Press Enter to add {'"'}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleAdd().catch(console.error);
+                                    }}
+                                    className="w-full p-2 text-arvo-blue-100 border-t border-arvo-black-5 hover:bg-arvo-blue-20 text-left cursor-pointer"
+                                >
+                                    <span className="hidden sm:inline">
+                                        Press Enter to add
+                                    </span>
+                                    <span className="sm:hidden">
+                                        Tap to add
+                                    </span>{" "}
+                                    {'"'}
                                     {inputValue}
                                     {'"'}
-                                </div>
+                                </button>
                             )}
 
                         {filteredItems.length === 0 && !inputValue && (
