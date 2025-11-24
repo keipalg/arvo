@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/effect-cards";
 
 :root {
     font-family:
