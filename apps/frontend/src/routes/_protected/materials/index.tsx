@@ -658,46 +658,53 @@ function MaterialsList() {
                 ></AddButton>
             </div>
             <MetricsGroup>
-                <Metric
-                    value={
-                        totalInventoryValueData &&
-                        "currentValue" in totalInventoryValueData
-                            ? `$${Number(totalInventoryValueData.currentValue).toFixed(2)}`
-                            : "$0.00"
-                    }
-                    changePercent={
-                        totalInventoryValueData &&
-                        "percentageChange" in totalInventoryValueData &&
-                        "lastMonthValue" in totalInventoryValueData
-                            ? totalInventoryValueData.lastMonthValue === 0
-                                ? 100
-                                : Number(
-                                      totalInventoryValueData.percentageChange,
-                                  )
-                            : undefined
-                    }
-                    topText="Total Inventory Value"
-                    bottomText="Compared to last month"
-                    colorVariant="neutral"
-                />
+                {!data || data.length === 0 ? (
+                    <Metric message="You haven't stocked any materials yet. Start tracking material stocks to see trends here." />
+                ) : (
+                    <>
+                        <Metric
+                            value={
+                                totalInventoryValueData &&
+                                "currentValue" in totalInventoryValueData
+                                    ? `$${Number(totalInventoryValueData.currentValue).toFixed(2)}`
+                                    : "$0.00"
+                            }
+                            changePercent={
+                                totalInventoryValueData &&
+                                "percentageChange" in totalInventoryValueData &&
+                                "lastMonthValue" in totalInventoryValueData
+                                    ? totalInventoryValueData.lastMonthValue ===
+                                      0
+                                        ? 100
+                                        : Number(
+                                              totalInventoryValueData.percentageChange,
+                                          )
+                                    : undefined
+                            }
+                            topText="Total Inventory Value"
+                            bottomText="Compared to last month"
+                            colorVariant="neutral"
+                        />
 
-                <Metric
-                    value={
-                        lowStockData && "count" in lowStockData
-                            ? `${lowStockData.count} ${lowStockData.count == 1 ? "item" : "items"}`
-                            : "0 items"
-                    }
-                    topText="Materials low on stock"
-                    bottomText="must be restocked"
-                    showPercentage={false}
-                    colorVariant={
-                        lowStockData &&
-                        "count" in lowStockData &&
-                        lowStockData.count >= 1
-                            ? "negative"
-                            : "positive"
-                    }
-                />
+                        <Metric
+                            value={
+                                lowStockData && "count" in lowStockData
+                                    ? `${lowStockData.count} ${lowStockData.count == 1 ? "item" : "items"}`
+                                    : "0 items"
+                            }
+                            topText="Materials low on stock"
+                            bottomText="must be restocked"
+                            showPercentage={false}
+                            colorVariant={
+                                lowStockData &&
+                                "count" in lowStockData &&
+                                lowStockData.count >= 1
+                                    ? "negative"
+                                    : "positive"
+                            }
+                        />
+                    </>
+                )}
             </MetricsGroup>
             {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
