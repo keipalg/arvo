@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { trpc } from "../../utils/trpcClient";
 import BaseLayout from "../../components/BaseLayout";
 import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_public/about")({
     component: About,
@@ -13,7 +14,7 @@ function About() {
     return (
         <BaseLayout title="About">
             <h3>Samples</h3>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <dl>

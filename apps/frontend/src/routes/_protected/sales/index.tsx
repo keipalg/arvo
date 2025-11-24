@@ -28,6 +28,7 @@ import DisplayValue from "../../../components/input/DisplayValue";
 import HorizontalRule from "../../../components/hr/HorizontalRule";
 import { MoreButton } from "../../../components/button/MoreButton";
 import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
+import LoadingSpinner from "../../../components/loading/LoadingSpinner";
 import { useIsSmUp } from "../../../utils/screenWidth";
 import SaleDetails from "../../../components/table/DataTableDetailSale";
 import ToastNotification from "../../../components/modal/ToastNotification";
@@ -747,7 +748,7 @@ function SalesList() {
                     showPercentage={metricSalesCount?.change != null}
                 />
             </MetricsGroup>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <MoreButtonProvider>

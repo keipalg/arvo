@@ -4,6 +4,7 @@ import { SettingsLayout, type SettingsData } from "./SettingsLayout";
 import { useEffect, useState } from "react";
 import { authClient } from "../../auth/auth-client";
 import { uploadFile } from "../../utils/fileUpload";
+import LoadingSpinner from "../loading/LoadingSpinner";
 
 type SettingsFormData = {
     name?: string;
@@ -86,7 +87,7 @@ export const SettingsProfile = () => {
     };
 
     if (isLoadingUserInfo || !userInfo || !settingsForm) {
-        return <div>Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     const settingsData: SettingsData = [

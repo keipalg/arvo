@@ -35,6 +35,7 @@ import {
     getFormattedDate,
     getGroupedDatesByMonth,
 } from "../../../../utils/dateFormatter";
+import LoadingSpinner from "../../../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_protected/goods/productionBatch/")({
     component: ProductionBatchList,
@@ -572,7 +573,7 @@ function ProductionBatchList() {
                     />
                 )}
             </MetricsGroup>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <MoreButtonProvider>

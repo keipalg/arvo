@@ -42,6 +42,7 @@ import { uploadFile } from "../../../utils/fileUpload.ts";
 import MetricsGroup from "../../../components/metric/MetricsGroup.tsx";
 import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../config/demoData.ts";
+import LoadingSpinner from "../../../components/loading/LoadingSpinner";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -737,8 +738,7 @@ function GoodsList() {
                     ""
                 )}
             </MetricsGroup>
-
-            {isLoading && <div>Loading...</div>}
+            {isLoading && <LoadingSpinner />}
             {error && <div>Error: {error.message}</div>}
             {!isLoading && !error && (
                 <MoreButtonProvider>
