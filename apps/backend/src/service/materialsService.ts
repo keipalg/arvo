@@ -430,6 +430,7 @@ const _checkAndNotifyLowInventory = async (
             materialData.materialTypeName,
             materialData.name,
             materialData.threshold as number,
+            materialData.quantity as number,
             materialData.unitAbbreviation,
         );
     }
