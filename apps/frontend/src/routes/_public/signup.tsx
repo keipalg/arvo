@@ -6,6 +6,8 @@ import TextInput from "../../components/input/TextInput";
 import Button from "../../components/button/Button";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "../../utils/trpcClient";
+import { useDevAutofill } from "../../hooks/useDevAutofill";
+import { demoData } from "../../config/demoData";
 
 export const Route = createFileRoute("/_public/signup")({
     component: SignUp,
@@ -32,6 +34,18 @@ function SignUp() {
             },
         }),
     );
+
+    useDevAutofill(() => {
+        const randomNumber = Math.floor(10000 + Math.random() * 90000);
+        setEmail(`lya${randomNumber}@arvo.com`);
+        setName(demoData.signup.name || "Lya Artist");
+        setPassword(demoData.signup.password || "password");
+        setConfirmPassword(demoData.signup.password || "password");
+        setEmailError(undefined);
+        setNameError(undefined);
+        setPasswordsError(false);
+        setError(null);
+    }, []);
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
