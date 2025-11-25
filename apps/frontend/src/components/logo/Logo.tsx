@@ -1,7 +1,7 @@
 const Logo = () => {
     return (
         <div className="flex">
-            <a href="/">
+            <a href="/dashboard">
                 <img
                     src="/arvo-logo.svg"
                     alt="ARVO Logo"
