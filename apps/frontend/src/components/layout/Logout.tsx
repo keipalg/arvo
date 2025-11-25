@@ -31,15 +31,16 @@ export const LogoutButton = () => {
             <button
                 onClick={() => void handleLogout()}
                 disabled={isLoggingOut}
-                className="w-full px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-50 hover:rounded-xl cursor-pointer text-left"
+                className="group w-full px-3 py-3 gap-2 flex items-center hover:bg-arvo-blue-50
+                hover:rounded-xl cursor-pointer text-left text-arvo-black-50 hover:text-black"
             >
                 <img
                     src="/icon/logout.svg"
-                    className="w-8 h-8 max-sm:w-10 max-sm:h-10"
+                    className="w-8 h-8 max-sm:w-10 max-sm:h-10 group-hover:brightness-0"
                 ></img>
                 <div>
                     {/*If expression for during logging out and before logging out*/}
-                    {isLoggingOut ? "Logging Out..." : "Logout"}
+                    {isLoggingOut ? "Logging Out..." : "Log Out"}
                 </div>
             </button>
         </>

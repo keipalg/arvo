@@ -29,8 +29,10 @@ const Profile = () => {
                 </div>
             </a>
             <a href="/settings" className="flex flex-col cursor-pointer">
-                <div className="font-semibold">{name}</div>
-                <div className="text-sm text-arvo-black-100">{storeName}</div>
+                <div className="text-sm font-semibold">{name}</div>
+                <div className="text-sm text-arvo-black-100 font-normal">
+                    {storeName}
+                </div>
             </a>
         </div>
     );
