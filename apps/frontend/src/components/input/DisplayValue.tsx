@@ -14,9 +14,9 @@ const DisplayValue = ({
     additionalStyle,
 }: DisplayValueProps) => {
     return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full">
             <FormLabel label={label} />
-            <div className="py-2.5">
+            <div className="py-2.5 w-full">
                 {unit && (
                     <span className="w-8 font-semibold text-center px-2.5 my-2.5 text-gray-600 border-r border-arvo-black-10">
                         {unit}

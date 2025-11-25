@@ -56,10 +56,10 @@ const Select = ({
     const arrowPosition = style ? style : defaultArrowPosition;
 
     return (
-        <div className="relative flex flex-col pb-2">
+        <div className="relative flex flex-col pb-2 w-full">
             <FormLabel label={label} required={required} />
             <select
-                className={`border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 pr-10 outline-none appearance-none disabled:border-0 disabled:py-0.5  disabled:bg-arvo-blue-20 ... truncate`}
+                className={`w-full border rounded-xl focus:border-arvo-blue-100 px-2.5 py-2.5 bg-arvo-white-0 border-arvo-black-5 pr-10 outline-none appearance-none disabled:border-0 disabled:py-0.5  disabled:bg-arvo-blue-20 ... truncate`}
                 name={name}
                 value={value}
                 onChange={onChange}

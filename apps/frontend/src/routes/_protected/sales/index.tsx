@@ -985,7 +985,7 @@ function SalesList() {
                         {products.map((row, index) => (
                             <div
                                 key={index}
-                                className="grid grid-cols-[1fr_24px] gap-x-2 gap-y-2 sm:flex sm:gap-y-2 sm:justify-between sm:items-center"
+                                className="grid grid-cols-[1fr_24px] gap-x-2 gap-y-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_24px] sm:gap-2"
                             >
                                 <Select
                                     label="Product"
@@ -1011,7 +1011,7 @@ function SalesList() {
                                 <button
                                     type="button"
                                     onClick={() => removeProductRow(index)}
-                                    className="self-center mt-6 col-start-2 sm:order-last sm:mt-6"
+                                    className="self-center mt-6 col-start-2 sm:col-start-5 sm:row-start-1 sm:mt-6"
                                 >
                                     <img
                                         src="/icon/close.svg"
@@ -1020,7 +1020,7 @@ function SalesList() {
                                     />
                                 </button>
 
-                                <div className="col-span-2 grid grid-cols-3 gap-x-2 sm:contents">
+                                <div className="col-span-2 grid grid-cols-3 gap-x-2 sm:col-span-1 sm:contents">
                                     <NumberInput
                                         label="Quantity"
                                         value={row.quantity}

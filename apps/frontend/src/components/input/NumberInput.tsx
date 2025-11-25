@@ -95,10 +95,10 @@ const NumberInput = ({
     };
 
     return (
-        <div className={`flex flex-col pb-2 ${style ? style : ""}`}>
+        <div className={`flex flex-col pb-2 w-full ${style ? style : ""}`}>
             <FormLabel label={label} required={required} />
             <div
-                className={`${unitPosition === "right" ? "relative" : ""} flex flex-row border rounded-xl items-center ${!disabled ? "bg-arvo-white-0" : unitPosition === "right" ? "bg-arvo-blue-20 border-0" : "bg-arvo-black-5"} border-arvo-black-5 ${unitPosition === "right" ? "" : "has-disabled:bg-arvo-black-5"} focus-within:outline-2 focus-within:outline-arvo-blue-100`}
+                className={`w-full ${unitPosition === "right" ? "relative" : ""} flex flex-row border rounded-xl items-center ${!disabled ? "bg-arvo-white-0" : unitPosition === "right" ? "bg-arvo-blue-20 border-0" : "bg-arvo-black-5"} border-arvo-black-5 ${unitPosition === "right" ? "" : "has-disabled:bg-arvo-black-5"} focus-within:outline-2 focus-within:outline-arvo-blue-100`}
             >
                 {unit && unitPosition === "left" && (
                     <span className="w-8 font-semibold text-center px-2.5 my-2.5 text-gray-600 border-r border-arvo-black-10">
