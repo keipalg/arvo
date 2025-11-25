@@ -7,7 +7,7 @@ import Button from "../../../components/button/Button";
 import AddButton from "../../../components/button/AddButton";
 import { MoreButtonProvider } from "../../../components/button/MoreButtonProvider";
 import { MoreButton } from "../../../components/button/MoreButton.tsx";
-import UnderLinedButton from "../../../components/button/UnderLinedButton.tsx";
+import WhiteRoundButton from "../../../components/button/WhiteRoundButton.tsx";
 import RightDrawer from "../../../components/drawer/RightDrawer";
 import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
@@ -842,7 +842,7 @@ function GoodsList() {
                             }
                             error={formErrors.minimumStockLevel}
                         ></NumberInput>
-                        <div className="col-span-2 grid gap-2">
+                        <div className="col-span-2 grid gap-1">
                             <FormLabel
                                 label="Material per Item"
                                 required={true}
@@ -913,16 +913,19 @@ function GoodsList() {
                                 </div>
                             ))}
                             <div className="col-span-2 grid grid-cols-2 align-middle">
-                                {!editingGoodId ? (
-                                    <UnderLinedButton
-                                        type="button"
-                                        value="Add Material"
-                                        icon="/icon/plus-blue.svg"
-                                        onClick={addMaterialRow}
-                                    ></UnderLinedButton>
-                                ) : (
-                                    ""
-                                )}
+                                <div>
+                                    {!editingGoodId ? (
+                                        <WhiteRoundButton
+                                            type="button"
+                                            value="Add Material"
+                                            icon="/icon/plus-blue.svg"
+                                            onClick={addMaterialRow}
+                                            compact={true}
+                                        ></WhiteRoundButton>
+                                    ) : (
+                                        ""
+                                    )}
+                                </div>
                                 {formErrors.materials && (
                                     <div className="text-red-500 text-sm translate-y-1">
                                         {formErrors.materials}

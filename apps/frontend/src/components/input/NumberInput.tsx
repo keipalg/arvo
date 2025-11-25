@@ -95,7 +95,7 @@ const NumberInput = ({
     };
 
     return (
-        <div className={`flex flex-col gap-1 pb-2 ${style ? style : ""}`}>
+        <div className={`flex flex-col pb-2 ${style ? style : ""}`}>
             <FormLabel label={label} required={required} />
             <div
                 className={`${unitPosition === "right" ? "relative" : ""} flex flex-row border rounded-xl items-center ${!disabled ? "bg-arvo-white-0" : unitPosition === "right" ? "bg-arvo-blue-20 border-0" : "bg-arvo-black-5"} border-arvo-black-5 ${unitPosition === "right" ? "" : "has-disabled:bg-arvo-black-5"} focus-within:outline-2 focus-within:outline-arvo-blue-100`}
