@@ -56,40 +56,60 @@ type SignupDemoData = {
     password?: string;
 };
 
+type OperatingCostDemoData = {
+    estimatedMonthlyOperatingExpenses?: number;
+    estimatedMonthlyProducedUnits?: number;
+};
+
+type ProductTypesDemoData = {
+    productTypes?: string[];
+};
+
+type MaterialTypesDemoData = {
+    materialTypes?: string[];
+};
+
+type ProductionBatchDemoData = {
+    productionDate?: string;
+    productName?: string;
+    quantity?: number;
+    notes?: string;
+};
+
 type DemoDataConfig = {
     goods: GoodsDemoData;
     materials: MaterialsDemoData;
     sales: SalesDemoData;
     businessExpense: BusinessExpenseDemoData;
     signup: SignupDemoData;
+    operatingCost: OperatingCostDemoData;
+    productTypes: ProductTypesDemoData;
+    materialTypes: MaterialTypesDemoData;
+    productionBatch: ProductionBatchDemoData;
 };
 
 export const demoData: DemoDataConfig = {
-    // TODO - To be updated when data for presentation is finalized
     goods: {
-        name: "Santa Speckled Mug",
+        name: "Gingerbread Man Mug",
         productType: "Mugs",
         inventoryQuantity: 50,
         minimumStockLevel: 10,
         retailPrice: 44.99,
-        note: "Hand-molded and painted speckled ceramic mug with Santa Claus design.",
+        note: "Holiday special.",
         image: "/demo/product-demo.webp",
         materials: [
             {
-                name: "Mayco Fundamentals - Flame Red",
-                amount: 10,
-            },
-            {
-                name: "Mayco Fundamentals - China White",
-                amount: 10,
-            },
-            {
-                name: "Georgies Pioneer Dark w/ Speckles ",
+                name: "Tuckers Mid Cal 5", // Clay
                 amount: 0.45,
             },
             {
-                name: "Tuckers Satin Clear Glaze",
-                amount: 40,
+                name: "Coyote Cinnamon Stick Glaze", // Glaze
+                amount: 25,
+            },
+
+            {
+                name: "Mayco Fundamentals - Spice Brown", // Underglaze
+                amount: 8,
             },
         ],
     },
@@ -103,16 +123,15 @@ export const demoData: DemoDataConfig = {
         supplier: "The Clay Warehouse",
         supplierUrl: "https://theclaywarehouse.ca/pages/supplies",
         minStockLevel: 250,
-        notes: "Zinc-free glossy transparent glaze. Great for use over underglaze or on its own.",
     },
 
     sales: {
-        customer: "Pinkaew N.",
+        customer: "Kanta N.",
         channel: "Instagram",
         salesDate: "today",
         products: [
-            { name: "Speckled Cup", quantity: 1 },
-            { name: "Terra Plate", quantity: 1 },
+            { name: "Pastel Ring Tray Blue", quantity: 1 },
+            { name: "Speckled Latte Cup", quantity: 1 },
         ],
         status: "In-Progress",
         notes: "Repeat customer with special discount.",
@@ -123,17 +142,42 @@ export const demoData: DemoDataConfig = {
 
     businessExpense: {
         date: "today",
-        expenseType: "Miscellaneous",
-        name: "Community Membership",
+        expenseType: "Packaging Supplies",
+        name: "Holiday Packaging Supplies",
         cost: 10,
-        payee: "Indie Ceramics Community",
-        notes: "Monthly membership",
-        recurring: true,
+        payee: "Dollarama",
+        notes: "Additional packaging supplies to Christmas season.",
+        recurring: false,
     },
 
     signup: {
-        email: `lya${Math.floor(10000 + Math.random() * 90000)}@arvo.com`,
+        email: `lya${Math.floor(10000 + Math.random() * 90000)}@artist.com`,
         name: "Lya Artist",
         password: "password",
+    },
+
+    operatingCost: {
+        estimatedMonthlyOperatingExpenses: 400,
+        estimatedMonthlyProducedUnits: 40,
+    },
+
+    productTypes: {
+        productTypes: ["Bowls", "Plates", "Vases", "Soap Dishes"],
+    },
+
+    materialTypes: {
+        materialTypes: [
+            "Stoneware Clay",
+            "Clear Glaze",
+            "Underglaze",
+            "Porcelain Clay",
+        ],
+    },
+
+    productionBatch: {
+        productionDate: "today",
+        productName: "Gingerbread Man Mug",
+        quantity: 5,
+        notes: "Holiday batch",
     },
 };
