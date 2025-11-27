@@ -7,6 +7,8 @@ import CheckboxCustom from "../input/CheckboxCustom";
 import SetupLayout from "./SetupLayout";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "../../utils/trpcClient";
+import { useDevAutofill } from "../../hooks/useDevAutofill";
+import { demoData } from "../../config/demoData";
 
 type SetupStepProductTypesProps = {
     data: UserPreferencesValidationForm;
@@ -50,6 +52,11 @@ export function SetupStepProductTypes({
     const [selectedOptions, setSelectedOptions] = useState<string[]>(
         data.productTypes || [],
     );
+
+    useDevAutofill(() => {
+        setSelectedOptions(demoData.productTypes.productTypes || []);
+        setFormErrors({});
+    }, []);
 
     // Update parent component when selectedOptions changes
     useEffect(() => {

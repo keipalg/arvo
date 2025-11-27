@@ -8,6 +8,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../../utils/trpcClient";
 import { useEffect, useState, useMemo } from "react";
+import { useDevAutofill } from "../../../../hooks/useDevAutofill";
+import { demoData } from "../../../../config/demoData";
 
 import Select from "../../../../components/input/Select";
 import Button from "../../../../components/button/Button";
@@ -34,6 +36,7 @@ import DatePicker from "../../../../components/input/DatePicker";
 import {
     getFormattedDate,
     getGroupedDatesByMonth,
+    getDateForInputField,
 } from "../../../../utils/dateFormatter";
 import LoadingSpinner from "../../../../components/loading/LoadingSpinner";
 
@@ -113,6 +116,25 @@ function ProductionBatchList() {
     );
 
     const isSmUp = useIsSmUp();
+
+    useDevAutofill(() => {
+        if (!drawerOpen) return;
+
+        setProductionDate(getDateForInputField(new Date()));
+
+        // Find and select the product by name
+        const productName = demoData.productionBatch.productName;
+        if (productName && goods) {
+            const product = goods.find((g) => g.name === productName);
+            if (product) {
+                setGoodId(product.id);
+            }
+        }
+
+        setQuantity(demoData.productionBatch.quantity || 0);
+        setNote(demoData.productionBatch.notes || "");
+        setFormErrors({});
+    }, [drawerOpen, goods]);
 
     const calculateProductionCost = (
         ratios: MaterialOutputRatio[],
