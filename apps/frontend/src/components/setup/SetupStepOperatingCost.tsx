@@ -7,6 +7,8 @@ import {
 import { trpc } from "../../utils/trpcClient";
 import NumberInput from "../input/NumberInput";
 import SetupLayout from "./SetupLayout";
+import { useDevAutofill } from "../../hooks/useDevAutofill";
+import { demoData } from "../../config/demoData";
 
 type SetupStepOperatingCostProps = {
     data: UserPreferencesValidationForm;
@@ -28,6 +30,16 @@ export function SetupStepOperatingCost({
     ] = useState(data.estimatedMonthlyOperatingExpenses ?? 0);
     const [estimatedMonthlyProducedUnits, setEstimatedMonthlyProducedUnits] =
         useState(data.estimatedMonthlyProducedUnits ?? 0);
+
+    useDevAutofill(() => {
+        setEstimatedMonthlyOperatingExpenses(
+            demoData.operatingCost.estimatedMonthlyOperatingExpenses ?? 400,
+        );
+        setEstimatedMonthlyProducedUnits(
+            demoData.operatingCost.estimatedMonthlyProducedUnits ?? 20,
+        );
+        setFormErrors({});
+    }, []);
 
     const updateOperatingCostMutation = useMutation(
         trpc.userPreferences.updateOperatingCost.mutationOptions({
