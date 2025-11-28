@@ -78,6 +78,32 @@ export const generateProductionInOutOverview = async (
     return overview;
 };
 
+export const generateExpenseBreakdownOverview = async (
+    userId: string,
+    expressBreakdownData: Array<{
+        expenseType: string;
+        expenseTypeLabel: string;
+        totalExpense: number;
+    }>,
+) => {
+    const prompt = `Generate a concise overview based on the following expense data:
+        ${expressBreakdownData
+            .map(
+                (item) =>
+                    `Expense Type: ${item.expenseTypeLabel}, Total Expense: $${item.totalExpense.toFixed(2)}`,
+            )
+            .join("\n")}
+    `;
+
+    let overview = await checkDashboardOverviewCache(userId, prompt);
+    if (!overview) {
+        overview = await generateDashboardOverview(prompt);
+        await storeDashboardOverviewCache(userId, prompt, overview);
+    }
+
+    return overview;
+};
+
 export const generateDailySalesOverview = async (
     userId: string,
     todayRevenue: number,
@@ -100,7 +126,7 @@ export const generateDailySalesOverview = async (
 };
 
 export const generateDashboardOverview = async (prompt: string) => {
-    const overview = `Generate a concise dashboard overview in 2, 3 sentences based on the following prompt: ${prompt}`;
+    const overview = `Generate a concise dashboard overview for a handcraft artist in 2, 3 sentences based on the following prompt: ${prompt}`;
     const response = await openai.responses.create({
         model: "gpt-5-mini",
         input: [{ role: "user", content: overview }],
