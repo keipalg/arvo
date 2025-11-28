@@ -9,9 +9,9 @@ import { MoreButtonProvider } from "../../../components/button/MoreButtonProvide
 import { MoreButton } from "../../../components/button/MoreButton.tsx";
 import WhiteRoundButton from "../../../components/button/WhiteRoundButton.tsx";
 import RightDrawer from "../../../components/drawer/RightDrawer";
-import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
+import TypeAndSelect from "../../../components/input/TypeAndSelect";
 import PageTitle from "../../../components/layout/PageTitle.tsx";
 import Metric from "../../../components/metric/Metric.tsx";
 import CostBreakDown from "../../../components/pricing/CostBreakDown.tsx";
@@ -854,26 +854,22 @@ function GoodsList() {
                                     key={index}
                                     className="col-span-2 grid grid-cols-2 gap-1.5"
                                 >
-                                    <Select
+                                    <TypeAndSelect
                                         value={row.materialId}
-                                        options={[
-                                            { value: "", label: "" },
-                                            ...(materialList?.map(
-                                                (material) => ({
-                                                    value: material.id,
-                                                    label: material.name,
-                                                }),
-                                            ) || []),
-                                        ]}
-                                        disabled={!editingGoodId ? false : true}
-                                        style="top-1/3"
-                                        onChange={(e) =>
+                                        options={
+                                            materialList?.map((material) => ({
+                                                value: material.id,
+                                                label: material.name,
+                                            })) || []
+                                        }
+                                        onChange={(value) =>
                                             updateMaterialRow(
                                                 index,
                                                 "materialId",
-                                                e.target.value,
+                                                value,
                                             )
                                         }
+                                        placeholder="Select or type material..."
                                     />
                                     <div className=" grid grid-cols-[85%_15%] gap-2">
                                         <NumberInput

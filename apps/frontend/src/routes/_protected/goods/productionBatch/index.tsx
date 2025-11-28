@@ -11,7 +11,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useDevAutofill } from "../../../../hooks/useDevAutofill";
 import { demoData } from "../../../../config/demoData";
 
-import Select from "../../../../components/input/Select";
+import TypeAndSelect from "../../../../components/input/TypeAndSelect";
 import Button from "../../../../components/button/Button";
 import AddButton from "../../../../components/button/AddButton";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
@@ -667,22 +667,20 @@ function ProductionBatchList() {
                         error={formErrors.productionDate}
                         placeholder="Select date"
                     ></DatePicker>
-                    <Select
+                    <TypeAndSelect
                         label="Product Made"
                         required={true}
-                        name="product"
                         value={goodId}
-                        disabled={!!editingBatchId}
-                        options={[
-                            { value: "", label: "" },
-                            ...(goods?.map((good) => ({
+                        options={
+                            goods?.map((good) => ({
                                 value: good.id,
                                 label: good.name,
-                            })) || []),
-                        ]}
-                        onChange={(e) => setGoodId(e.target.value)}
+                            })) || []
+                        }
+                        onChange={(value) => setGoodId(value)}
+                        placeholder="Select or type product..."
                         error={formErrors.goodId}
-                    ></Select>
+                    />
 
                     <NumberInput
                         label="Produced Quantity"

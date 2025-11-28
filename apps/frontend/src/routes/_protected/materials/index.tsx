@@ -27,9 +27,9 @@ import DatePicker from "../../../components/input/DatePicker";
 import DisplayValue from "../../../components/input/DisplayValue";
 import MaterialTypeSelector from "../../../components/input/MaterialTypeSelector";
 import NumberInput from "../../../components/input/NumberInput";
-import Select from "../../../components/input/Select";
 import TextArea from "../../../components/input/TextArea";
 import TextInput from "../../../components/input/TextInput";
+import TypeAndSelect from "../../../components/input/TypeAndSelect";
 import PageTitle from "../../../components/layout/PageTitle";
 import Metric from "../../../components/metric/Metric";
 import MetricsGroup from "../../../components/metric/MetricsGroup";
@@ -794,12 +794,11 @@ function MaterialsList() {
                             min="0"
                             step="0.01"
                         ></NumberInput>
-                        <Select
+                        <TypeAndSelect
                             label="Unit*"
-                            name="unit"
-                            style="top-3/5"
+                            required
                             value={unit}
-                            optgroup={
+                            groups={
                                 unitsList
                                     ? Object.entries(
                                           unitsList.reduce(
@@ -824,15 +823,14 @@ function MaterialsList() {
                                               >,
                                           ),
                                       ).map(([category, options]) => ({
-                                          optGroupLabel:
+                                          label:
                                               category.charAt(0).toUpperCase() +
                                               category.slice(1),
-                                          optGroupValues: options,
+                                          options,
                                       }))
-                                    : []
+                                    : undefined
                             }
-                            onChange={(e) => {
-                                const selectedUnitName = e.target.value;
+                            onChange={(selectedUnitName) => {
                                 setUnit(selectedUnitName);
                                 const selectedUnit = unitsList?.find(
                                     (u) => u.name === selectedUnitName,
@@ -841,7 +839,9 @@ function MaterialsList() {
                                     setUnitAbbreviation(selectedUnit.abv);
                                 }
                             }}
-                        ></Select>
+                            placeholder="Select or type unit..."
+                            error={formErrors.unit}
+                        />
                     </div>
                     {/* Pricing Fields - Different for Add vs Edit mode */}
                     {editingMaterialId ? (
