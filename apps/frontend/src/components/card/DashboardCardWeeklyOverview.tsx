@@ -47,7 +47,7 @@ const DashboardCardDailyOverview = ({
                         <span
                             className={`font-semibold ${noInsights ? "text-arvo-white-0" : "text-arvo-blue-100"}`}
                         >
-                            {noInsights ? "No insights yet." : "Today’s info"}
+                            {noInsights ? "No insights yet." : "Weekly info"}
                         </span>
                     </div>
                     <p

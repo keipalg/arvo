@@ -104,16 +104,16 @@ export const generateExpenseBreakdownOverview = async (
     return overview;
 };
 
-export const generateDailySalesOverview = async (
+export const generateWeeklySalesOverview = async (
     userId: string,
     todayRevenue: number,
-    yesterdaySalesRevenue: number,
+    lastWeekSalesRevenue: number,
     mostSellingProduct: string | null,
 ) => {
-    const prompt = `Generate a concise overview based on the following daily sales data:
-        Today's Revenue: $${todayRevenue.toFixed(2)}
-        Yesterday's Revenue: $${yesterdaySalesRevenue.toFixed(2)}
-        Most Selling Product Today: ${mostSellingProduct ?? "N/A"}
+    const prompt = `Generate a concise overview based on the following weekly sales data:
+        This week's Revenue: $${todayRevenue.toFixed(2)}
+        Last week's Revenue: $${lastWeekSalesRevenue.toFixed(2)}
+        Most Selling Product This week: ${mostSellingProduct ?? "N/A"}
     `;
 
     let overview = await checkDashboardOverviewCache(userId, prompt);

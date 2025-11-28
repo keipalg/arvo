@@ -24,7 +24,7 @@ import { trpc } from "../../../utils/trpcClient";
 import DashboardCard from "../../../components/card/DashboardCard";
 import TopSellingTable from "../../../components/table/TopSellingTable";
 import ChartContainer from "../../../components/chart/ChartContainer";
-import DashboardCardDailyOverview from "../../../components/card/DashboardCardDailyOverview";
+import DashboardCardWeeklyOverview from "../../../components/card/DashboardCardWeeklyOverview";
 import MetricsGroup from "../../../components/metric/MetricsGroup";
 import { formatPrice } from "../../../utils/formatPrice";
 
@@ -245,8 +245,8 @@ function RouteComponent() {
     const { data: metricSalesCount, isLoading: metricSalesCountIsLoading } =
         useQuery(trpc.sales.metricTotalSalesCount.queryOptions({ timezone }));
 
-    const { data: dailyOverviews, isLoading: dailyOverviewsIsLoading } =
-        useQuery(trpc.dashboard.dailyOverviews.queryOptions({ timezone }));
+    const { data: weeklyOverviews, isLoading: weeklyOverviewsIsLoading } =
+        useQuery(trpc.dashboard.weeklyOverviews.queryOptions({ timezone }));
 
     const revenueProfitSummaryChartData = {
         labels: ["Revenue", "Expenses", "Profit"],
@@ -383,7 +383,7 @@ function RouteComponent() {
                             : "-"
                     }
                     changePercent={metricRevenue?.profitChange ?? 0}
-                    topText="Total Profit"
+                    topText="Total Monthly Profit"
                     bottomText="compared to last month"
                     showPercentage={metricRevenue?.profitChange != null}
                 />
@@ -394,7 +394,7 @@ function RouteComponent() {
                             : "-"
                     }
                     changePercent={metricRevenue?.change ?? 0}
-                    topText="Total Revenue"
+                    topText="Total Monthly Revenue"
                     bottomText="compared to last month"
                     showPercentage={metricRevenue?.change != null}
                 />
@@ -405,16 +405,16 @@ function RouteComponent() {
                             : "-"
                     }
                     changePercent={metricSalesCount?.change ?? 0}
-                    topText="Total Products Sold"
+                    topText="Total Monthly Products Sold"
                     bottomText="compared to last month"
                     showPercentage={metricSalesCount?.change != null}
                 />
             </MetricsGroup>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-                <DashboardCardDailyOverview
-                    salesOverview={dailyOverviews?.salesOverview ?? null}
-                    isLoading={dailyOverviewsIsLoading}
-                ></DashboardCardDailyOverview>
+                <DashboardCardWeeklyOverview
+                    salesOverview={weeklyOverviews?.salesOverview ?? null}
+                    isLoading={weeklyOverviewsIsLoading}
+                ></DashboardCardWeeklyOverview>
                 <DashboardCard
                     title="Your Monthly Sales, Costs & Earnings"
                     description="Your finances at a glance — earnings, costs, and profit all in one place."
