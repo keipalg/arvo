@@ -13,6 +13,7 @@ import TextInput from "../../../components/input/TextInput";
 import Button from "../../../components/button/Button";
 import WhiteRoundButton from "../../../components/button/WhiteRoundButton";
 import Select from "../../../components/input/Select";
+import TypeAndSelect from "../../../components/input/TypeAndSelect";
 import TextArea from "../../../components/input/TextArea";
 import {
     salesInputValidation,
@@ -987,26 +988,26 @@ function SalesList() {
                                 key={index}
                                 className="grid grid-cols-[1fr_24px] gap-x-2 gap-y-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_24px] sm:gap-2"
                             >
-                                <Select
+                                <TypeAndSelect
                                     label="Product"
                                     value={row.productId}
-                                    options={[
-                                        { value: "", label: "" },
-                                        ...(productList
+                                    options={
+                                        productList
                                             ? productList.map((product) => ({
                                                   value: product.id,
                                                   label: product.name,
                                               }))
-                                            : []),
-                                    ]}
-                                    onChange={(e) =>
+                                            : []
+                                    }
+                                    onChange={(value) =>
                                         updateProductRow(
                                             index,
                                             "productId",
-                                            e.target.value,
+                                            value,
                                         )
                                     }
-                                ></Select>
+                                    placeholder="Select or type product..."
+                                />
 
                                 <button
                                     type="button"

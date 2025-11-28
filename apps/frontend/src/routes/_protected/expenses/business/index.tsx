@@ -14,7 +14,7 @@ import Button from "../../../../components/button/Button";
 import { useEffect, useState } from "react";
 import RightDrawer from "../../../../components/drawer/RightDrawer";
 import TextInput from "../../../../components/input/TextInput";
-import Select from "../../../../components/input/Select";
+import TypeAndSelect from "../../../../components/input/TypeAndSelect";
 import TextArea from "../../../../components/input/TextArea";
 import { Switcher } from "../../../../components/button/Switcher";
 import PageTitle from "../../../../components/layout/PageTitle";
@@ -313,15 +313,10 @@ function BusinessExpense() {
         }
 
         setDueDateOptions(options);
-        setBusinessExpenseFormData((prev) => {
-            if (!prev.due_date) {
-                return {
-                    ...prev,
-                    due_date: new Date(options[0].value),
-                };
-            }
-            return prev;
-        });
+        setBusinessExpenseFormData((prev) => ({
+            ...prev,
+            due_date: new Date(options[0].value),
+        }));
 
         console.log("dueDateOptions", options);
     }, [
@@ -1136,27 +1131,14 @@ function BusinessExpense() {
                         error={validationError.createdAt}
                         placeholder="Select date"
                     />
-                    <Select
-                        name="expense_type"
+                    <TypeAndSelect
                         label="Expense Type*"
+                        required
                         value={businessExpenseFormData.expense_type}
-                        onChange={(e) => {
-                            setBusinessExpenseFormData(
-                                (prev) =>
-                                    ({
-                                        ...prev,
-                                        expense_category:
-                                            e.target.options[
-                                                e.target.selectedIndex
-                                            ].dataset.expensecategory,
-                                        expense_type: e.target.value,
-                                    }) as BusinessExpense,
-                            );
-                        }}
-                        optgroup={[
+                        groups={[
                             {
-                                optGroupLabel: "Operational Expenses",
-                                optGroupValues: [
+                                label: "Operational Expenses",
+                                options: [
                                     { label: "Marketing", value: "marketing" },
                                     {
                                         label: "Business Fee",
@@ -1181,14 +1163,18 @@ function BusinessExpense() {
                                         value: "inventory_loss",
                                     },
                                     {
+                                        label: "Event Fees",
+                                        value: "event_fees",
+                                    },
+                                    {
                                         label: "Miscellaneous",
                                         value: "miscellaneous",
                                     },
                                 ],
                             },
                             {
-                                optGroupLabel: "Overhead Expenses",
-                                optGroupValues: [
+                                label: "Overhead Expenses",
+                                options: [
                                     {
                                         label: "Space Rent",
                                         value: "space_rent",
@@ -1208,6 +1194,33 @@ function BusinessExpense() {
                                 ],
                             },
                         ]}
+                        onChange={(value) => {
+                            // Determine expense category based on the selected value
+                            const isOperational = [
+                                "marketing",
+                                "business_fee",
+                                "utilities",
+                                "office_supplies",
+                                "studio_rent",
+                                "labor",
+                                "storage_fee",
+                                "inventory_loss",
+                                "miscellaneous",
+                                "event_fees",
+                            ].includes(value);
+
+                            setBusinessExpenseFormData(
+                                (prev) =>
+                                    ({
+                                        ...prev,
+                                        expense_category: isOperational
+                                            ? "Operational Expenses"
+                                            : "Overhead Expenses",
+                                        expense_type: value,
+                                    }) as BusinessExpense,
+                            );
+                        }}
+                        placeholder="Select or type expense type..."
                     />
                     {businessExpenseFormData.expense_type ==
                     "inventory_loss" ? (
@@ -1274,17 +1287,15 @@ function BusinessExpense() {
                             </div>
                             {businessExpenseFormData.selectedInventoryLossOption ===
                             "goods_loss" ? (
-                                <Select
-                                    name="goods"
+                                <TypeAndSelect
                                     label="Product"
                                     value={
                                         businessExpenseFormData.good_id ?? ""
                                     }
                                     error={validationError.good_id}
-                                    onChange={(e) => {
+                                    onChange={(value) => {
                                         const selectedGoods = goodsList?.find(
-                                            (goods) =>
-                                                goods.id === e.target.value,
+                                            (goods) => goods.id === value,
                                         );
 
                                         setBusinessExpenseFormData((prev) => ({
@@ -1292,7 +1303,7 @@ function BusinessExpense() {
                                             selectedInventoryLossOption:
                                                 "goods_loss",
                                             quantity: 0,
-                                            good_id: e.target.value,
+                                            good_id: value,
                                             selectedInventoryLossMaxQuantity:
                                                 selectedGoods?.inventoryQuantity ||
                                                 0,
@@ -1300,40 +1311,33 @@ function BusinessExpense() {
                                             name:
                                                 goodsList?.find(
                                                     (goods) =>
-                                                        goods.id ===
-                                                        e.target.value,
+                                                        goods.id === value,
                                                 )?.name || prev.name,
                                         }));
                                     }}
                                     options={
-                                        goodsList
-                                            ?.map((goods) => {
-                                                return {
-                                                    label: goods.name,
-                                                    value: goods.id,
-                                                };
-                                            })
-                                            .concat({
-                                                label: "-- Select Product --",
-                                                value: "",
-                                            }) ?? []
+                                        goodsList?.map((goods) => {
+                                            return {
+                                                label: goods.name,
+                                                value: goods.id,
+                                            };
+                                        }) ?? []
                                     }
+                                    placeholder="Select or type product..."
                                 />
                             ) : (
-                                <Select
-                                    name="materials"
+                                <TypeAndSelect
                                     label="Material"
                                     value={
                                         businessExpenseFormData.materialAndSupply_id ??
                                         ""
                                     }
                                     error={validationError.materialAndSupply_id}
-                                    onChange={(e) => {
+                                    onChange={(value) => {
                                         const selectedMaterial =
                                             materialsList?.find(
                                                 (materials) =>
-                                                    materials.id ===
-                                                    e.target.value,
+                                                    materials.id === value,
                                             );
 
                                         setBusinessExpenseFormData((prev) => ({
@@ -1341,8 +1345,7 @@ function BusinessExpense() {
                                             selectedInventoryLossOption:
                                                 "materials_loss",
                                             quantity: 0,
-                                            materialAndSupply_id:
-                                                e.target.value,
+                                            materialAndSupply_id: value,
                                             good_id: "",
                                             selectedInventoryLossMaxQuantity:
                                                 selectedMaterial?.quantity || 0,
@@ -1356,18 +1359,14 @@ function BusinessExpense() {
                                         }));
                                     }}
                                     options={
-                                        materialsList
-                                            ?.map((materials) => {
-                                                return {
-                                                    label: materials.name,
-                                                    value: materials.id,
-                                                };
-                                            })
-                                            .concat({
-                                                label: "-- Select Material --",
-                                                value: "",
-                                            }) ?? []
+                                        materialsList?.map((materials) => {
+                                            return {
+                                                label: materials.name,
+                                                value: materials.id,
+                                            };
+                                        }) ?? []
                                     }
+                                    placeholder="Select or type material..."
                                 />
                             )}
                             <NumberInput
@@ -1474,21 +1473,21 @@ function BusinessExpense() {
                                 }}
                                 error={validationError.payee}
                             />
-                            <Select
-                                name="payment_method"
+                            <TypeAndSelect
                                 label="Payment Method"
                                 value={businessExpenseFormData.payment_method}
-                                onChange={(e) => {
+                                onChange={(value) => {
                                     setBusinessExpenseFormData((prev) => ({
                                         ...prev,
-                                        payment_method: e.target
-                                            .value as typeof businessExpenseFormData.payment_method,
+                                        payment_method:
+                                            value as typeof businessExpenseFormData.payment_method,
                                     }));
                                 }}
                                 options={[
                                     { label: "Credit", value: "credit" },
                                     { label: "Cash", value: "cash" },
                                 ]}
+                                placeholder="Select or type payment method..."
                             />
                             <FileInput
                                 label="Attach Receipt"
@@ -1530,19 +1529,18 @@ function BusinessExpense() {
                                 }}
                             >
                                 <>
-                                    <Select
-                                        name="repeat_every"
+                                    <TypeAndSelect
                                         label="Repeat Every"
                                         value={
                                             businessExpenseFormData.repeat_every ||
                                             ""
                                         }
-                                        onChange={(e) => {
+                                        onChange={(value) => {
                                             setBusinessExpenseFormData(
                                                 (prev) => ({
                                                     ...prev,
-                                                    repeat_every: e.target
-                                                        .value as BusinessExpense["repeat_every"],
+                                                    repeat_every:
+                                                        value as BusinessExpense["repeat_every"],
                                                 }),
                                             );
                                         }}
@@ -1569,6 +1567,7 @@ function BusinessExpense() {
                                                 value: "yearly",
                                             },
                                         ]}
+                                        placeholder="Select or type frequency..."
                                     />
                                     <DatePicker
                                         label="Start Date"
@@ -1591,8 +1590,7 @@ function BusinessExpense() {
                                             );
                                         }}
                                     />
-                                    <Select
-                                        name="due_date"
+                                    <TypeAndSelect
                                         label="Due Date"
                                         value={
                                             businessExpenseFormData.due_date
@@ -1601,17 +1599,16 @@ function BusinessExpense() {
                                                   )
                                                 : ""
                                         }
-                                        onChange={(e) => {
+                                        onChange={(value) => {
                                             setBusinessExpenseFormData(
                                                 (prev) => ({
                                                     ...prev,
-                                                    due_date: new Date(
-                                                        e.target.value,
-                                                    ),
+                                                    due_date: new Date(value),
                                                 }),
                                             );
                                         }}
                                         options={dueDateOptions}
+                                        placeholder="Select or type due date..."
                                     />
                                 </>
                             </Switcher>
