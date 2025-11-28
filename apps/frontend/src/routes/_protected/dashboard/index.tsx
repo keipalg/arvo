@@ -410,10 +410,11 @@ function RouteComponent() {
                     showPercentage={metricSalesCount?.change != null}
                 />
             </MetricsGroup>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-12 gap-6 mt-6">
                 <DashboardCardWeeklyOverview
                     salesOverview={weeklyOverviews?.salesOverview ?? null}
                     isLoading={weeklyOverviewsIsLoading}
+                    className="xl:col-span-6"
                 ></DashboardCardWeeklyOverview>
                 <DashboardCard
                     title="Your Monthly Sales, Costs & Earnings"
@@ -423,6 +424,7 @@ function RouteComponent() {
                             ? String(revenueProfitSummaryOverview.overview)
                             : ""
                     }
+                    className="xl:col-span-6"
                 >
                     <ChartContainer>
                         <Bar
@@ -437,7 +439,7 @@ function RouteComponent() {
                     overview={
                         revenueProfitSummary6MonthsOverview?.overview ?? ""
                     }
-                    className="sm:col-span-2"
+                    className="sm:col-span-2 xl:col-span-12"
                 >
                     <ChartContainer>
                         <Chart
@@ -451,19 +453,25 @@ function RouteComponent() {
                 <DashboardCard
                     title="Top Selling Products"
                     description="Your best-performing items this period."
+                    className="sm:col-span-2 xl:col-span-7"
                 >
                     <TopSellingTable data={topSellingProductsData ?? []} />
                 </DashboardCard>
                 <DashboardCard
                     title="Low-Selling Products"
                     description="Slow sellers — great for a little boost."
+                    className="sm:col-span-2 xl:col-span-5"
                 >
-                    <TopSellingTable data={lowSellingProductsData ?? []} />
+                    <TopSellingTable
+                        data={lowSellingProductsData ?? []}
+                        showPopularity={false}
+                    />
                 </DashboardCard>
                 <DashboardCard
                     title="Your Expense Breakdown"
                     description="See where your money went this month."
                     overview={expenseBreakdownOverview?.overview ?? ""}
+                    className="xl:col-span-6"
                 >
                     <ChartContainer>
                         <Doughnut
@@ -476,6 +484,7 @@ function RouteComponent() {
                     title="Product In, Product Out"
                     description="See if you’re making more than you’re selling."
                     overview={productionInOutOverview?.overview ?? ""}
+                    className="xl:col-span-6"
                 >
                     <ChartContainer>
                         <Bar
