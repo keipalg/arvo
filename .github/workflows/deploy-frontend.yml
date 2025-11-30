@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
 jobs:
-  build-and-deploy:
+  build:
     environment: production
     runs-on: ubuntu-latest
     concurrency:
@@ -26,7 +26,23 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_URL: ${{ vars.BACKEND_BASE_URL }}
+          
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
 
+  deploy_firebase:
+    needs: build
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+        
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -34,3 +50,23 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" 
           channelId: live
           entryPoint: "apps/frontend"
+
+  deploy_plesk:
+    needs: build
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+        
+      - name: Deploy to Plesk
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ vars.PLESK_FTP_HOST }}
+          username: ${{ secrets.PLESK_FTP_USER }}
+          password: ${{ secrets.PLESK_FTP_PASSWORD }}
+          local-dir: dist/
+          server-dir: /httpdocs/
+  
