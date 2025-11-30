@@ -50,7 +50,6 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" 
           channelId: live
-          entryPoint: "apps/frontend"
 
   deploy_plesk:
     environment: production
@@ -59,7 +58,7 @@ jobs:
       
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: dist
         
@@ -69,6 +68,6 @@ jobs:
           server: ${{ vars.PLESK_FTP_HOST }}
           username: ${{ secrets.PLESK_FTP_USER }}
           password: ${{ secrets.PLESK_FTP_PASSWORD }}
-          local-dir: dist/
+          local-dir: ./dist/
           server-dir: /httpdocs/
   
