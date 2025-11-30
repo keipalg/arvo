@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
 jobs:
-  build:
+  build-and-deploy:
     environment: production
     runs-on: ubuntu-latest
     concurrency:
@@ -26,48 +26,11 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_URL: ${{ vars.BACKEND_BASE_URL }}
-          
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: apps/frontend/dist/
 
-  deploy_firebase:
-    environment: production
-    needs: build
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-        
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" 
           channelId: live
-
-  deploy_plesk:
-    environment: production
-    needs: build
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: dist
-        
-      - name: Deploy to Plesk
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-        with:
-          server: ${{ vars.PLESK_FTP_HOST }}
-          username: ${{ secrets.PLESK_FTP_USER }}
-          password: ${{ secrets.PLESK_FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: /httpdocs/
-  
+          entryPoint: "apps/frontend"
