@@ -43,6 +43,7 @@ import MetricsGroup from "../../../components/metric/MetricsGroup.tsx";
 import { useDevAutofill } from "../../../hooks/useDevAutofill.ts";
 import { demoData } from "../../../config/demoData.ts";
 import LoadingSpinner from "../../../components/loading/LoadingSpinner";
+import ProductImage from "../../../components/image/ProductImage.tsx";
 
 export const Route = createFileRoute("/_protected/goods/")({
     component: GoodsList,
@@ -170,23 +171,7 @@ function GoodsList() {
             key: "image",
             header: "Product Photo",
             render: (value) => {
-                return (
-                    <div className="h-16 w-24 flex justify-center m-auto rounded">
-                        {value ? (
-                            <img
-                                src={value as string}
-                                alt="Product"
-                                className="h-16 w-24 object-cover rounded"
-                            />
-                        ) : (
-                            <img
-                                src="/icon/icon-photo.svg"
-                                alt="No Image"
-                                className="h-16 w-24 object-contain"
-                            />
-                        )}
-                    </div>
-                );
+                return <ProductImage imgSrc={value as string} />;
             },
         },
         {

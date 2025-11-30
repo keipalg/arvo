@@ -2,17 +2,21 @@ type DashboardCardProps = {
     salesOverview: string | null;
     isLoading?: boolean;
     children?: React.ReactNode;
+    className?: string;
 };
 
 const DashboardCardDailyOverview = ({
     salesOverview,
     isLoading,
+    className,
 }: DashboardCardProps) => {
     const noInsights = !salesOverview || salesOverview.length === 0;
 
     if (isLoading) {
         return (
-            <div className="rounded-2xl p-4 shadow-md bg-arvo-white-100 border-arvo-black-10 animate-pulse">
+            <div
+                className={`rounded-2xl p-4 shadow-md bg-arvo-white-100 border-arvo-black-10 animate-pulse ${className || ""}`}
+            >
                 <div className="p-4 flex items-center">
                     <div className="flex flex-col w-full gap-3">
                         <div className="h-6 w-40 bg-arvo-black-10 rounded-md"></div>
@@ -30,7 +34,7 @@ const DashboardCardDailyOverview = ({
                 noInsights
                     ? "bg-arvo-black-5"
                     : "bg-arvo-blue-20 border-arvo-blue-100 border"
-            }`}
+            } ${className || ""}`}
         >
             <div className="p-4 flex items-center">
                 <div className="flex flex-col">
