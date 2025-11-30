@@ -7,15 +7,15 @@ import {
     dashboardExpenseBreakdownOverviewValidation,
 } from "@arvo/shared";
 import {
-    generateDailySalesOverview,
     generateExpenseBreakdownOverview,
+    generateWeeklySalesOverview,
     generateProductionInOutOverview,
     generateRevenueProfitSummary6MonthsOverview,
     generateRevenueProfitSummaryOverview,
 } from "../service/dashboardOverviewService.js";
 import {
-    getDailyMostSellingProduct,
-    getDailySalesRevenue,
+    getWeeklyMostSellingProduct,
+    getWeeklySalesRevenue,
     getMonthlySalesRevenue,
 } from "../service/salesService.js";
 import {
@@ -303,28 +303,28 @@ export const dashboardRouter = router({
                 overview: overview,
             };
         }),
-    dailyOverviews: protectedProcedure
+    weeklyOverviews: protectedProcedure
         .input(dashboardTimezoneValidation)
         .query(async ({ ctx, input }) => {
             try {
-                const [
-                    salesRevenue,
-                    yesterdaySalesRevenue,
-                    mostSellingProduct,
-                ] = await Promise.all([
-                    getDailySalesRevenue(ctx.user.id, input.timezone, 0),
-                    getDailySalesRevenue(ctx.user.id, input.timezone, -1),
-                    getDailyMostSellingProduct(ctx.user.id, input.timezone),
-                ]);
+                const [salesRevenue, lastWeekSalesRevenue, mostSellingProduct] =
+                    await Promise.all([
+                        getWeeklySalesRevenue(ctx.user.id, input.timezone, 0),
+                        getWeeklySalesRevenue(ctx.user.id, input.timezone, -1),
+                        getWeeklyMostSellingProduct(
+                            ctx.user.id,
+                            input.timezone,
+                        ),
+                    ]);
 
                 let salesOverview = null;
                 if (salesRevenue.totalRevenue == null) {
                     salesOverview = null;
                 } else {
-                    salesOverview = await generateDailySalesOverview(
+                    salesOverview = await generateWeeklySalesOverview(
                         ctx.user.id,
                         Number(salesRevenue.totalRevenue),
-                        Number(yesterdaySalesRevenue.totalRevenue),
+                        Number(lastWeekSalesRevenue.totalRevenue),
                         mostSellingProduct.goodName,
                     );
                 }

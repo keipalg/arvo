@@ -18,7 +18,7 @@ import {
 import { v7 as uuidv7 } from "uuid";
 import { db, type NeonDbTx } from "../db/client.js";
 import {
-    getDayRangeInTimezone,
+    getPastWeekRangeInTimezone,
     getMonthRangeInTimezone,
 } from "../utils/datetimeUtil.js";
 import { createProductLowInventoryNotification } from "./notificationsService.js";
@@ -288,12 +288,12 @@ export const getMonthlySalesCount = async (
     return summary[0].count ?? 0;
 };
 
-export const getDailySalesRevenue = async (
+export const getWeeklySalesRevenue = async (
     userId: string,
     timezone: string,
     offset: number = 0,
 ) => {
-    const { start: startOfDay, end: endOfDay } = getDayRangeInTimezone(
+    const { start: startOfDay, end: endOfDay } = getPastWeekRangeInTimezone(
         timezone,
         offset,
     );
@@ -313,11 +313,11 @@ export const getDailySalesRevenue = async (
     return result[0] ?? { totalRevenue: 0, totalProfit: 0 };
 };
 
-export const getDailyMostSellingProduct = async (
+export const getWeeklyMostSellingProduct = async (
     userId: string,
     timezone: string,
 ) => {
-    const targetDay = getDayRangeInTimezone(timezone, 0);
+    const targetDay = getPastWeekRangeInTimezone(timezone, 0);
 
     const results = await db
         .select({
