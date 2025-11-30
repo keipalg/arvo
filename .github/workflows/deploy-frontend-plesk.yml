@@ -1,0 +1,37 @@
+name: Arvo Frontend Deployment (Firebase Hosting)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+jobs:
+  build-and-deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'deploy-frontend-plesk-prod'
+      cancel-in-progress: true
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v5'
+    
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+  
+      - name: Build Vite app
+        run: npm run build
+        env:
+          VITE_BASE_URL: ${{ vars.BACKEND_BASE_URL }}
+
+      - name: Deploy to Plesk
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ vars.PLESK_FTP_HOST }}
+          username: ${{ secrets.PLESK_FTP_USER }}
+          password: ${{ secrets.PLESK_FTP_PASSWORD }}
+          local-dir: ./apps/frontend/dist/
+          server-dir: /httpdocs/
