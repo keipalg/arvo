@@ -216,6 +216,15 @@ function RouteComponent() {
         trpc.dashboard.expenseBreakdown.queryOptions({ timezone }),
     );
 
+    const { data: expenseBreakdownOverview } = useQuery(
+        trpc.dashboard.expenseBreakdownOverview.queryOptions(
+            {
+                expenseBreakdownData: expenseBreakdownData ?? [],
+            },
+            { enabled: !!expenseBreakdownData },
+        ),
+    );
+
     const { data: productionInOutData } = useQuery(
         trpc.dashboard.productionInOut.queryOptions({ timezone }),
     );
@@ -454,6 +463,7 @@ function RouteComponent() {
                 <DashboardCard
                     title="Your Expense Breakdown"
                     description="See where your money went this month."
+                    overview={expenseBreakdownOverview?.overview ?? ""}
                 >
                     <ChartContainer>
                         <Doughnut

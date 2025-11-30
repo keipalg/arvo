@@ -4,9 +4,11 @@ import {
     dashboardSellingItemsTableValidation,
     dashboardRevenueProfitSummary6MonthsOverviewValidation,
     productionInOutOverviewValidation,
+    dashboardExpenseBreakdownOverviewValidation,
 } from "@arvo/shared";
 import {
     generateDailySalesOverview,
+    generateExpenseBreakdownOverview,
     generateProductionInOutOverview,
     generateRevenueProfitSummary6MonthsOverview,
     generateRevenueProfitSummaryOverview,
@@ -215,9 +217,24 @@ export const dashboardRouter = router({
                     ),
                 ]);
 
+            const totalMaterialExpensesWithLabel =
+                totalMaterialExpense === 0
+                    ? []
+                    : [
+                          {
+                              expenseType: String(
+                                  MaterialExpenseTypes.materials,
+                              ),
+                              expenseTypeLabel: String(
+                                  MaterialExpenseTypes.materials.label,
+                              ),
+                              totalExpense: totalMaterialExpense,
+                          },
+                      ];
+
             const totalBusinessExpensesWithLabel = totalBusinessExpenses.map(
                 (expense) => ({
-                    expenceType: expense.expenceType,
+                    expenseType: String(expense.expenceType),
                     expenseTypeLabel: String(
                         OperationalExpenseTypes[expense.expenceType].label,
                     ),
@@ -227,14 +244,10 @@ export const dashboardRouter = router({
 
             const expenseBreakdown = [
                 ...totalBusinessExpensesWithLabel,
-                {
-                    expenceType: MaterialExpenseTypes.materials,
-                    expenseTypeLabel: String(
-                        MaterialExpenseTypes.materials.label,
-                    ),
-                    totalExpense: totalMaterialExpense,
-                },
+                ...totalMaterialExpensesWithLabel,
             ];
+
+            console.log("Expense Breakdown:", expenseBreakdown);
 
             const sortedExpenseBreakdown = expenseBreakdown.sort(
                 (a, b) =>
@@ -242,6 +255,22 @@ export const dashboardRouter = router({
             );
 
             return sortedExpenseBreakdown;
+        }),
+    expenseBreakdownOverview: protectedProcedure
+        .input(dashboardExpenseBreakdownOverviewValidation)
+        .query(async ({ ctx, input }) => {
+            if (input.expenseBreakdownData.length === 0) {
+                return {
+                    overview:
+                        "Start logging your expenses to see where your money is going.",
+                };
+            }
+
+            const overview = await generateExpenseBreakdownOverview(
+                ctx.user.id,
+                input.expenseBreakdownData,
+            );
+            return { overview: overview };
         }),
     productionInOut: protectedProcedure
         .input(dashboardTimezoneValidation)

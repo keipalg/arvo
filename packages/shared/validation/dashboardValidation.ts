@@ -45,6 +45,16 @@ export const productionInOutOverviewValidation = z.object({
     totalSold: z.number(),
 });
 
+export const dashboardExpenseBreakdownOverviewValidation = z.object({
+    expenseBreakdownData: z.array(
+        z.object({
+            expenseType: z.string(),
+            expenseTypeLabel: z.string(),
+            totalExpense: z.number(),
+        }),
+    ),
+});
+
 export type DashboardTimezoneInput = z.infer<
     typeof dashboardTimezoneValidation
 >;
