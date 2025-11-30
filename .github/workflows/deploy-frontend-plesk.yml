@@ -1,4 +1,4 @@
-name: Arvo Frontend Deployment (Firebase Hosting)
+name: Arvo Frontend Deployment (Plesk)
 on:
   workflow_dispatch:
   push:
@@ -35,3 +35,4 @@ jobs:
           password: ${{ secrets.PLESK_FTP_PASSWORD }}
           local-dir: ./apps/frontend/dist/
           server-dir: /httpdocs/
+          state-name: /syncstate/.sync-state.json
