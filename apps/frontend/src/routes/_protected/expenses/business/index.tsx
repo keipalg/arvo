@@ -885,11 +885,11 @@ function BusinessExpense() {
                 if (!str) return <span>-</span>;
 
                 return highlightValues.includes(str) ? (
-                    <span className="capitalize bg-arvo-blue-80 text-white rounded-xl px-2 py-1 whitespace-nowrap">
+                    <span className="capitalize bg-arvo-blue-80 text-white inline-block px-2.5 font-semibold py-0.5 rounded-lg">
                         {str.replace("_", " ")}
                     </span>
                 ) : (
-                    <span className="capitalize bg-arvo-orange-50 text-arvo-orange-100 rounded-xl px-2 py-1 whitespace-nowrap">
+                    <span className="capitalize bg-arvo-orange-50 text-arvo-orange-100 inline-block px-2.5 font-semibold py-0.5 rounded-lg">
                         {str.replace("_", " ")}
                     </span>
                 );

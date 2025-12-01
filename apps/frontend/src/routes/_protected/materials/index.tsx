@@ -795,7 +795,7 @@ function MaterialsList() {
                             step="0.01"
                         ></NumberInput>
                         <TypeAndSelect
-                            label="Unit*"
+                            label="Unit"
                             required
                             value={unit}
                             groups={
