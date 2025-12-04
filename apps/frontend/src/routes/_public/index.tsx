@@ -801,7 +801,7 @@ function Index() {
                                             missed sales.
                                         </motion.p>
                                         <motion.div
-                                            className="absolute -right-20 w-40 md:block hidden"
+                                            className="absolute -right-20 w-40 bottom-40 md:block hidden"
                                             initial={{ scale: 0, opacity: 0 }}
                                             animate={
                                                 activeIndex === 0
@@ -902,7 +902,7 @@ function Index() {
                                         </motion.div>
                                     </div>
                                     <motion.div
-                                        className="basis-6/10 md:pt-10 pb-10"
+                                        className="basis-6/10 md:pt-20 pb-20"
                                         initial={{ y: 30, opacity: 0 }}
                                         animate={
                                             activeIndex === 0
@@ -984,7 +984,7 @@ function Index() {
                                             gives you more time for your craft.
                                         </motion.p>
                                         <motion.div
-                                            className="absolute -right-20 w-40 md:block hidden"
+                                            className="absolute -right-20 w-40 bottom-40 md:block hidden"
                                             initial={{ scale: 0, opacity: 0 }}
                                             animate={
                                                 activeIndex === 1
@@ -1085,7 +1085,7 @@ function Index() {
                                         </motion.div>
                                     </div>
                                     <motion.div
-                                        className="basis-6/10 md:pt-10 pb-10"
+                                        className="basis-6/10 md:pt-20 pb-20"
                                         initial={{ y: 30, opacity: 0 }}
                                         animate={
                                             activeIndex === 1
@@ -1167,7 +1167,7 @@ function Index() {
                                             making progress easy to see.
                                         </motion.p>
                                         <motion.div
-                                            className="absolute -right-20 w-40 md:block hidden"
+                                            className="absolute -right-20 w-40 bottom-40 md:block hidden"
                                             animate={
                                                 activeIndex === 2
                                                     ? {
@@ -1240,7 +1240,7 @@ function Index() {
                                         </motion.div>
                                     </div>
                                     <motion.div
-                                        className="basis-6/10 md:pt-10 pb-10"
+                                        className="basis-6/10 md:pt-20 pb-20"
                                         initial={{ y: 30, opacity: 0 }}
                                         animate={
                                             activeIndex === 2
@@ -1833,7 +1833,7 @@ function Index() {
                     >
                         {/* Anne */}
                         <motion.div
-                            className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -1863,14 +1863,12 @@ function Index() {
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
-                                <span className="text-xs md:text-base">
-                                    in/annecalija
-                                </span>
+                                <span className="text-xs">in/annecalija</span>
                             </div>
                         </motion.div>
                         {/* Kana */}
                         <motion.div
-                            className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -1905,7 +1903,7 @@ function Index() {
                         </motion.div>
                         {/* Keita Otsuka */}
                         <motion.div
-                            className="relative text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-3 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="relative text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-3 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -1940,7 +1938,7 @@ function Index() {
                         </motion.div>
                         {/* Kanta Nagai */}
                         <motion.div
-                            className="text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-15 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-15 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -1972,7 +1970,7 @@ function Index() {
                         </motion.div>
                         {/* Unna Regino */}
                         <motion.div
-                            className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -2007,7 +2005,7 @@ function Index() {
                         </motion.div>
                         {/* Jan Oducayen */}
                         <motion.div
-                            className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -2042,7 +2040,7 @@ function Index() {
                         </motion.div>
                         {/* Kausalya Parahitha */}
                         <motion.div
-                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -2070,15 +2068,13 @@ function Index() {
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
                                 <span className="text-xs">
-                                    in/kausalya-
-                                    <br className="block md:hidden" />
-                                    narendraswari
+                                    in/kausalya-narendraswari
                                 </span>
                             </div>
                         </motion.div>
                         {/* Pinkaew Nawanukool */}
                         <motion.div
-                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -2110,7 +2106,7 @@ function Index() {
                         </motion.div>
                         {/* Vaishanvi Yelai */}
                         <motion.div
-                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 col-span-full cursor-pointer hover:scale-105 transition-transform duration-300"
+                            className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 col-span-full cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
@@ -2139,8 +2135,6 @@ function Index() {
                                 </div>
                                 <span className="text-xs">
                                     in/vaishnavi-yelai
-                                    <br />
-                                    -5b60a7270
                                 </span>
                             </div>
                         </motion.div>
