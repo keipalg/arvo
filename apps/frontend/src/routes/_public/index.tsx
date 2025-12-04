@@ -8,6 +8,7 @@ import { EffectCoverflow, EffectCreative, Pagination } from "swiper/modules";
 import { useIsSmUp } from "../../utils/screenWidth";
 
 import {
+    easeOut,
     motion,
     useMotionValueEvent,
     useScroll,
@@ -86,7 +87,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 0.75,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.25,
             },
         },
@@ -102,7 +103,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 0.75,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.5,
             },
         },
@@ -118,7 +119,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 0.75,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -136,7 +137,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 2,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 1,
             },
         },
@@ -210,7 +211,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
             },
         },
     };
@@ -224,7 +225,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.25,
             },
         },
@@ -239,7 +240,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.5,
             },
         },
@@ -254,7 +255,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -288,7 +289,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.25,
             },
         },
@@ -303,7 +304,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.5,
             },
         },
@@ -318,7 +319,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -333,7 +334,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -367,7 +368,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.25,
             },
         },
@@ -387,7 +388,7 @@ function Index() {
             scale: 1,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
             },
         },
     };
@@ -421,7 +422,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.25,
             },
         },
@@ -436,7 +437,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.5,
             },
         },
@@ -451,7 +452,7 @@ function Index() {
             y: 0,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -466,7 +467,7 @@ function Index() {
             scale: 1,
             transition: {
                 duration: 1,
-                ease: "easeOut",
+                ease: easeOut,
                 delay: 0.75,
             },
         },
@@ -767,7 +768,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             Keep Your Inventory Organized
@@ -789,7 +790,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             No more guessing what’s in stock.
@@ -816,7 +817,7 @@ function Index() {
                                             transition={{
                                                 delay: 1,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -841,7 +842,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -866,7 +867,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -891,7 +892,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -917,7 +918,7 @@ function Index() {
                                         transition={{
                                             delay: 0.75,
                                             duration: 0.5,
-                                            ease: "easeOut",
+                                            ease: easeOut,
                                         }}
                                     >
                                         <div className="">
@@ -950,7 +951,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             Know Your Cost,
@@ -974,7 +975,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             Arvo helps you see what your work is
@@ -999,7 +1000,7 @@ function Index() {
                                             transition={{
                                                 delay: 1,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1024,7 +1025,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1049,7 +1050,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1074,7 +1075,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.75,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1100,7 +1101,7 @@ function Index() {
                                         transition={{
                                             delay: 0.75,
                                             duration: 0.5,
-                                            ease: "easeOut",
+                                            ease: easeOut,
                                         }}
                                     >
                                         <div className="">
@@ -1133,7 +1134,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             Visualize Growth, <br />
@@ -1156,7 +1157,7 @@ function Index() {
                                             transition={{
                                                 delay: 0.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             Arvo turns your data into clear
@@ -1181,7 +1182,7 @@ function Index() {
                                             transition={{
                                                 delay: 1,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1205,7 +1206,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.25,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1229,7 +1230,7 @@ function Index() {
                                             transition={{
                                                 delay: 1.5,
                                                 duration: 0.5,
-                                                ease: "easeOut",
+                                                ease: easeOut,
                                             }}
                                         >
                                             <img
@@ -1255,7 +1256,7 @@ function Index() {
                                         transition={{
                                             delay: 0.75,
                                             duration: 0.5,
-                                            ease: "easeOut",
+                                            ease: easeOut,
                                         }}
                                     >
                                         <div className="">
@@ -2190,11 +2191,11 @@ function Index() {
                                 hasAnimatedForBehindScene ? "visible" : "hidden"
                             }
                         >
-                            <Link to="https://www.figma.com/design/ol2HPsXQEoK1o4USlTVdiY/Arvo-Design-Process-2025?node-id=0-1&t=yILwfkkzohSsnfv7-1">
-                                <div
-                                    className="mt-6 text-center md:text-left"
-                                    target="_blank"
-                                >
+                            <Link
+                                to="https://www.figma.com/design/ol2HPsXQEoK1o4USlTVdiY/Arvo-Design-Process-2025?node-id=0-1&t=yILwfkkzohSsnfv7-1"
+                                target="_blank"
+                            >
+                                <div className="mt-6 text-center md:text-left">
                                     <button className="font-semibold text-arvo-white-0 rounded-2xl border-2 border-arvo-blue-100 bg-arvo-blue-100 w-40 h-12 cursor-pointer">
                                         Figma Project
                                     </button>
