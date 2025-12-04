@@ -59,13 +59,15 @@ function Login() {
             </div>
             <div className="md:basis-1/2 basis-full h-full flex flex-col items-center justify-center p-3">
                 <div className="w-1/3 mb-8">
-                    <img src="/arvo-logo.svg" alt="Arvo Logo" />
+                    <Link to="/">
+                        <img src="/arvo-logo.svg" alt="Arvo Logo" />
+                    </Link>
                 </div>
                 <form
                     onSubmit={handleSubmit}
                     className="w-2/3 flex flex-col items-stretch"
                 >
-                    <h3 className="text-2xl font-semibold">Sign In</h3>
+                    <h3 className="text-2xl font-semibold">Log In</h3>
                     <div className="flex gap-1 text-sm text-gray-500">
                         <p>Don&apos;t have an account?</p>
                         <Link
