@@ -1835,6 +1835,12 @@ function Index() {
                         <motion.div
                             className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/annecalija/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -1851,15 +1857,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 Full-stack Developer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/annecalija/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -1870,6 +1868,12 @@ function Index() {
                         <motion.div
                             className="relative text-center grid gap-1 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/kanako-taga/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -1886,15 +1890,7 @@ function Index() {
                             <div className="flex items-center justify-center  gap-2 text-xs md:text-sm font-semibold">
                                 Full-stack Developer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/kanako-taga/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -1905,6 +1901,12 @@ function Index() {
                         <motion.div
                             className="relative text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-3 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/keita-otsuka/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -1921,15 +1923,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold whitespace-nowrap">
                                 Full-stack Developer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/keita-otsuka/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -1940,6 +1934,12 @@ function Index() {
                         <motion.div
                             className="text-center grid gap-1 row-span-4 md:row-start-1 md:col-start-15 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/kanta-nagai/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -1953,15 +1953,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 Full-stack Developer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/kanta-nagai/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -1972,6 +1964,12 @@ function Index() {
                         <motion.div
                             className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/unna-regino/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -1988,15 +1986,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/unna-regino/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -2007,6 +1997,12 @@ function Index() {
                         <motion.div
                             className="relative md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/jankristine/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -2023,15 +2019,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/jankristine/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -2042,6 +2030,12 @@ function Index() {
                         <motion.div
                             className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/kausalya-narendraswari/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -2055,15 +2049,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/kausalya-narendraswari/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -2076,6 +2062,12 @@ function Index() {
                         <motion.div
                             className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/pinkaewn/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -2089,15 +2081,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/pinkaewn/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
@@ -2108,6 +2092,12 @@ function Index() {
                         <motion.div
                             className="md:mt-20 text-center grid gap-1 md:row-start-5 row-span-4 md:col-span-4 col-span-full cursor-pointer hover:scale-105 transition-transform duration-300 grid-rows-[auto_auto_auto_auto]d"
                             variants={team_card}
+                            onClick={() =>
+                                window.open(
+                                    "https://www.linkedin.com/in/vaishnavi-yelai-5b60a7270/",
+                                    "_blank",
+                                )
+                            }
                         >
                             <div className="md:w-32 md:h-32 w-24 h-24 rounded-2xl border-2 border-arvo-blue-100 object-cover overflow-hidden mx-auto">
                                 <img
@@ -2121,15 +2111,7 @@ function Index() {
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
                             </div>
-                            <div
-                                className="flex items-center justify-center gap-1"
-                                onClick={() =>
-                                    window.open(
-                                        "https://www.linkedin.com/in/vaishnavi-yelai-5b60a7270/",
-                                        "_blank",
-                                    )
-                                }
-                            >
+                            <div className="flex items-center justify-center gap-1">
                                 <div className="w-4 h-4 flex items-center justify-center">
                                     <img src="/icon/LinkedIn.svg" alt="" />
                                 </div>
