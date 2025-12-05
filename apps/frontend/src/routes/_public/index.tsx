@@ -2044,7 +2044,7 @@ function Index() {
                                 />
                             </div>
                             <h3 className="font-bold text-sm md:text-base flex items-center justify-center mb-1">
-                                Kausalya Parahitha
+                                Kausalya Narendraswari
                             </h3>
                             <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-semibold">
                                 UX/UI Designer
