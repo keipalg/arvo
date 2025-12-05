@@ -2141,7 +2141,7 @@ function Index() {
                                 hasAnimatedForBehindScene ? "visible" : "hidden"
                             }
                         >
-                            Arvo behind the scenes
+                            Arvo Behind the Scenes
                         </motion.h2>
                         <motion.p
                             className="text-center md:text-left md:mt-4 mt-2 md:font-semibold md:text-2xl"
