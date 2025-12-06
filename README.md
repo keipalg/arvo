@@ -1,7 +1,8 @@
 # Arvo — Value Your Art
 
 Arvo is a handcraft business web app for makers who want to create, not calculate.
-. This README explains how to run the project locally, where key pieces live, and pointers to useful scripts and files.
+
+https://arvo.wmdd.ca/
 
 ## Quick overview
 - Frontend: React + TypeScript + Vite app in [apps/frontend](apps/frontend)
