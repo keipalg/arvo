@@ -371,7 +371,13 @@ function RouteComponent() {
 
     return (
         <BaseLayout title="Dashboard">
-            <PageTitle title={`Hello ${session ? session.user.name : ""}`} />
+            <PageTitle
+                title={
+                    session?.user?.name
+                        ? `Hello, ${session.user.name}!`
+                        : "Hello there!"
+                }
+            />
             <p className="font-semibold text-arvo-black-50 mt-4">
                 Let’s take a look at how your business is growing.
             </p>
